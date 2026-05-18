@@ -328,7 +328,10 @@
     <div class="card">
       <div class="card-header">
         <h3>Add Contacts</h3>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" onclick="downloadTemplate()">Download Template</button>
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('csvFileInput').click()">Upload CSV</button>
+          <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVUpload(event)">
           <button class="btn btn-outline btn-sm" onclick="togglePaste()">Paste List</button>
           <button class="btn btn-primary btn-sm" onclick="sendAllUnsent()">Send All Pending Invites</button>
         </div>
@@ -661,7 +664,7 @@
     lines.forEach(function(line) {
       var parts = line.split(',').map(s => s.trim());
       if (parts[0] && parts[1]) {
-        saveContact({ name: parts[0], email: parts[1], company: parts[2] || '', status: 'not_sent', invite_sent: false });
+        saveContact({ name: parts[0], email: parts[1], company: parts[2] || '', status: 'not_sent', invite_sent: false }, true);
         added++;
       }
     });
@@ -671,17 +674,63 @@
     loadContacts();
   }
 
-  async function saveContact(contact) {
+  async function saveContact(contact, silent) {
     try {
       await fetch(N8N + '/gls-add-contact', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(contact)
       });
-      showToast('Contact added: ' + contact.name, 'success');
-      loadContacts();
+      if (!silent) { showToast('Contact added: ' + contact.name, 'success'); loadContacts(); }
     } catch(e) {
-      showToast('Could not save contact. Check n8n connection.', 'error');
+      if (!silent) showToast('Could not save contact. Check n8n connection.', 'error');
     }
+  }
+
+  function downloadTemplate() {
+    var csv = 'name,email,company,title,notes\nJohn Smith,john@example.com,Acme Cargo,CEO,\nJane Lee,jane@cargo.com,TLC Air,Director,';
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'gls-contacts-template.csv'; a.click();
+  }
+
+  function handleCSVUpload(event) {
+    var file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      var lines = e.target.result.split('\n').map(l => l.trim()).filter(l => l);
+      var startIdx = 0;
+      var headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+      var hasHeader = headers.includes('email');
+      if (hasHeader) startIdx = 1;
+      var colMap = { name: 0, email: 1, company: 2, title: 3, notes: 4 };
+      if (hasHeader) {
+        colMap = {};
+        headers.forEach(function(h, i) { colMap[h] = i; });
+      }
+      var rows = lines.slice(startIdx).map(function(line) {
+        var parts = line.split(',').map(s => s.trim().replace(/^"|"$/g,''));
+        return {
+          name: parts[colMap.name !== undefined ? colMap.name : 0] || '',
+          email: parts[colMap.email !== undefined ? colMap.email : 1] || '',
+          company: parts[colMap.company !== undefined ? colMap.company : 2] || '',
+          title: parts[colMap.title !== undefined ? colMap.title : 3] || '',
+          notes: parts[colMap.notes !== undefined ? colMap.notes : 4] || ''
+        };
+      }).filter(r => r.email && r.email.includes('@'));
+
+      if (!rows.length) { showToast('No valid contacts found in CSV.', 'error'); return; }
+      showToast('Importing ' + rows.length + ' contacts...', 'success');
+      var done = 0;
+      for (var i = 0; i < rows.length; i++) {
+        await saveContact(rows[i], true);
+        done++;
+      }
+      showToast(done + ' contacts imported successfully.', 'success');
+      loadContacts();
+    };
+    reader.readAsText(file);
   }
 
   async function sendInvite(idx) {
