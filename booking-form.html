@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLS — 預約會面 Book an Appointment</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100vh; font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif; }
+
+    .bg-left {
+      position: fixed; top: 0; left: 0;
+      width: 50%; height: 100%;
+      background: #F5A500;
+      z-index: 0; overflow: hidden;
+    }
+    .bg-right {
+      position: fixed; top: 0; right: 0;
+      width: 50%; height: 100%;
+      background: #0C1F3F;
+      z-index: 0; overflow: hidden;
+    }
+    .bg-left::before {
+      content: ''; position: absolute;
+      bottom: -100px; right: -80px;
+      width: 340px; height: 340px;
+      background: rgba(0,0,0,0.07); border-radius: 50%;
+    }
+    .bg-left::after {
+      content: ''; position: absolute;
+      top: -60px; left: -60px;
+      width: 220px; height: 220px;
+      background: rgba(255,255,255,0.08); border-radius: 50%;
+    }
+    .bg-right::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, transparent 0%, #F5A500 60%);
+    }
+    .right-cargo-bg {
+      position: fixed;
+      top: 22%;
+      left: 50%;
+      transform: translateX(-60px);
+      font-size: clamp(60px, 9vw, 145px);
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: -4px;
+      white-space: nowrap;
+      z-index: 1;
+      pointer-events: none;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .left-content {
+      position: fixed;
+      top: 50%; left: 0;
+      transform: translateY(-55%);
+      width: calc(50vw - 295px);
+      padding-left: clamp(16px, 3vw, 48px);
+      z-index: 2; overflow: hidden;
+    }
+    .left-cn {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-weight: 900;
+      font-size: clamp(22px, 4vw, 66px);
+      color: #0C1F3F;
+      line-height: 1.15;
+      letter-spacing: 2px;
+    }
+    .left-en {
+      margin-top: 14px;
+      font-size: clamp(8px, 1vw, 13px);
+      color: #0C1F3F;
+      font-weight: 700;
+      opacity: 0.6;
+      letter-spacing: 0.5px;
+      line-height: 1.7;
+    }
+    .left-logo-wrap {
+      position: fixed;
+      bottom: clamp(20px, 4vh, 48px);
+      left: clamp(16px, 3vw, 48px);
+      z-index: 2;
+    }
+    .left-logo {
+      display: inline-flex; align-items: center; gap: clamp(6px, 0.8vw, 12px);
+    }
+    .left-logo svg {
+      width: clamp(32px, 3.5vw, 56px);
+      height: auto;
+    }
+    .left-logo-wordmark {
+      display: flex; align-items: baseline; gap: 5px;
+    }
+    .left-logo-gls {
+      font-size: clamp(16px, 2vw, 32px);
+      font-weight: 900;
+      color: white;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+    .left-logo-cn {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: clamp(10px, 1.1vw, 18px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 1px;
+    }
+    .right-content {
+      position: fixed;
+      top: 50%; right: 0;
+      transform: translateY(-50%);
+      width: calc(50vw - 295px);
+      padding-right: clamp(16px, 3vw, 48px);
+      z-index: 2; overflow: hidden;
+      text-align: right;
+    }
+    .right-shanghai {
+      display: inline-block;
+      background: #F5A500;
+      color: #0C1F3F;
+      font-size: clamp(8px, 1.1vw, 17px);
+      font-weight: 900;
+      padding: 4px 14px;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+    }
+    .right-expo-cn {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: clamp(10px, 1.3vw, 20px);
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 2px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+    .right-dates {
+      margin-top: 10px;
+      font-size: clamp(14px, 2.2vw, 38px);
+      font-weight: 900;
+      color: #F5A500;
+      line-height: 1.1;
+    }
+    .right-venue {
+      margin-top: 6px;
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: clamp(8px, 0.9vw, 13px);
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 1px;
+    }
+    .right-1688 {
+      position: fixed;
+      bottom: clamp(16px, 3vh, 36px);
+      right: clamp(12px, 2vw, 32px);
+      z-index: 2;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .badge-1688 {
+      width: clamp(30px, 3vw, 46px);
+      height: clamp(30px, 3vw, 46px);
+      background: #FF6000;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 900;
+      font-size: clamp(7px, 0.75vw, 11px);
+      letter-spacing: -0.5px;
+    }
+    .page {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 36px 16px 56px;
+    }
+    .card {
+      width: 100%; max-width: 590px;
+      background: rgba(237, 240, 247, 0.96);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 6px 50px rgba(0,0,0,0.38);
+    }
+    .card-top {
+      background: #0C1F3F;
+      padding: 28px 32px 26px;
+      border-left: 6px solid #F5A500;
+      position: relative;
+    }
+    .card-top-logo-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px;
+    }
+    .card-top-logo-icon {
+      width: 36px; height: 36px; flex-shrink: 0; position: relative;
+    }
+    .card-top-logo-icon svg { width: 36px; height: 36px; }
+    .card-top-logo-wordmark {
+      display: flex; align-items: baseline; gap: 6px;
+    }
+    .card-top-logo-gls {
+      font-size: 22px; font-weight: 900; color: white;
+      letter-spacing: 1px; line-height: 1;
+    }
+    .card-top-logo-cn {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.85);
+      letter-spacing: 1px;
+    }
+    .card-top h1 {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', 'Segoe UI', Arial, sans-serif;
+      font-size: clamp(17px, 3.5vw, 26px);
+      font-weight: 700; color: white;
+      line-height: 1.35; margin-bottom: 10px;
+    }
+    .card-top p {
+      font-size: 12.5px; color: rgba(255,255,255,0.72);
+      line-height: 1.75;
+    }
+    .card-body { padding: 20px 28px 0; }
+    .card-body::before {
+      content: 'GLS';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -30%) rotate(-15deg);
+      font-size: 200px; font-weight: 900;
+      color: rgba(11,31,63,0.04);
+      pointer-events: none;
+      letter-spacing: 10px;
+      white-space: nowrap;
+      z-index: 0;
+    }
+    .q {
+      background: white;
+      padding: 15px 18px;
+      margin-bottom: 10px;
+      border-left: 3px solid transparent;
+      transition: border-color 0.15s;
+      position: relative; z-index: 1;
+    }
+    .q:focus-within { border-left-color: #F5A500; }
+    .q-label { font-size: 13.5px; font-weight: 600; color: #111; margin-bottom: 6px; }
+    .q-label .req { color: #c0392b; margin-left: 3px; }
+    .q-hint { font-size: 11.5px; color: #777; line-height: 1.65; margin-bottom: 10px; font-style: italic; }
+    .q input[type=text],
+    .q input[type=email],
+    .q select {
+      width: 100%; padding: 9px 0;
+      border: none; border-bottom: 1.5px solid #ccc;
+      background: transparent; font-size: 14px;
+      font-family: inherit; color: #222;
+      transition: border-color 0.2s;
+      -webkit-appearance: none; appearance: none; border-radius: 0;
+    }
+    .q input::placeholder { color: #bbb; font-size: 13px; font-style: italic; }
+    .q input:focus, .q select:focus { outline: none; border-bottom-color: #0C1F3F; }
+    .q select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 4px center; padding-right: 24px;
+    }
+    .radio-group { display: flex; flex-direction: column; }
+    .radio-opt {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 4px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+    }
+    .radio-opt:last-child { border-bottom: none; }
+    .radio-opt input[type=radio] { width: 18px; height: 18px; accent-color: #0C1F3F; cursor: pointer; flex-shrink: 0; }
+    .radio-opt .opt-text { font-size: 13.5px; color: #333; line-height: 1.4; }
+    .radio-opt:hover .opt-text { color: #0C1F3F; }
+    .radio-opt input[type=radio]:checked + .opt-text { color: #0C1F3F; font-weight: 700; }
+    .other-input {
+      margin-top: 6px; margin-left: 30px;
+      border: none; border-bottom: 1px solid #ccc;
+      font-size: 13px; font-family: inherit;
+      width: calc(100% - 30px); padding: 4px 0;
+      background: transparent; color: #333;
+    }
+    .other-input:focus { outline: none; border-bottom-color: #0C1F3F; }
+    .no-slots-msg {
+      display: none;
+      font-size: 13px; color: #888; font-style: italic;
+      padding: 10px 4px;
+    }
+    .card-footer { padding: 18px 28px 28px; background: rgba(237,240,247,0.96); }
+    .submit-btn {
+      background: #0C1F3F; color: white;
+      border: none; padding: 13px 40px;
+      font-size: 15px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover:not(:disabled) { background: #1a3a6e; }
+    .submit-btn:disabled { background: #999; cursor: not-allowed; }
+    .form-note { font-size: 11.5px; color: #888; margin-top: 10px; }
+    .form-note a { color: #0C1F3F; }
+    .result { display: none; background: white; padding: 50px 32px; text-align: center; }
+    .result .icon { font-size: 50px; margin-bottom: 14px; }
+    .result h2 { font-size: 19px; font-weight: 700; color: #0C1F3F; margin-bottom: 8px; }
+    .result p { font-size: 13px; color: #555; line-height: 1.7; }
+    .result .dbox {
+      background: #f4f7fb; border-left: 4px solid #F5A500;
+      padding: 14px 16px; margin: 16px 0;
+      text-align: left; font-size: 13px; line-height: 2;
+    }
+    .result .dbox strong { color: #0C1F3F; display: inline-block; min-width: 90px; }
+    .retry { margin-top: 14px; display: inline-block; color: #0C1F3F; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+    @media (max-width: 760px) {
+      .left-content, .right-content, .right-cargo-bg,
+      .left-logo-wrap, .right-1688,
+      .bg-left, .bg-right { display: none; }
+      .page { padding: 0; }
+      .card { max-width: 100%; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-left"></div>
+  <div class="bg-right"></div>
+  <div class="right-cargo-bg">cargo</div>
+
+  <div class="left-content">
+    <div class="left-cn">我們在<br>現場，<br>等你來！</div>
+    <div class="left-en">Asia Air Cargo<br>Exhibition 2026<br>亞洲航空貨運博覽會</div>
+  </div>
+  <div class="left-logo-wrap">
+    <div class="left-logo">
+      <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#0C1F3F" fill-rule="evenodd" d="M0 0h22v22H0z M14 14h14v14H14z"/>
+      </svg>
+      <div class="left-logo-wordmark">
+        <span class="left-logo-gls">GLS</span>
+        <span class="left-logo-cn">传讯</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-content">
+    <div class="right-shanghai">SHANGHAI</div>
+    <div class="right-expo-cn">亞洲航空貨運博覽會</div>
+    <div class="right-dates">2026年<br>6月24–26日</div>
+    <div class="right-venue">上海新國際博覽中心</div>
+  </div>
+  <div class="right-1688">
+    <div class="badge-1688">1688</div>
+  </div>
+
+  <div class="page">
+    <div class="card">
+
+      <div class="card-top">
+        <div class="card-top-logo-row">
+          <div class="card-top-logo-icon">
+            <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+              <path fill="white" fill-rule="evenodd" d="M0 0h22v22H0z M14 14h14v14H14z"/>
+            </svg>
+          </div>
+          <div class="card-top-logo-wordmark">
+            <span class="card-top-logo-gls">GLS</span>
+            <span class="card-top-logo-cn">傳訊</span>
+          </div>
+        </div>
+        <h1>與GLS會面預約登記 Meeting with GLS</h1>
+        <p>感謝您撥冗與GLS團隊會面交流。敬請告知您可會面的時間，我們將為您預留專屬時段。期待在上海與您見面！<br>
+           Thank you for arranging time to meet with GLS. Please select when you would like to meet to reserve the timeslot.</p>
+      </div>
+
+      <div class="card-body">
+        <form id="bookForm">
+
+          <div class="q">
+            <div class="q-label">1.&ensp;稱謂 Salutation <span class="req">*</span></div>
+            <select name="salutation" required>
+              <option value="">請選擇 / Please select</option>
+              <option>Mr</option><option>Ms</option><option>Mrs</option>
+              <option>Dr</option><option>Prof</option>
+            </select>
+          </div>
+
+          <div class="q">
+            <div class="q-label">2.&ensp;姓氏 Surname <span class="req">*</span></div>
+            <input type="text" name="surname" placeholder="Enter your answer" required>
+          </div>
+
+          <div class="q">
+            <div class="q-label">3.&ensp;名字 Given names <span class="req">*</span></div>
+            <input type="text" name="given_names" placeholder="Enter your answer" required>
+          </div>
+
+          <div class="q">
+            <div class="q-label">4.&ensp;公司名稱 Company name <span class="req">*</span></div>
+            <input type="text" name="company" placeholder="Enter your answer" required>
+          </div>
+
+          <div class="q">
+            <div class="q-label">5.&ensp;電郵地址 Email address <span class="req">*</span></div>
+            <input type="email" name="email" placeholder="Enter your answer" required>
+          </div>
+
+          <div class="q">
+            <div class="q-label">6.&ensp;職銜 Work title <span class="req">*</span></div>
+            <input type="text" name="title" placeholder="Enter your answer" required>
+          </div>
+
+          <div class="q">
+            <div class="q-label">7.&ensp;期望會面日期 Preferred Meeting Date <span class="req">*</span></div>
+            <div class="radio-group">
+              <label class="radio-opt">
+                <input type="radio" name="preferred_date" value="06/24/2026" required>
+                <span class="opt-text">6月24日(三)&ensp;Wednesday, 24 Jun</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="preferred_date" value="06/25/2026">
+                <span class="opt-text">6月25日(四)&ensp;Thursday, 25 Jun</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="preferred_date" value="06/26/2026">
+                <span class="opt-text">6月26日(五)&ensp;Friday, 26 Jun</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="q">
+            <div class="q-label">8.&ensp;期望會面時段 Preferred Meeting Time Slot <span class="req">*</span></div>
+            <p class="q-hint">請先選擇日期，系統將顯示該日可預約的時段。<br>Please select a date first — available time slots will appear below.</p>
+            <div class="radio-group" id="timeGroup">
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="9:00" required><span class="opt-text">9:00 AM – 9:30 AM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="9:30"><span class="opt-text">9:30 AM – 10:00 AM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="10:00"><span class="opt-text">10:00 AM – 10:30 AM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="10:30"><span class="opt-text">10:30 AM – 11:00 AM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="11:00"><span class="opt-text">11:00 AM – 11:30 AM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="11:30"><span class="opt-text">11:30 AM – 12:00 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="12:00"><span class="opt-text">12:00 PM – 12:30 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="12:30"><span class="opt-text">12:30 PM – 1:00 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="13:00"><span class="opt-text">1:00 PM – 1:30 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="13:30"><span class="opt-text">1:30 PM – 2:00 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="14:00"><span class="opt-text">2:00 PM – 2:30 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="14:30"><span class="opt-text">2:30 PM – 3:00 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="15:00"><span class="opt-text">3:00 PM – 3:30 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="15:30"><span class="opt-text">3:30 PM – 4:00 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="16:00"><span class="opt-text">4:00 PM – 4:30 PM</span></label>
+              <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="16:30"><span class="opt-text">4:30 PM – 5:00 PM</span></label>
+            </div>
+            <p class="no-slots-msg" id="noSlotsMsg">很抱歉，該日期已沒有可用時段。請選擇其他日期。<br>Sorry, no available slots for this date. Please select another date.</p>
+          </div>
+
+          <div class="q">
+            <div class="q-label">9.&ensp;您是透過哪一個途徑收到GLS的博覽會邀請的？ From where did you receive GLS invitation to the exhibition? <span class="req">*</span></div>
+            <div class="radio-group">
+              <label class="radio-opt"><input type="radio" name="source" value="社交媒體 Social media" required><span class="opt-text">社交媒體 Social media</span></label>
+              <label class="radio-opt"><input type="radio" name="source" value="GLS官網 Website"><span class="opt-text">GLS官網 Website</span></label>
+              <label class="radio-opt"><input type="radio" name="source" value="GLS產品平台 Solution portals"><span class="opt-text">GLS產品平台 Solution portals</span></label>
+              <label class="radio-opt"><input type="radio" name="source" value="博覽會宣傳 Exhibition Promotion"><span class="opt-text">博覽會宣傳 Exhibition Promotion</span></label>
+              <label class="radio-opt"><input type="radio" name="source" value="我的同事 My colleagues"><span class="opt-text">我的同事 My colleagues</span></label>
+              <label class="radio-opt"><input type="radio" name="source" value="業界人士 My peers in the industry"><span class="opt-text">業界人士 My peers in the industry</span></label>
+              <label class="radio-opt" id="otherOpt">
+                <input type="radio" name="source" value="other" id="otherRadio">
+                <span class="opt-text">Other</span>
+              </label>
+              <input type="text" class="other-input" id="otherText" placeholder="Please specify..." style="display:none">
+            </div>
+          </div>
+
+        </form>
+
+        <div class="result" id="successResult">
+          <div class="icon">✅</div>
+          <h2>預約確認 Booking Confirmed!</h2>
+          <p>您的預約已收到，確認電郵將發送至您的電郵地址。<br>A confirmation email has been sent to your inbox.</p>
+          <div class="dbox" id="confirmDetail"></div>
+          <p style="font-size:12px;color:#999;margin-top:8px">期待與您會面。We look forward to meeting you.</p>
+        </div>
+
+        <div class="result" id="errorResult">
+          <div class="icon">⚠️</div>
+          <h2>時段已滿 Slot Unavailable</h2>
+          <p>抱歉，該時段已被預約，請選擇其他日期或時間。<br>Sorry, that time slot is no longer available.</p>
+          <span class="retry" onclick="location.reload()">← 重新選擇 Try again</span>
+        </div>
+
+      </div>
+
+      <div class="card-footer" id="footerWrap">
+        <button type="submit" form="bookForm" class="submit-btn" id="submitBtn">Submit</button>
+        <p class="form-note">Never give out your password. &nbsp;<a href="#">Report abuse</a></p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    var availableSlots = [];
+
+    // Hide all time slots initially until a date is selected
+    document.querySelectorAll('.time-radio-opt').forEach(function(opt) {
+      opt.style.display = 'none';
+    });
+
+    // Fetch available slots from n8n
+    fetch('http://72.62.64.236:5678/webhook/gls-slots')
+      .then(function(r) { return r.json(); })
+      .then(function(data) { availableSlots = data.slots || []; })
+      .catch(function() { availableSlots = []; });
+
+    function updateTimeSlots() {
+      var selected = document.querySelector('input[name="preferred_date"]:checked');
+      var date = selected ? selected.value : null;
+      if (!date) return;
+
+      // Clear any previously selected time
+      var checkedTime = document.querySelector('input[name="preferred_time"]:checked');
+      if (checkedTime) checkedTime.checked = false;
+
+      var visibleCount = 0;
+      document.querySelectorAll('.time-radio-opt').forEach(function(opt) {
+        var time = opt.querySelector('input').value;
+        var isAvailable = availableSlots.some(function(s) {
+          return s.date === date && s.time === time;
+        });
+        opt.style.display = isAvailable ? '' : 'none';
+        if (isAvailable) visibleCount++;
+      });
+
+      document.getElementById('noSlotsMsg').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    document.querySelectorAll('input[name="preferred_date"]').forEach(function(r) {
+      r.addEventListener('change', updateTimeSlots);
+    });
+
+    // "Other" source field
+    document.getElementById('otherRadio').addEventListener('change', function() {
+      document.getElementById('otherText').style.display = this.checked ? 'block' : 'none';
+    });
+    document.querySelectorAll('input[name="source"]').forEach(function(r) {
+      r.addEventListener('change', function() {
+        if (this.value !== 'other') document.getElementById('otherText').style.display = 'none';
+      });
+    });
+
+    document.getElementById('bookForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      var sourceVal = this.source.value;
+      if (sourceVal === 'other') {
+        sourceVal = document.getElementById('otherText').value.trim() || 'Other';
+      }
+
+      var payload = {
+        salutation: this.salutation.value,
+        given_names: this.given_names.value.trim(),
+        surname: this.surname.value.trim(),
+        email: this.email.value.trim(),
+        company: this.company.value.trim(),
+        title: this.title.value.trim(),
+        preferred_date: this.preferred_date.value,
+        preferred_time: this.preferred_time.value,
+        source: sourceVal
+      };
+
+      try {
+        var res = await fetch('http://72.62.64.236:5678/webhook/gls-form', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var result = await res.json();
+        document.getElementById('bookForm').style.display = 'none';
+        document.getElementById('footerWrap').style.display = 'none';
+        var dateMap = {
+          '06/24/2026': '6月24日(三) Wednesday, 24 Jun',
+          '06/25/2026': '6月25日(四) Thursday, 25 Jun',
+          '06/26/2026': '6月26日(五) Friday, 26 Jun'
+        };
+        if (result.success) {
+          document.getElementById('confirmDetail').innerHTML =
+            '<strong>姓名:</strong> ' + payload.salutation + ' ' + payload.given_names + ' ' + payload.surname + '<br>' +
+            '<strong>日期:</strong> ' + (dateMap[payload.preferred_date] || payload.preferred_date) + '<br>' +
+            '<strong>時間:</strong> ' + result.time + '<br>' +
+            '<strong>顧問:</strong> ' + result.salesperson + '<br>' +
+            '<strong>電郵:</strong> ' + payload.email;
+          document.getElementById('successResult').style.display = 'block';
+        } else {
+          document.getElementById('errorResult').style.display = 'block';
+        }
+      } catch(err) {
+        btn.disabled = false;
+        btn.textContent = 'Submit';
+        alert('Connection error. Please try again.\n連接錯誤，請重試。');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLS 传讯 — Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f7; color: #1a1a2e; }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0C1F3F 60%, #1a3a6e);
+    }
+    .login-card {
+      background: white; border-radius: 12px; padding: 48px 40px;
+      width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 28px; }
+    .login-logo svg { width: 44px; height: 44px; }
+    .login-logo-text { text-align: left; }
+    .login-logo-text .gls { font-size: 26px; font-weight: 900; color: #0C1F3F; letter-spacing: 1px; line-height: 1; }
+    .login-logo-text .cn { font-size: 14px; color: #888; }
+    .login-card h2 { font-size: 16px; color: #555; font-weight: 400; margin-bottom: 28px; }
+    .login-card input {
+      width: 100%; padding: 12px 16px; border: 2px solid #e0e4ed;
+      border-radius: 8px; font-size: 15px; font-family: inherit;
+      margin-bottom: 14px; transition: border-color 0.2s;
+    }
+    .login-card input:focus { outline: none; border-color: #0C1F3F; }
+    .login-btn {
+      width: 100%; padding: 13px; background: #0C1F3F; color: white;
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: background 0.2s;
+    }
+    .login-btn:hover { background: #1a3a6e; }
+    .login-error { color: #c62828; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* ── DASHBOARD SHELL ── */
+    #dashboard { display: none; min-height: 100vh; }
+
+    .topbar {
+      background: #0C1F3F; padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 58px; border-bottom: 3px solid #F5A500;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .topbar-logo { display: flex; align-items: center; gap: 8px; }
+    .topbar-logo svg { width: 32px; height: 32px; }
+    .topbar-logo .gls { font-size: 18px; font-weight: 900; color: white; letter-spacing: 1px; }
+    .topbar-logo .cn { font-size: 12px; color: rgba(255,255,255,0.6); }
+    .topbar-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
+    .topbar-title { font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 0.5px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .topbar-badge {
+      background: #F5A500; color: #0C1F3F; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 12px;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+      padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer;
+      font-family: inherit; transition: background 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── TABS ── */
+    .tab-nav {
+      background: white; border-bottom: 1px solid #e0e4ed;
+      display: flex; padding: 0 28px; gap: 4px;
+    }
+    .tab-btn {
+      padding: 14px 20px; font-size: 13px; font-weight: 600; color: #888;
+      border: none; background: none; cursor: pointer; font-family: inherit;
+      border-bottom: 3px solid transparent; margin-bottom: -1px;
+      transition: color 0.15s; display: flex; align-items: center; gap: 7px;
+    }
+    .tab-btn:hover { color: #0C1F3F; }
+    .tab-btn.active { color: #0C1F3F; border-bottom-color: #F5A500; }
+    .tab-count {
+      background: #f0f2f7; color: #555; font-size: 11px; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+    }
+    .tab-btn.active .tab-count { background: #F5A500; color: #0C1F3F; }
+
+    /* ── CONTENT ── */
+    .tab-content { display: none; padding: 28px; }
+    .tab-content.active { display: block; }
+
+    /* ── STATS ROW ── */
+    .stats-row { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat-card {
+      background: white; border-radius: 10px; padding: 16px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); min-width: 120px; flex: 1;
+    }
+    .stat-card .num { font-size: 28px; font-weight: 700; color: #0C1F3F; line-height: 1; }
+    .stat-card .lbl { font-size: 11.5px; color: #888; margin-top: 5px; }
+    .stat-card.gold .num { color: #F5A500; }
+    .stat-card.green .num { color: #2e7d32; }
+    .stat-card.orange .num { color: #e65100; }
+
+    /* ── SECTION HEADER ── */
+    .section-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+    }
+    .section-hdr h2 { font-size: 15px; font-weight: 700; color: #0C1F3F; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; border: none; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: #0C1F3F; color: white; }
+    .btn-primary:hover { background: #1a3a6e; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-gold { background: #F5A500; color: #0C1F3F; }
+    .btn-gold:hover { background: #e09400; }
+    .btn-outline { background: white; color: #0C1F3F; border: 2px solid #0C1F3F; }
+    .btn-outline:hover { background: #f0f2f7; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-danger { background: #fce4ec; color: #c62828; }
+    .btn-danger:hover { background: #f8bbd0; }
+
+    /* ── CARD ── */
+    .card {
+      background: white; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      padding: 16px 20px; border-bottom: 1px solid #f0f2f7;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header h3 { font-size: 13px; font-weight: 700; color: #0C1F3F; }
+    .card-body { padding: 20px; }
+
+    /* ── ADD CONTACT FORM ── */
+    .add-contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px; align-items: end;
+    }
+    .form-field label { display: block; font-size: 11px; font-weight: 600; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid #e0e4ed;
+      border-radius: 7px; font-size: 13px; font-family: inherit; color: #222;
+      transition: border-color 0.2s; background: white;
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      outline: none; border-color: #0C1F3F;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: #f8f9fc; padding: 10px 14px; text-align: left;
+      font-size: 11px; color: #666; text-transform: uppercase;
+      letter-spacing: 0.5px; font-weight: 700; border-bottom: 2px solid #e0e4ed;
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 14px; border-bottom: 1px solid #f0f2f7;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafbff; }
+    .empty-row td { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge.not-sent  { background: #f0f2f7; color: #888; }
+    .badge.sent      { background: #e3f2fd; color: #1565c0; }
+    .badge.opened    { background: #e8f5e9; color: #2e7d32; }
+    .badge.clicked   { background: #fff3e0; color: #e65100; }
+    .badge.booked    { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+    .badge.pending   { background: #fff8e1; color: #f57f17; }
+    .badge.confirmed { background: #e8f5e9; color: #2e7d32; }
+    .badge.conflict  { background: #fce4ec; color: #c62828; }
+    .badge.available { background: #e8f5e9; color: #2e7d32; }
+    .badge.taken     { background: #fce4ec; color: #c62828; }
+
+    /* ── ASSIGN ROW ── */
+    .assign-row { display: flex; align-items: center; gap: 8px; }
+    .assign-row select {
+      padding: 7px 10px; border: 1.5px solid #e0e4ed; border-radius: 7px;
+      font-size: 12px; font-family: inherit; color: #222; background: white;
+      min-width: 150px;
+    }
+    .assign-row select:focus { outline: none; border-color: #0C1F3F; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: #0C1F3F; color: white;
+      padding: 14px 20px; border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s; z-index: 9999;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid #F5A500; }
+    #toast.error   { border-left: 4px solid #c62828; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999; display: none;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: 12px; padding: 32px;
+      max-width: 480px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal h3 { font-size: 17px; font-weight: 700; color: #0C1F3F; margin-bottom: 8px; }
+    .modal p { font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── INVITE PASTE AREA ── */
+    .paste-area {
+      width: 100%; padding: 12px; border: 1.5px dashed #d0d5e8;
+      border-radius: 8px; font-size: 12px; font-family: monospace;
+      color: #444; resize: vertical; min-height: 80px;
+      transition: border-color 0.2s;
+    }
+    .paste-area:focus { outline: none; border-color: #0C1F3F; border-style: solid; }
+    .paste-hint { font-size: 11px; color: #aaa; margin-top: 5px; }
+
+    /* ── LOADING ── */
+    .loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
+    .spinner {
+      width: 28px; height: 28px; border: 3px solid #e0e4ed;
+      border-top-color: #0C1F3F; border-radius: 50%;
+      animation: spin 0.7s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── DETAIL CELL ── */
+    .name-cell strong { display: block; font-size: 13px; color: #111; }
+    .name-cell span { font-size: 11.5px; color: #888; }
+
+    .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    @media (max-width: 768px) {
+      .add-contact-grid { grid-template-columns: 1fr 1fr; }
+      .stats-row .stat-card { min-width: 80px; }
+      .topbar-title { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#0C1F3F" fill-rule="evenodd" d="M0 0h22v22H0z M14 14h14v14H14z"/>
+      </svg>
+      <div class="login-logo-text">
+        <div class="gls">GLS</div>
+        <div class="cn">传讯 Dashboard</div>
+      </div>
+    </div>
+    <h2>Sign in to manage appointments</h2>
+    <input type="password" id="pwInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ DASHBOARD ═══════════════ -->
+<div id="dashboard">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">
+        <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+          <path fill="white" fill-rule="evenodd" d="M0 0h22v22H0z M14 14h14v14H14z"/>
+        </svg>
+        <span class="gls">GLS</span>
+        <span class="cn">传讯</span>
+      </div>
+      <div class="topbar-divider"></div>
+      <span class="topbar-title">Appointment Management — Air Cargo China 2026</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge" id="pendingBadge" style="display:none">0 Pending</span>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('contacts', this)">
+      Contacts &amp; Invites <span class="tab-count" id="contactsCount">—</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('pending', this)">
+      Pending Bookings <span class="tab-count" id="pendingCount">—</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('bookings', this)">
+      Confirmed Bookings <span class="tab-count" id="bookingsCount">—</span>
+    </button>
+  </div>
+
+  <!-- ═══ TAB: CONTACTS ═══ -->
+  <div class="tab-content active" id="tab-contacts">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="s-total">—</div><div class="lbl">Total Contacts</div></div>
+      <div class="stat-card blue"><div class="num" id="s-sent">—</div><div class="lbl">Invites Sent</div></div>
+      <div class="stat-card green"><div class="num" id="s-opened">—</div><div class="lbl">Opened</div></div>
+      <div class="stat-card gold"><div class="num" id="s-clicked">—</div><div class="lbl">Clicked Form</div></div>
+      <div class="stat-card green"><div class="num" id="s-booked">—</div><div class="lbl">Booked</div></div>
+    </div>
+
+    <!-- ADD CONTACTS -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Add Contacts</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="togglePaste()">Paste List</button>
+          <button class="btn btn-primary btn-sm" onclick="sendAllUnsent()">Send All Pending Invites</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Single add -->
+        <div id="singleAddWrap">
+          <div class="add-contact-grid">
+            <div class="form-field">
+              <label>Name *</label>
+              <input type="text" id="c-name" placeholder="Full name">
+            </div>
+            <div class="form-field">
+              <label>Email *</label>
+              <input type="email" id="c-email" placeholder="email@company.com">
+            </div>
+            <div class="form-field">
+              <label>Company</label>
+              <input type="text" id="c-company" placeholder="Company name">
+            </div>
+            <button class="btn btn-primary" onclick="addContact()" style="margin-bottom:1px;">Add</button>
+          </div>
+        </div>
+        <!-- Paste CSV -->
+        <div id="pasteWrap" style="display:none; margin-top:14px;">
+          <div class="form-field">
+            <label>Paste contact list (one per line: Name, Email, Company)</label>
+            <textarea class="paste-area" id="pasteInput" placeholder="John Smith, john@example.com, Acme Cargo&#10;Jane Lee, jane@cargo.com, TLC Air"></textarea>
+          </div>
+          <div class="paste-hint">Format: Name, Email, Company — one contact per line</div>
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="importPaste()">Import</button>
+            <button class="btn btn-outline btn-sm" onclick="togglePaste()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTS TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <h3>All Contacts</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" placeholder="Search..." id="contactSearch" oninput="filterContacts()"
+            style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;width:200px;">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Contact</th>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Invite Sent</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="contactsTableBody">
+            <tr class="empty-row"><td colspan="5"><div class="spinner"></div>Loading contacts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: PENDING ═══ -->
+  <div class="tab-content" id="tab-pending">
+    <div class="stats-row">
+      <div class="stat-card orange"><div class="num" id="p-pending">—</div><div class="lbl">Awaiting Review</div></div>
+      <div class="stat-card"><div class="num" id="p-conflict">—</div><div class="lbl">Slot Conflicts</div></div>
+      <div class="stat-card green"><div class="num" id="p-today">—</div><div class="lbl">Received Today</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Pending Booking Requests</h3>
+        <button class="btn btn-outline btn-sm" onclick="loadPending()">↻ Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Company</th>
+              <th>Requested Date</th>
+              <th>Requested Time</th>
+              <th>Slot</th>
+              <th>Assign To</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="pendingTableBody">
+            <tr class="empty-row"><td colspan="7"><div class="spinner"></div>Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: BOOKINGS ═══ -->
+  <div class="tab-content" id="tab-bookings">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="b-total">—</div><div class="lbl">Total Confirmed</div></div>
+      <div class="stat-card gold"><div class="num" id="b-jun24">—</div><div class="lbl">Jun 24</div></div>
+      <div class="stat-card gold"><div class="num" id="b-jun25">—</div><div class="lbl">Jun 25</div></div>
+      <div class="stat-card gold"><div class="num" id="b-jun26">—</div><div class="lbl">Jun 26</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>All Confirmed Bookings</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="spFilter" onchange="filterBookings()"
+            style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;">
+            <option value="">All Salespeople</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="loadBookings()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Customer</th>
+              <th>Company</th>
+              <th>Salesperson</th>
+              <th>Reminders Sent</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody">
+            <tr class="empty-row"><td colspan="6"><div class="spinner"></div>Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #dashboard -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="modalTitle">Confirm Action</h3>
+    <p id="modalBody"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════
+  // CONFIG — update these when endpoints are live
+  // ═══════════════════════════════════════
+  const N8N = 'http://72.62.64.236:5678/webhook';
+  const PASSWORD = 'GLS2026!';
+
+  // Salesperson list — update to match your Staff sheet
+  const SALESPEOPLE = [
+    'Kitty Wong',
+    'GLS Team'
+    // Add more here as needed
+  ];
+
+  // ═══════════════════════════════════════
+  // AUTH
+  // ═══════════════════════════════════════
+  function doLogin() {
+    var pw = document.getElementById('pwInput').value;
+    if (pw === PASSWORD) {
+      sessionStorage.setItem('gls_auth', '1');
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      initDashboard();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwInput').focus();
+    }
+  }
+
+  function doLogout() {
+    sessionStorage.removeItem('gls_auth');
+    location.reload();
+  }
+
+  if (sessionStorage.getItem('gls_auth') === '1') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  // ═══════════════════════════════════════
+  // TABS
+  // ═══════════════════════════════════════
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'contacts') loadContacts();
+    if (name === 'pending')  loadPending();
+    if (name === 'bookings') loadBookings();
+  }
+
+  // ═══════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════
+  function initDashboard() {
+    populateSPFilter();
+    loadContacts();
+    loadPending();
+    loadBookings();
+    // Auto-refresh every 90 seconds
+    setInterval(function() {
+      var active = document.querySelector('.tab-btn.active').textContent.trim();
+      if (active.includes('Contact')) loadContacts();
+      if (active.includes('Pending')) loadPending();
+      if (active.includes('Confirmed')) loadBookings();
+    }, 90000);
+  }
+
+  function populateSPFilter() {
+    var sel = document.getElementById('spFilter');
+    SALESPEOPLE.forEach(function(sp) {
+      var o = document.createElement('option');
+      o.value = sp; o.textContent = sp;
+      sel.appendChild(o);
+    });
+  }
+
+  // ═══════════════════════════════════════
+  // CONTACTS
+  // ═══════════════════════════════════════
+  var allContacts = [];
+
+  async function loadContacts() {
+    try {
+      var res = await fetch(N8N + '/gls-contacts');
+      var data = await res.json();
+      allContacts = data.contacts || [];
+    } catch(e) {
+      allContacts = [];
+    }
+    renderContacts(allContacts);
+    updateContactStats(allContacts);
+    document.getElementById('contactsCount').textContent = allContacts.length;
+  }
+
+  function updateContactStats(contacts) {
+    document.getElementById('s-total').textContent   = contacts.length;
+    document.getElementById('s-sent').textContent    = contacts.filter(c => c.invite_sent).length;
+    document.getElementById('s-opened').textContent  = contacts.filter(c => c.status === 'opened' || c.status === 'clicked' || c.status === 'booked').length;
+    document.getElementById('s-clicked').textContent = contacts.filter(c => c.status === 'clicked' || c.status === 'booked').length;
+    document.getElementById('s-booked').textContent  = contacts.filter(c => c.status === 'booked').length;
+  }
+
+  function renderContacts(contacts) {
+    var tbody = document.getElementById('contactsTableBody');
+    if (!contacts.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No contacts yet. Add contacts above to get started.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = contacts.map(function(c, i) {
+      var statusBadge = {
+        'not_sent': '<span class="badge not-sent">Not Sent</span>',
+        'sent':     '<span class="badge sent">Invited</span>',
+        'opened':   '<span class="badge opened">✓ Opened</span>',
+        'clicked':  '<span class="badge clicked">Clicked Form</span>',
+        'booked':   '<span class="badge booked">✓ Booked</span>'
+      }[c.status || 'not_sent'] || '<span class="badge not-sent">Not Sent</span>';
+
+      var actions = '';
+      if (!c.invite_sent) {
+        actions += '<button class="btn btn-primary btn-sm" onclick="sendInvite(' + i + ')">Send Invite</button>';
+      } else if (c.status === 'sent' || c.status === 'opened') {
+        actions += '<button class="btn btn-outline btn-sm" onclick="sendReminder(' + i + ')">Send Reminder</button>';
+      } else if (c.status === 'booked') {
+        actions += '<span style="font-size:12px;color:#888;">Booked ✓</span>';
+      }
+
+      return '<tr data-idx="' + i + '">' +
+        '<td class="name-cell"><strong>' + escHtml(c.name) + '</strong><span>' + escHtml(c.email) + '</span></td>' +
+        '<td>' + escHtml(c.company || '—') + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td style="font-size:12px;color:#888;">' + (c.invite_sent_at ? formatDate(c.invite_sent_at) : '—') + '</td>' +
+        '<td class="actions-cell">' + actions + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function filterContacts() {
+    var q = document.getElementById('contactSearch').value.toLowerCase();
+    var filtered = allContacts.filter(function(c) {
+      return (c.name + c.email + c.company).toLowerCase().includes(q);
+    });
+    renderContacts(filtered);
+  }
+
+  function togglePaste() {
+    var pw = document.getElementById('pasteWrap');
+    var sw = document.getElementById('singleAddWrap');
+    var shown = pw.style.display !== 'none';
+    pw.style.display = shown ? 'none' : 'block';
+    sw.style.display = shown ? 'block' : 'none';
+  }
+
+  function addContact() {
+    var name    = document.getElementById('c-name').value.trim();
+    var email   = document.getElementById('c-email').value.trim();
+    var company = document.getElementById('c-company').value.trim();
+    if (!name || !email) { showToast('Name and email are required.', 'error'); return; }
+    var contact = { name: name, email: email, company: company, status: 'not_sent', invite_sent: false };
+    saveContact(contact);
+    document.getElementById('c-name').value = '';
+    document.getElementById('c-email').value = '';
+    document.getElementById('c-company').value = '';
+    document.getElementById('c-name').focus();
+  }
+
+  function importPaste() {
+    var lines = document.getElementById('pasteInput').value.trim().split('\n').filter(Boolean);
+    var added = 0;
+    lines.forEach(function(line) {
+      var parts = line.split(',').map(s => s.trim());
+      if (parts[0] && parts[1]) {
+        saveContact({ name: parts[0], email: parts[1], company: parts[2] || '', status: 'not_sent', invite_sent: false });
+        added++;
+      }
+    });
+    document.getElementById('pasteInput').value = '';
+    togglePaste();
+    showToast(added + ' contacts imported.', 'success');
+    loadContacts();
+  }
+
+  async function saveContact(contact) {
+    try {
+      await fetch(N8N + '/gls-add-contact', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contact)
+      });
+      showToast('Contact added: ' + contact.name, 'success');
+      loadContacts();
+    } catch(e) {
+      showToast('Could not save contact. Check n8n connection.', 'error');
+    }
+  }
+
+  async function sendInvite(idx) {
+    var c = allContacts[idx];
+    openModal(
+      'Send Invite to ' + c.name + '?',
+      'This will send the exhibition invite email to ' + c.email + '.',
+      async function() {
+        try {
+          await fetch(N8N + '/gls-invite', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: c.name, email: c.email, company: c.company })
+          });
+          showToast('Invite sent to ' + c.name, 'success');
+          loadContacts();
+        } catch(e) {
+          showToast('Failed to send invite.', 'error');
+        }
+      }
+    );
+  }
+
+  async function sendReminder(idx) {
+    var c = allContacts[idx];
+    openModal(
+      'Send Reminder to ' + c.name + '?',
+      'This will send a booking reminder email to ' + c.email + '.',
+      async function() {
+        try {
+          await fetch(N8N + '/gls-remind', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: c.name, email: c.email, company: c.company })
+          });
+          showToast('Reminder sent to ' + c.name, 'success');
+          loadContacts();
+        } catch(e) {
+          showToast('Failed to send reminder.', 'error');
+        }
+      }
+    );
+  }
+
+  async function sendAllUnsent() {
+    var unsent = allContacts.filter(c => !c.invite_sent);
+    if (!unsent.length) { showToast('No pending invites to send.', 'error'); return; }
+    openModal(
+      'Send ' + unsent.length + ' Invites?',
+      'This will send the exhibition invite to all contacts who have not yet been invited.',
+      async function() {
+        try {
+          await fetch(N8N + '/gls-invite-all', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contacts: unsent })
+          });
+          showToast(unsent.length + ' invites sent.', 'success');
+          loadContacts();
+        } catch(e) {
+          showToast('Failed to send invites.', 'error');
+        }
+      }
+    );
+  }
+
+  // ═══════════════════════════════════════
+  // PENDING
+  // ═══════════════════════════════════════
+  var allPending = [];
+
+  async function loadPending() {
+    try {
+      var res = await fetch(N8N + '/gls-pending');
+      var data = await res.json();
+      allPending = data.pending || [];
+    } catch(e) {
+      allPending = [];
+    }
+    renderPending(allPending);
+
+    var conflicts = allPending.filter(p => p.slot_status === 'taken').length;
+    var today = new Date().toLocaleDateString('en-US');
+    var todayCount = allPending.filter(p => {
+      var d = new Date(p.submitted_at || '');
+      return d.toLocaleDateString('en-US') === today;
+    }).length;
+
+    document.getElementById('p-pending').textContent  = allPending.length;
+    document.getElementById('p-conflict').textContent = conflicts;
+    document.getElementById('p-today').textContent    = todayCount;
+    document.getElementById('pendingCount').textContent = allPending.length;
+
+    var badge = document.getElementById('pendingBadge');
+    if (allPending.length > 0) {
+      badge.textContent = allPending.length + ' Pending';
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function renderPending(pending) {
+    var tbody = document.getElementById('pendingTableBody');
+    if (!pending.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No pending bookings. All caught up!</td></tr>';
+      return;
+    }
+    tbody.innerHTML = pending.map(function(p, i) {
+      var slotBadge = p.slot_status === 'available'
+        ? '<span class="badge available">✓ Available</span>'
+        : p.slot_status === 'taken'
+          ? '<span class="badge taken">⚠ Conflict</span>'
+          : '<span class="badge not-sent">Checking...</span>';
+
+      var spOptions = SALESPEOPLE.map(function(sp) {
+        return '<option value="' + sp + '">' + sp + '</option>';
+      }).join('');
+
+      return '<tr>' +
+        '<td class="name-cell"><strong>' + escHtml(p.client_name || '') + '</strong><span>' + escHtml(p.email || '') + '</span></td>' +
+        '<td>' + escHtml(p.company || '—') + '</td>' +
+        '<td style="font-weight:600;">' + escHtml(formatDateDisplay(p.preferred_date)) + '</td>' +
+        '<td>' + escHtml(formatTime(p.preferred_time)) + '</td>' +
+        '<td>' + slotBadge + '</td>' +
+        '<td><div class="assign-row"><select id="sp-' + i + '">' + spOptions + '</select></div></td>' +
+        '<td><button class="btn btn-gold btn-sm" onclick="assignBooking(' + i + ')">Assign &amp; Confirm</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  async function assignBooking(idx) {
+    var p = allPending[idx];
+    var sp = document.getElementById('sp-' + idx).value;
+    if (!sp) { showToast('Please select a salesperson.', 'error'); return; }
+    openModal(
+      'Confirm Assignment',
+      'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.preferred_date) + ' at ' + formatTime(p.preferred_time) + '?\n\nThis will send confirmation emails to the customer and salesperson.',
+      async function() {
+        try {
+          var res = await fetch(N8N + '/gls-assign', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              slot_id: p.slot_id,
+              client_name: p.client_name,
+              email: p.email,
+              company: p.company,
+              title: p.title,
+              date: p.preferred_date,
+              time: p.preferred_time,
+              salesperson_name: sp
+            })
+          });
+          var result = await res.json();
+          if (result.success === false) {
+            showToast('⚠ Slot no longer available. Please check.', 'error');
+          } else {
+            showToast('✓ ' + p.client_name + ' confirmed with ' + sp, 'success');
+            loadPending();
+            loadBookings();
+          }
+        } catch(e) {
+          showToast('Failed to assign. Check n8n connection.', 'error');
+        }
+      }
+    );
+  }
+
+  // ═══════════════════════════════════════
+  // BOOKINGS
+  // ═══════════════════════════════════════
+  var allBookings = [];
+
+  async function loadBookings() {
+    try {
+      var res = await fetch(N8N + '/gls-bookings');
+      var data = await res.json();
+      allBookings = data.bookings || [];
+    } catch(e) {
+      allBookings = [];
+    }
+    renderBookings(allBookings);
+
+    document.getElementById('b-total').textContent  = allBookings.length;
+    document.getElementById('b-jun24').textContent  = allBookings.filter(b => (b.date || '').includes('06/24')).length;
+    document.getElementById('b-jun25').textContent  = allBookings.filter(b => (b.date || '').includes('06/25')).length;
+    document.getElementById('b-jun26').textContent  = allBookings.filter(b => (b.date || '').includes('06/26')).length;
+    document.getElementById('bookingsCount').textContent = allBookings.length;
+  }
+
+  function filterBookings() {
+    var sp = document.getElementById('spFilter').value;
+    var filtered = sp ? allBookings.filter(b => b.salesperson_name === sp) : allBookings;
+    renderBookings(filtered);
+  }
+
+  function renderBookings(bookings) {
+    var tbody = document.getElementById('bookingsTableBody');
+    if (!bookings.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No confirmed bookings yet.</td></tr>';
+      return;
+    }
+    var sorted = bookings.slice().sort(function(a, b) {
+      var da = new Date(a.date + ' ' + a.time), db = new Date(b.date + ' ' + b.time);
+      return da - db;
+    });
+    tbody.innerHTML = sorted.map(function(b) {
+      var reminders = (b._reminders_sent || '').split(',').filter(Boolean);
+      var remBadges = ['7d','1d','1h'].map(function(r) {
+        return reminders.includes(r)
+          ? '<span class="badge sent" style="margin-right:3px;">' + (r==='7d'?'7 days':r==='1d'?'1 day':'1 hr') + '</span>'
+          : '<span class="badge not-sent" style="margin-right:3px;">' + (r==='7d'?'7 days':r==='1d'?'1 day':'1 hr') + '</span>';
+      }).join('');
+
+      return '<tr>' +
+        '<td style="font-weight:600;">' + escHtml(formatDateDisplay(b.date)) + '</td>' +
+        '<td>' + escHtml(formatTime(b.time)) + '</td>' +
+        '<td class="name-cell"><strong>' + escHtml(b.client_name || '') + '</strong><span>' + escHtml(b.email || '') + '</span></td>' +
+        '<td>' + escHtml(b.company || '—') + '</td>' +
+        '<td><span class="badge confirmed">' + escHtml(b.salesperson_name || '—') + '</span></td>' +
+        '<td>' + remBadges + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ═══════════════════════════════════════
+  // HELPERS
+  // ═══════════════════════════════════════
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatDateDisplay(d) {
+    var map = {
+      '06/24/2026': 'Wed 24 Jun',
+      '06/25/2026': 'Thu 25 Jun',
+      '06/26/2026': 'Fri 26 Jun'
+    };
+    return map[d] || d || '—';
+  }
+
+  function formatTime(t) {
+    if (!t) return '—';
+    var ends = {
+      '9:00':'9:30','9:30':'10:00','10:00':'10:30','10:30':'11:00',
+      '11:00':'11:30','11:30':'12:00','12:00':'12:30','12:30':'13:00',
+      '13:00':'13:30','13:30':'14:00','14:00':'14:30','14:30':'15:00',
+      '15:00':'15:30','15:30':'16:00','16:00':'16:30','16:30':'17:00'
+    };
+    var to24 = function(h) {
+      var p = h.split(':'), hr = parseInt(p[0]), mn = p[1];
+      var suf = hr < 12 ? 'AM' : 'PM';
+      var hr12 = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr;
+      return hr12 + ':' + mn + ' ' + suf;
+    };
+    return to24(t) + ' – ' + (ends[t] ? to24(ends[t]) : '');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }); }
+    catch(e) { return iso; }
+  }
+
+  // ═══════════════════════════════════════
+  // TOAST
+  // ═══════════════════════════════════════
+  var toastTimer;
+  function showToast(msg, type) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + (type || 'success');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { el.className = ''; }, 3500);
+  }
+
+  // ═══════════════════════════════════════
+  // MODAL
+  // ═══════════════════════════════════════
+  var modalCallback = null;
+  function openModal(title, body, onConfirm) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').textContent = body;
+    modalCallback = onConfirm;
+    document.getElementById('confirmModal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('confirmModal').classList.remove('open');
+    modalCallback = null;
+  }
+  document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+    closeModal();
+    if (modalCallback) modalCallback();
+  });
+  document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ═══════════════════════════════════════
+  // AUTO-INIT
+  // ═══════════════════════════════════════
+  if (sessionStorage.getItem('gls_auth') === '1') {
+    initDashboard();
+  }
+</script>
+</body>
+</html>

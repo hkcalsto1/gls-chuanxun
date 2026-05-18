@@ -1,0 +1,432 @@
+{
+  "name": "Appointment System - use this one",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "40e6dbc3-0ac5-46a0-9936-394dd5838349",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [5856, 1568]
+    },
+    {
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "options": {}
+      },
+      "id": "c6cb540e-994a-4ca5-95a4-dd673ec33460",
+      "name": "Read Bookings",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [6064, 1568],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var items = $input.all();\nvar now = new Date();\nvar toSend = [];\n\nfor (var i = 0; i < items.length; i++) {\n  var b = items[i].json;\n  if (!b.date || !b.time) continue;\n  var meetingDate;\n  try {\n    var parts = String(b.date).split('/');\n    if (parts.length === 3) {\n      var mo = parseInt(parts[0]);\n      var d = parseInt(parts[1]);\n      var y = parseInt(parts[2]);\n      var tParts = String(b.time).split(':');\n      var h = parseInt(tParts[0]);\n      var min = parseInt(tParts[1] || 0);\n      meetingDate = new Date(y, mo - 1, d, h, min);\n    } else {\n      meetingDate = new Date(b.date + ' ' + b.time);\n    }\n  } catch(e) { continue; }\n  if (isNaN(meetingDate.getTime())) continue;\n  var diffHrs = (meetingDate - now) / 3600000;\n  var sent = (b._reminders_sent || '').split(',').filter(Boolean);\n  if (diffHrs >= 156 && diffHrs <= 180 && !sent.includes('7d')) {\n    toSend.push(Object.assign({}, b, { _when: '7 days', _type: '7d' }));\n  }\n  if (diffHrs >= 20 && diffHrs <= 28 && !sent.includes('1d')) {\n    toSend.push(Object.assign({}, b, { _when: '1 day', _type: '1d' }));\n  }\n  if (diffHrs >= 0.5 && diffHrs <= 1.5 && !sent.includes('1h')) {\n    toSend.push(Object.assign({}, b, { _when: '1 hour', _type: '1h' }));\n  }\n}\n\nif (toSend.length === 0) {\n  return [];\n}\nreturn toSend.map(function(r) { return { json: r }; });"
+      },
+      "id": "fc7f7ae8-3d45-43ab-bcbe-573d0975642e",
+      "name": "Check Reminders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6256, 1568]
+    },
+    {
+      "parameters": {
+        "resource": "mail",
+        "fromEmail": "marketing@glshk.com",
+        "fromName": "Kitty Wong",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=[GLS 传讯] Meeting reminder in {{ $json._when }}",
+        "contentValue": "=Dear {{ $json.client_name }},\n\nThis is a reminder that your meeting with GLS 传讯 is in {{ $json._when }}.\n\n📅 Date: {{ $json.date }}\n⏰ Time: {{ $json.time }}\n🤝 Your GLS contact: {{ $json.salesperson_name }}\n\nSee you at Air Cargo China 2026, Shanghai!\n\nGLS 传讯 Team\n",
+        "additionalFields": {}
+      },
+      "id": "939f5f49-ce23-4cb4-a67b-206f174177a5",
+      "name": "Send Reminder",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [6464, 1568],
+      "credentials": {
+        "sendGridApi": { "id": "rrjx8UnEzsCE8Ok3", "name": "SendGrid account" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { sent: true, type: $node[\"Check Reminders\"].json._type, to: $node[\"Check Reminders\"].json.email, meeting: $node[\"Check Reminders\"].json.date + ' ' + $node[\"Check Reminders\"].json.time } }];"
+      },
+      "id": "b5e339cc-9766-494e-9fc9-20e2373af0c8",
+      "name": "Done Reminder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6656, 1568]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-form",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bf845240-5a56-4a46-8e1f-f1c4e70b4d9b",
+      "name": "GLS Form Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [5856, 2160],
+      "webhookId": "5c0f2d8a-9e65-4899-922a-7257bd30efa8"
+    },
+    {
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "options": {}
+      },
+      "id": "79678eda-e81d-4321-bca2-134348ecb13a",
+      "name": "Read Slots (Form)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [6064, 2160],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var body = $('GLS Form Webhook').all()[0].json.body || $('GLS Form Webhook').all()[0].json;\nvar slots = $input.all().map(function(i) { return i.json; });\n\nvar salutation = body.salutation || '';\nvar givenNames = body.given_names || '';\nvar surname = body.surname || '';\nvar fullName = [salutation, givenNames, surname].filter(Boolean).join(' ') || 'Unknown';\nvar email = body.email || '';\nvar company = body.company || '';\nvar title = body.title || '';\nvar preferredDate = body.preferred_date || '';\nvar preferredTime = String(body.preferred_time || '').replace(/^0/, '').trim();\n\nvar match = null;\nfor (var i = 0; i < slots.length; i++) {\n  var s = slots[i];\n  if (s.Status !== 'available') continue;\n  var slotDate = String(s.Date || '').trim();\n  var slotTime = String(s.Time || '').replace(/^0/, '').trim();\n  if (slotDate === preferredDate && slotTime === preferredTime) { match = s; break; }\n}\n\nif (!match) {\n  return [{ json: { _found: false, _reason: 'No available slot for ' + preferredDate + ' at ' + preferredTime } }];\n}\n\nreturn [{ json: {\n  _found: true,\n  slot_id: match.Slot_Id,\n  date: match.Date,\n  time: match.Time,\n  client_name: fullName,\n  email: email,\n  company: company,\n  title: title,\n  booked_at: new Date().toISOString()\n} }];"
+      },
+      "id": "f502baf2-f54b-4b71-b78f-0a998e30832e",
+      "name": "Match Slot (Form)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6256, 2160]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "gf-cond",
+              "leftValue": "={{ $json._found }}",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true },
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3b81f9ff-6ccd-4cab-8e1f-a189cc0ed0a4",
+      "name": "IF Slot Free",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [6464, 2160]
+    },
+    {
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Staff" },
+        "options": {}
+      },
+      "id": "6a011dc9-7367-4008-9384-d441fb5f21f6",
+      "name": "Read Staff (Form)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [6656, 2064],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "options": {}
+      },
+      "id": "a1eb3660-0d7f-4b7e-8e37-c81aeecc75f7",
+      "name": "Read Bookings (Form)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [6864, 2064],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var staff = $('Read Staff (Form)').all().map(function(i) { return i.json; });\nvar bookings = $input.all().map(function(i) { return i.json; });\nvar formData = $('Match Slot (Form)').all()[0].json;\n\nif (!staff || staff.length === 0) {\n  return [{ json: Object.assign({}, formData, { salesperson_name: 'GLS Team', salesperson_email: 'marketing@glshk.com' }) }];\n}\n\nvar counts = {};\nstaff.forEach(function(s) { counts[s.salesperson_name] = 0; });\nbookings.forEach(function(b) {\n  if (b.salesperson_name && counts[b.salesperson_name] !== undefined) counts[b.salesperson_name]++;\n});\n\nvar assigned = staff[0]; var minCount = Infinity;\nstaff.forEach(function(s) {\n  var c = counts[s.salesperson_name] || 0;\n  if (c < minCount) { minCount = c; assigned = s; }\n});\n\nreturn [{ json: {\n  slot_id: formData.slot_id, date: formData.date, time: formData.time,\n  client_name: formData.client_name, email: formData.email,\n  company: formData.company || '', title: formData.title || '',\n  booked_at: formData.booked_at,\n  salesperson_name: assigned.salesperson_name,\n  salesperson_email: assigned.salesperson_email\n} }];"
+      },
+      "id": "c5520371-abc3-4a6c-839e-e05ce6d9042e",
+      "name": "Assign SP (Form)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [7072, 2064]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "client_name": "={{ $json.client_name }}",
+            "email": "={{ $json.email }}",
+            "company": "={{ $json.company }}",
+            "title": "={{ $json.title }}",
+            "booked_at": "={{ $json.booked_at }}",
+            "salesperson_name": "={{ $json.salesperson_name }}",
+            "salesperson_email": "={{ $json.salesperson_email }}",
+            "slot_Id": "={{ $json.slot_id }}",
+            "status": "pending"
+          }
+        },
+        "options": {}
+      },
+      "id": "1fa53509-4ffb-45a3-8c31-cc112fbb2d54",
+      "name": "Append Booking (Form)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [7264, 2064],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "booked",
+            "Slot_Id": "={{ $node[\"Assign SP (Form)\"].json.slot_id }}"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a04099d2-3f55-4698-8942-2674cf72d15c",
+      "name": "Mark Booked (Form)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [7472, 2064],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "mail",
+        "fromEmail": "marketing@glshk.com",
+        "fromName": "Kitty Wong",
+        "toEmail": "={{ $node[\"Assign SP (Form)\"].json.email }}",
+        "subject": "[GLS 传讯] Meeting Request Received — Air Cargo China 2026",
+        "contentValue": "=Dear {{ $node[\"Assign SP (Form)\"].json.client_name }},\n\nThank you for requesting a meeting with GLS 传讯 at Air Cargo China 2026.\n\nWe have received your request for:\n📅 Date: {{ $node[\"Assign SP (Form)\"].json.date }}\n⏰ Time: {{ $node[\"Assign SP (Form)\"].json.time }}\n\nYou will receive a meeting confirmation within 3 working days.\n\nIf you have any questions, please contact us at marketing@glshk.com.\n\nGLS 传讯 Team\nmarketing@glshk.com\n",
+        "additionalFields": {}
+      },
+      "id": "a6cc10b7-7b98-4dde-96d2-20032fabb899",
+      "name": "Send Confirmation (Form)",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [7664, 2064],
+      "credentials": {
+        "sendGridApi": { "id": "rrjx8UnEzsCE8Ok3", "name": "SendGrid account" }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, date: $node[\"Assign SP (Form)\"].json.date, time: $node[\"Assign SP (Form)\"].json.time, salesperson: $node[\"Assign SP (Form)\"].json.salesperson_name }) }}",
+        "options": {}
+      },
+      "id": "384bda6e-84c6-4b72-9514-916daf0748f8",
+      "name": "Respond OK (Form)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [7872, 2064]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, reason: $json._reason }) }}",
+        "options": {}
+      },
+      "id": "b74504bb-a6e6-41fa-82d9-47cda8c0f7e7",
+      "name": "Respond Fail (Form)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [6656, 2320]
+    },
+    {
+      "parameters": {
+        "path": "gls-dashboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a51aaf82-5505-450f-8092-da451ca71eaf",
+      "name": "Dashboard Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [5856, 1856],
+      "webhookId": "26f63707-aa0d-4d85-870a-fe1924f9bed8"
+    },
+    {
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "options": {}
+      },
+      "id": "a4192639-f46a-4d4b-a642-6211a91ef9ae",
+      "name": "Read All Bookings",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [6064, 1856],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var items = $input.all();\nvar now = new Date();\nvar todayStr = (now.getMonth()+1) + '/' + now.getDate() + '/' + now.getFullYear();\n\nfunction parseDate(s) {\n  if (!s) return null;\n  var p = String(s).split('/');\n  if (p.length === 3) return new Date(parseInt(p[2]), parseInt(p[0])-1, parseInt(p[1]));\n  return new Date(s);\n}\n\nvar bookings = items.map(function(i) { return i.json; }).filter(function(b) { return b.date; });\nbookings.sort(function(a, b) {\n  var da = parseDate(a.date), db = parseDate(b.date);\n  if (da && db && da - db !== 0) return da - db;\n  return String(a.time || '').localeCompare(String(b.time || ''));\n});\n\nvar weekEnd = new Date(now.getTime() + 7*24*3600000);\nvar todayCount = bookings.filter(function(b) { return b.date === todayStr; }).length;\nvar weekCount = bookings.filter(function(b) { var d = parseDate(b.date); return d && d >= now && d <= weekEnd; }).length;\n\nvar salespeople = [];\nbookings.forEach(function(b) {\n  var sp = b.salesperson_name || 'Unassigned';\n  if (salespeople.indexOf(sp) === -1) salespeople.push(sp);\n});\n\nvar spButtons = salespeople.map(function(sp) {\n  var safe = sp.replace(/\"/g, '&quot;');\n  return '<button class=\"fbtn\" onclick=\"filter(\\'' + safe + '\\',event)\">' + sp + '</button>';\n}).join('');\n\nvar rows = bookings.map(function(b) {\n  var sp = b.salesperson_name || 'Unassigned';\n  var isToday = (b.date === todayStr);\n  return '<tr data-sp=\"' + sp.replace(/\"/g, '') + '\"' + (isToday ? ' class=\"today\"' : '') + '>' +\n    '<td>' + (b.date||'') + (isToday ? ' <span class=\"now\">TODAY</span>' : '') + '</td>' +\n    '<td>' + (b.time||'') + '</td>' +\n    '<td><strong>' + (b.client_name||'') + '</strong><br><span style=\"color:#888;font-size:12px\">' + (b.email||'') + '</span></td>' +\n    '<td>' + (b.company||'') + '</td>' +\n    '<td>' + (b.title||'') + '</td>' +\n    '<td><span class=\"badge\">' + sp + '</span></td>' +\n    '</tr>';\n}).join('');\n\nif (!rows) rows = '<tr><td colspan=\"6\" style=\"text-align:center;padding:40px;color:#999\">No bookings yet</td></tr>';\n\nvar html = '<!DOCTYPE html><html><head><title>GLS Dashboard</title><meta charset=\"UTF-8\"><meta http-equiv=\"refresh\" content=\"120\"><style>' +\n'*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f0f2f5}' +\n'.hdr{background:#1a3c5e;color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}' +\n'.hdr h1{font-size:20px;font-weight:bold}.hdr span{font-size:13px;opacity:.7}' +\n'.stats{display:flex;gap:14px;padding:20px 28px}' +\n'.card{background:#fff;border-radius:8px;padding:16px 22px;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:110px}' +\n'.card .n{font-size:30px;font-weight:bold;color:#1a3c5e}.card .l{font-size:12px;color:#777;margin-top:3px}' +\n'.filters{padding:0 28px 14px;display:flex;gap:8px;flex-wrap:wrap}' +\n'.fbtn{padding:7px 16px;border:2px solid #1a3c5e;border-radius:20px;cursor:pointer;background:#fff;color:#1a3c5e;font-size:13px;font-family:Arial}' +\n'.fbtn.active{background:#1a3c5e;color:#fff}' +\n'.wrap{margin:0 28px 28px;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}' +\n'table{width:100%;border-collapse:collapse}' +\n'th{background:#eef2f7;padding:11px 14px;text-align:left;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.5px}' +\n'td{padding:11px 14px;border-top:1px solid #eee;font-size:14px;vertical-align:top}' +\n'tr.today td{background:#fffde7}tr.hidden{display:none}' +\n'.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;background:#e3f2fd;color:#1565c0;white-space:nowrap}' +\n'.now{background:#ff6f00;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}' +\n'</style></head><body>' +\n'<div class=\"hdr\"><h1>GLS Appointment Dashboard</h1><span>Auto-refreshes every 2 min &bull; ' + now.toLocaleString() + '</span></div>' +\n'<div class=\"stats\">' +\n'<div class=\"card\"><div class=\"n\">' + bookings.length + '</div><div class=\"l\">Total Bookings</div></div>' +\n'<div class=\"card\"><div class=\"n\">' + todayCount + '</div><div class=\"l\">Today</div></div>' +\n'<div class=\"card\"><div class=\"n\">' + weekCount + '</div><div class=\"l\">This Week</div></div>' +\n'</div>' +\n'<div class=\"filters\"><button class=\"fbtn active\" onclick=\"filter(\\'all\\',event)\">All</button>' + spButtons + '</div>' +\n'<div class=\"wrap\"><table>' +\n'<thead><tr><th>Date</th><th>Time</th><th>Guest</th><th>Company</th><th>Title</th><th>Assigned To</th></tr></thead>' +\n'<tbody>' + rows + '</tbody></table></div>' +\n'<script>function filter(sp,e){document.querySelectorAll(\".fbtn\").forEach(function(b){b.classList.remove(\"active\")});e.target.classList.add(\"active\");document.querySelectorAll(\"tr[data-sp]\").forEach(function(r){r.classList.toggle(\"hidden\",sp!==\"all\"&&r.getAttribute(\"data-sp\")!==sp)})}<\\/script>' +\n'</body></html>';\n\nreturn [{ json: { html: html } }];"
+      },
+      "id": "9b550dbc-58f2-496d-96f8-e9a23c87a510",
+      "name": "Generate Dashboard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6256, 1856]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Content-Type", "value": "text/html" }]
+          }
+        }
+      },
+      "id": "a7977b54-1613-4136-b184-b782283e04c7",
+      "name": "Respond Dashboard",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [6464, 1856]
+    },
+    {
+      "parameters": {
+        "jsCode": "var b = $node[\"Check Reminders\"].all()[0].json;\nvar sent = (b._reminders_sent || '').split(',').filter(Boolean);\nsent.push(b._type);\nreturn [{ json: Object.assign({}, b, { _reminders_sent_new: sent.join(',') }) }];"
+      },
+      "id": "41975dcf-5878-43f8-8921-33f9d49a6361",
+      "name": "Build Reminder Sent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [6656, 1568]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "_reminders_sent": "=={{ $json._reminders_sent_new }}",
+            "slot_id": "=={{ $json.slot_id }}"
+          },
+          "matchingColumns": ["slot_id"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8c527a15-ca92-422d-a60e-fb99b92a4f19",
+      "name": "Update Reminder Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [6864, 1568],
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+      }
+    },
+    {
+      "parameters": {
+        "path": "gls-booking",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "973a291c-2562-412e-820c-1637a86f965b",
+      "name": "GLS Page Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [5856, 2464],
+      "webhookId": "444e5aed-8e42-4fb8-a4fb-8f301606e79a"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"UTF-8\">\n<title>GLS - Book an Appointment</title>\n</head>\n<body>\n<p>Booking form</p>\n</body>\n</html>",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Content-Type", "value": "text/html; charset=utf-8" }]
+          }
+        }
+      },
+      "id": "5b8eb87f-9d86-4e60-98d8-a94f8fde5bfd",
+      "name": "Serve Form Page",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [6064, 2432]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule": { "main": [[{"node":"Read Bookings","type":"main","index":0}]] },
+    "Read Bookings": { "main": [[{"node":"Check Reminders","type":"main","index":0}]] },
+    "Check Reminders": { "main": [[{"node":"Send Reminder","type":"main","index":0}]] },
+    "Send Reminder": { "main": [[{"node":"Build Reminder Sent","type":"main","index":0}]] },
+    "Build Reminder Sent": { "main": [[{"node":"Update Reminder Sent","type":"main","index":0}]] },
+    "Update Reminder Sent": { "main": [[{"node":"Done Reminder","type":"main","index":0}]] },
+    "GLS Form Webhook": { "main": [[{"node":"Read Slots (Form)","type":"main","index":0}]] },
+    "Read Slots (Form)": { "main": [[{"node":"Match Slot (Form)","type":"main","index":0}]] },
+    "Match Slot (Form)": { "main": [[{"node":"IF Slot Free","type":"main","index":0}]] },
+    "IF Slot Free": {
+      "main": [
+        [{"node":"Read Staff (Form)","type":"main","index":0}],
+        [{"node":"Respond Fail (Form)","type":"main","index":0}]
+      ]
+    },
+    "Read Staff (Form)": { "main": [[{"node":"Read Bookings (Form)","type":"main","index":0}]] },
+    "Read Bookings (Form)": { "main": [[{"node":"Assign SP (Form)","type":"main","index":0}]] },
+    "Assign SP (Form)": { "main": [[{"node":"Append Booking (Form)","type":"main","index":0}]] },
+    "Append Booking (Form)": { "main": [[{"node":"Mark Booked (Form)","type":"main","index":0}]] },
+    "Mark Booked (Form)": { "main": [[{"node":"Send Confirmation (Form)","type":"main","index":0}]] },
+    "Send Confirmation (Form)": { "main": [[{"node":"Respond OK (Form)","type":"main","index":0}]] },
+    "Dashboard Webhook": { "main": [[{"node":"Read All Bookings","type":"main","index":0}]] },
+    "Read All Bookings": { "main": [[{"node":"Generate Dashboard","type":"main","index":0}]] },
+    "Generate Dashboard": { "main": [[{"node":"Respond Dashboard","type":"main","index":0}]] },
+    "GLS Page Webhook": { "main": [[{"node":"Serve Form Page","type":"main","index":0}]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "35b5ff3e-448f-44ac-a776-2e2ed74768f4",
+  "meta": { "instanceId": "f46520974004fbdd26797e65a10feedff5b3e19c804b73bcd97f01b2e649364f" },
+  "id": "L269wytouZf0zKUk",
+  "tags": []
+}
