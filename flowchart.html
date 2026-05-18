@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLS Appointment System — Full Flow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #1a1a2e; }
+
+    .page-header {
+      background: #0C1F3F;
+      padding: 32px 48px;
+      border-bottom: 5px solid #F5A500;
+    }
+    .page-header h1 { color: white; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+    .page-header p { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 6px; }
+
+    .legend {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      padding: 18px 48px;
+      background: white;
+      border-bottom: 1px solid #e0e4ed;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+    .canvas { padding: 40px 48px 80px; }
+
+    /* PHASE LABELS */
+    .phase {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 0;
+    }
+    .phase-label {
+      width: 120px;
+      flex-shrink: 0;
+      padding-top: 14px;
+    }
+    .phase-label span {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #F5A500;
+      background: #0C1F3F;
+      padding: 5px 10px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .phase-body { flex: 1; }
+
+    /* CONNECTOR LINE */
+    .connector {
+      width: 2px;
+      background: #d0d5e8;
+      margin: 0 auto;
+      position: relative;
+    }
+    .connector.arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #d0d5e8;
+    }
+
+    /* NODES */
+    .row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
+    .row.center { justify-content: center; }
+    .row.branches { justify-content: center; gap: 0; }
+
+    .node {
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      text-align: center;
+      min-width: 180px;
+      max-width: 220px;
+      position: relative;
+    }
+    .node.wide { min-width: 260px; max-width: 300px; }
+    .node sub { display: block; font-size: 10.5px; font-weight: 400; margin-top: 4px; opacity: 0.8; }
+
+    /* Node types */
+    .node.action    { background: #0C1F3F; color: white; }
+    .node.system    { background: #1565c0; color: white; }
+    .node.email     { background: #F5A500; color: #0C1F3F; }
+    .node.decision  { background: white; color: #0C1F3F; border: 2px solid #0C1F3F; transform: rotate(0); }
+    .node.good      { background: #1b5e20; color: white; }
+    .node.warn      { background: #e65100; color: white; }
+    .node.end       { background: #263238; color: white; }
+    .node.gls       { background: #4a148c; color: white; }
+    .node.ghost     { background: transparent; border: 2px dashed #ccc; color: #999; font-weight: 400; font-size: 12px; }
+
+    /* Branch layouts */
+    .branch-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+    }
+    .branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px;
+      position: relative;
+    }
+    .branch-line-h {
+      height: 2px;
+      background: #d0d5e8;
+      position: absolute;
+      top: 0;
+    }
+
+    .branch-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .branch-label.yes  { background: #e8f5e9; color: #2e7d32; }
+    .branch-label.no   { background: #fce4ec; color: #c62828; }
+    .branch-label.open { background: #e3f2fd; color: #1565c0; }
+    .branch-label.click { background: #fff3e0; color: #e65100; }
+    .branch-label.book { background: #e8f5e9; color: #2e7d32; }
+    .branch-label.nobook { background: #fce4ec; color: #c62828; }
+    .branch-label.noopen { background: #f3e5f5; color: #6a1b9a; }
+
+    .v-space { height: 16px; }
+    .v-space-sm { height: 8px; }
+    .v-line { width: 2px; background: #d0d5e8; margin: 0 auto; }
+
+    .arrow-down {
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 9px solid #d0d5e8;
+      margin: 0 auto;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 2px dashed #d0d5e8;
+      margin: 32px 0;
+    }
+
+    .scenario-box {
+      background: white;
+      border-radius: 10px;
+      border-left: 5px solid #F5A500;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .scenario-box h3 { font-size: 13px; font-weight: 700; color: #0C1F3F; margin-bottom: 8px; }
+    .scenario-box ul { padding-left: 18px; }
+    .scenario-box ul li { font-size: 12.5px; color: #444; line-height: 1.8; }
+    .scenario-box.green { border-left-color: #2e7d32; }
+    .scenario-box.red   { border-left-color: #c62828; }
+    .scenario-box.blue  { border-left-color: #1565c0; }
+    .scenario-box.purple { border-left-color: #6a1b9a; }
+
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    h2.section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0C1F3F;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #F5A500;
+      display: inline-block;
+    }
+
+    .flow-wrap {
+      background: white;
+      border-radius: 12px;
+      padding: 40px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      overflow-x: auto;
+    }
+
+    .node-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    /* horizontal branch connector */
+    .h-branch {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+    }
+    .h-branch::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%; right: 50%;
+      height: 2px;
+      background: #d0d5e8;
+    }
+
+    table.flow-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.flow-table th {
+      background: #0C1F3F;
+      color: white;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    table.flow-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    table.flow-table tr:last-child td { border-bottom: none; }
+    table.flow-table tr:nth-child(even) td { background: #f9fafb; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.green  { background: #e8f5e9; color: #2e7d32; }
+    .badge.red    { background: #fce4ec; color: #c62828; }
+    .badge.blue   { background: #e3f2fd; color: #1565c0; }
+    .badge.orange { background: #fff3e0; color: #e65100; }
+    .badge.purple { background: #f3e5f5; color: #6a1b9a; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>GLS 传讯 — Appointment System: Full Process Flow</h1>
+  <p>Air Cargo China 2026 &nbsp;·&nbsp; Shanghai &nbsp;·&nbsp; 24–26 June 2026 &nbsp;·&nbsp; Confidential — Client Reference Document</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#0C1F3F"></div> GLS Action</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1565c0"></div> System / Automation</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F5A500"></div> Email Sent</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1b5e20"></div> Positive Outcome</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> Action Required</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4a148c"></div> Dashboard Action</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#263238"></div> End State</div>
+</div>
+
+<div class="canvas">
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- MAIN FLOW -->
+  <!-- ═══════════════════════════════════ -->
+  <h2 class="section-title">End-to-End Process Flow</h2>
+
+  <div class="flow-wrap">
+
+    <!-- PHASE 1: INVITE -->
+    <div class="node-row"><div class="node action wide">GLS uploads contact list to Dashboard<sub>Name · Email · Company</sub></div></div>
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+    <div class="node-row"><div class="node system wide">System sends Invite Email to each contact<sub>Tracking pixel embedded — opens are recorded</sub></div></div>
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+    <div class="node-row"><div class="node email wide">📧 INVITE EMAIL<sub>Personalised invite with booking form link</sub></div></div>
+
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+
+    <!-- BRANCH 1: Opened? -->
+    <div class="node-row"><div class="node decision wide">Did the contact open the email?</div></div>
+    <div class="v-space-sm"></div>
+
+    <div style="display:flex; justify-content:center; gap:0;">
+
+      <!-- LEFT: NOT OPENED -->
+      <div style="display:flex; flex-direction:column; align-items:center; padding:0 32px; border-right:2px solid #d0d5e8;">
+        <div class="branch-label noopen">Not Opened</div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node system">Wait 3 days<sub>System monitors open status</sub></div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email">📧 REMINDER EMAIL 1<sub>"Did you see our invite?"</sub></div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node decision">Opened after reminder?</div>
+        <div style="display:flex; gap:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;padding:0 16px;border-right:2px solid #d0d5e8;">
+            <div class="v-space-sm"></div><div class="branch-label yes">Yes</div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node good" style="font-size:11px; min-width:130px;">→ Goes to<br>"Opened" flow</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;padding:0 16px;">
+            <div class="v-space-sm"></div><div class="branch-label no">No</div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node email" style="font-size:11px; min-width:130px;">📧 FINAL REMINDER<sub>After 5 more days</sub></div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node end" style="min-width:130px;font-size:11px;">No response<br>— Stop</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: OPENED -->
+      <div style="display:flex; flex-direction:column; align-items:center; padding:0 32px;">
+        <div class="branch-label open">Opened</div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node decision">Did they click the booking link?</div>
+        <div style="display:flex; gap:0;">
+
+          <!-- NOT CLICKED -->
+          <div style="display:flex;flex-direction:column;align-items:center;padding:0 16px;border-right:2px solid #d0d5e8;">
+            <div class="v-space-sm"></div><div class="branch-label no">Not Clicked</div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node system" style="min-width:140px;font-size:11px;">Wait 2 days</div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node email" style="min-width:140px;font-size:11px;">📧 REMINDER EMAIL<sub>"Haven't booked yet"<br>+ form link</sub></div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node decision" style="min-width:140px;font-size:11px;">Books?</div>
+            <div style="display:flex;gap:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;padding:0 8px;border-right:2px solid #d0d5e8;">
+                <div class="v-space-sm"></div><div class="branch-label yes">Yes</div>
+                <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+                <div class="node good" style="font-size:10px;min-width:100px;">→ Booking<br>flow</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;padding:0 8px;">
+                <div class="v-space-sm"></div><div class="branch-label no">No</div>
+                <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+                <div class="node end" style="font-size:10px;min-width:100px;">No booking<br>— Stop</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CLICKED -->
+          <div style="display:flex;flex-direction:column;align-items:center;padding:0 16px;">
+            <div class="v-space-sm"></div><div class="branch-label click">Clicked Form</div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node system" style="min-width:140px;font-size:11px;">Customer lands on<br>Booking Form</div>
+            <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+            <div class="node decision" style="min-width:140px;font-size:11px;">Submits form?</div>
+            <div style="display:flex;gap:0;">
+              <div style="display:flex;flex-direction:column;align-items:center;padding:0 8px;border-right:2px solid #d0d5e8;">
+                <div class="v-space-sm"></div><div class="branch-label yes">Yes</div>
+                <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+                <div class="node good" style="font-size:10px;min-width:100px;">→ Booking<br>flow ↓</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;padding:0 8px;">
+                <div class="v-space-sm"></div><div class="branch-label no">Abandons</div>
+                <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+                <div class="node end" style="font-size:10px;min-width:100px;">No booking<br>— Stop</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DIVIDER -->
+    <hr class="section-divider">
+
+    <!-- PHASE 2: FORM SUBMITTED -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <span style="background:#0C1F3F;color:#F5A500;font-size:11px;font-weight:700;letter-spacing:2px;padding:5px 18px;border-radius:20px;text-transform:uppercase;">Phase 2 — Form Submitted</span>
+    </div>
+
+    <div class="node-row"><div class="node system wide">System saves booking request to database<sub>Status: PENDING</sub></div></div>
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+    <div class="node-row"><div class="node email wide">📧 ACKNOWLEDGEMENT EMAIL → Customer<sub>"We received your request. You will receive confirmation within 3 working days."</sub></div></div>
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+    <div class="node-row"><div class="node gls wide">Booking appears in GLS Dashboard as PENDING<sub>Awaiting GLS team review</sub></div></div>
+
+    <hr class="section-divider">
+
+    <!-- PHASE 3: DASHBOARD -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <span style="background:#0C1F3F;color:#F5A500;font-size:11px;font-weight:700;letter-spacing:2px;padding:5px 18px;border-radius:20px;text-transform:uppercase;">Phase 3 — GLS Dashboard Action</span>
+    </div>
+
+    <div class="node-row"><div class="node action wide">GLS team reviews pending booking in Dashboard<sub>Sees customer details + preferred date/time</sub></div></div>
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+    <div class="node-row"><div class="node system wide">System checks if requested slot is still available</div></div>
+    <div class="v-space-sm"></div>
+
+    <div style="display:flex;justify-content:center;gap:0;">
+
+      <!-- SLOT NOT AVAILABLE -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 32px;border-right:2px solid #d0d5e8;">
+        <div class="branch-label no">Slot Taken</div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node warn">Dashboard flags as CONFLICT<sub>GLS contacts customer directly<br>to agree alternative time</sub></div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node gls">GLS selects alternative slot<br>in Dashboard</div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node good" style="font-size:11px;">→ Continues to<br>assignment ↓</div>
+      </div>
+
+      <!-- SLOT AVAILABLE -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 32px;">
+        <div class="branch-label yes">Slot Available</div>
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node gls">GLS selects Salesperson<br>from dropdown in Dashboard<sub>Clicks "Assign &amp; Confirm"</sub></div>
+      </div>
+
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- PHASE 4: CONFIRMATION -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <span style="background:#0C1F3F;color:#F5A500;font-size:11px;font-weight:700;letter-spacing:2px;padding:5px 18px;border-radius:20px;text-transform:uppercase;">Phase 4 — Confirmation Emails</span>
+    </div>
+
+    <div class="node-row"><div class="node system wide">System locks the slot — marks as BOOKED<sub>Triggers two emails simultaneously</sub></div></div>
+    <div class="v-space-sm"></div>
+
+    <div style="display:flex;justify-content:center;gap:32px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:220px;">📧 EMAIL → Salesperson<sub>"You have been assigned a meeting"<br>Customer name · Date · Time · Company</sub></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:220px;">📧 EMAIL → Customer<sub>Booking confirmed · Date · Time<br>Salesperson name &amp; contact · Calendar link</sub></div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- PHASE 5: REMINDERS -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <span style="background:#0C1F3F;color:#F5A500;font-size:11px;font-weight:700;letter-spacing:2px;padding:5px 18px;border-radius:20px;text-transform:uppercase;">Phase 5 — Automated Reminders</span>
+    </div>
+
+    <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="node system" style="min-width:160px;">7 Days Before</div>
+        <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:160px;font-size:11px;">📧 Reminder → Customer<br>&amp; Salesperson</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="node system" style="min-width:160px;">1 Day Before</div>
+        <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:160px;font-size:11px;">📧 Reminder → Customer<br>&amp; Salesperson</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="node system" style="min-width:160px;">1 Hour Before</div>
+        <div class="v-line" style="height:12px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:160px;font-size:11px;">📧 Reminder → Customer<br>&amp; Salesperson</div>
+      </div>
+    </div>
+
+    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+    <div class="node-row"><div class="node end wide">✅ MEETING TAKES PLACE</div></div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- SCENARIO SUMMARY TABLE -->
+  <!-- ═══════════════════════════════════ -->
+  <div style="margin-top:48px;">
+    <h2 class="section-title">Scenario Summary</h2>
+    <div class="flow-wrap" style="padding:0;">
+      <table class="flow-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Scenario</th>
+            <th>Email Opens</th>
+            <th>Form</th>
+            <th>Outcome</th>
+            <th>Emails Sent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><strong>Full success</strong> — Opens, clicks, books, confirmed</td>
+            <td><span class="badge green">Opened</span></td>
+            <td><span class="badge green">Submitted</span></td>
+            <td><span class="badge green">Meeting Confirmed</span></td>
+            <td>Invite → Acknowledgement → Confirmation → 3× Reminders</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>Opens but doesn't click</strong> the booking link</td>
+            <td><span class="badge blue">Opened</span></td>
+            <td><span class="badge orange">Not visited</span></td>
+            <td><span class="badge orange">Reminder sent</span></td>
+            <td>Invite → Reminder ("haven't booked") → if books → flow continues</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>Clicks form but abandons</strong> without submitting</td>
+            <td><span class="badge blue">Opened</span></td>
+            <td><span class="badge orange">Abandoned</span></td>
+            <td><span class="badge orange">No booking</span></td>
+            <td>Invite only — no further action unless manually followed up</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>Never opens</strong> the invite email</td>
+            <td><span class="badge purple">Not opened</span></td>
+            <td><span class="badge red">Not visited</span></td>
+            <td><span class="badge purple">2× Reminders sent</span></td>
+            <td>Invite → Reminder 1 (day 3) → Reminder 2 (day 8) → Stop</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><strong>Books but slot is taken</strong> by the time GLS reviews</td>
+            <td><span class="badge green">Opened</span></td>
+            <td><span class="badge green">Submitted</span></td>
+            <td><span class="badge orange">Conflict — GLS resolves</span></td>
+            <td>Invite → Acknowledgement → GLS contacts to reschedule → Confirmation</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><strong>Opens reminder, then books</strong> after initial no-action</td>
+            <td><span class="badge blue">Opened (late)</span></td>
+            <td><span class="badge green">Submitted</span></td>
+            <td><span class="badge green">Meeting Confirmed</span></td>
+            <td>Invite → Reminder → Acknowledgement → Confirmation → 3× Reminders</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- EMAIL LIST -->
+  <!-- ═══════════════════════════════════ -->
+  <div style="margin-top:48px;">
+    <h2 class="section-title">All Emails in the System</h2>
+    <div class="flow-wrap" style="padding:0;">
+      <table class="flow-table">
+        <thead>
+          <tr><th>#</th><th>Email</th><th>To</th><th>Trigger</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Invite</strong></td><td>Contact / Prospect</td><td>GLS sends from dashboard</td><td>Invite to book a meeting at the exhibition</td></tr>
+          <tr><td>2</td><td><strong>Reminder — No Open</strong></td><td>Contact</td><td>Auto — 3 days after invite, if not opened</td><td>"Did you see our invite?" — re-engage</td></tr>
+          <tr><td>3</td><td><strong>Reminder — No Click</strong></td><td>Contact</td><td>Auto — 2 days after open, if no booking</td><td>"You haven't booked your slot yet" + form link</td></tr>
+          <tr><td>4</td><td><strong>Acknowledgement</strong></td><td>Customer</td><td>Auto — immediately on form submit</td><td>Confirm we received the request. Confirmation within 3 working days.</td></tr>
+          <tr><td>5</td><td><strong>Salesperson Assignment</strong></td><td>Salesperson</td><td>Auto — when GLS assigns in dashboard</td><td>You have a meeting. Customer details + date/time.</td></tr>
+          <tr><td>6</td><td><strong>Booking Confirmation</strong></td><td>Customer</td><td>Auto — when GLS assigns in dashboard</td><td>Meeting confirmed. Date, time, salesperson, calendar link.</td></tr>
+          <tr><td>7</td><td><strong>Reminder 7 days</strong></td><td>Customer + Salesperson</td><td>Auto — 7 days before meeting</td><td>Meeting reminder</td></tr>
+          <tr><td>8</td><td><strong>Reminder 1 day</strong></td><td>Customer + Salesperson</td><td>Auto — 1 day before meeting</td><td>Meeting reminder</td></tr>
+          <tr><td>9</td><td><strong>Reminder 1 hour</strong></td><td>Customer + Salesperson</td><td>Auto — 1 hour before meeting</td><td>Final reminder</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
