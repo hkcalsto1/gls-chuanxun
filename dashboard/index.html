@@ -865,19 +865,19 @@
     if (!sp) { showToast('Please select a salesperson.', 'error'); return; }
     openModal(
       'Confirm Assignment',
-      'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.preferred_date) + ' at ' + formatTime(p.preferred_time) + '?\n\nThis will send confirmation emails to the customer and salesperson.',
+      'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + '?\n\nThis will send confirmation emails to the customer and salesperson.',
       async function() {
         try {
           var res = await fetch(N8N + '/gls-assign', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              slot_id: p.slot_id,
+              slot_id: p.slot_Id,
               client_name: p.client_name,
               email: p.email,
               company: p.company,
               title: p.title,
-              date: p.preferred_date,
-              time: p.preferred_time,
+              date: p.date,
+              time: p.time,
               salesperson_name: sp
             })
           });
