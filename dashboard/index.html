@@ -498,9 +498,8 @@
 
   // Salesperson list — update to match your Staff sheet
   const SALESPEOPLE = [
-    'Kitty Wong',
-    'GLS Team'
-    // Add more here as needed
+    { name: 'Kitty Wong', email: 'Kitty.Wong@glshk.com' },
+    { name: 'GLS Team',   email: 'marketing@glshk.com' }
   ];
 
   // ═══════════════════════════════════════
@@ -844,14 +843,14 @@
           : '<span class="badge not-sent">Checking...</span>';
 
       var spOptions = SALESPEOPLE.map(function(sp) {
-        return '<option value="' + sp + '">' + sp + '</option>';
+        return '<option value="' + sp.name + '">' + sp.name + '</option>';
       }).join('');
 
       return '<tr>' +
         '<td class="name-cell"><strong>' + escHtml(p.client_name || '') + '</strong><span>' + escHtml(p.email || '') + '</span></td>' +
         '<td>' + escHtml(p.company || '—') + '</td>' +
-        '<td style="font-weight:600;">' + escHtml(formatDateDisplay(p.preferred_date)) + '</td>' +
-        '<td>' + escHtml(formatTime(p.preferred_time)) + '</td>' +
+        '<td style="font-weight:600;">' + escHtml(formatDateDisplay(p.date)) + '</td>' +
+        '<td>' + escHtml(formatTime(p.time)) + '</td>' +
         '<td>' + slotBadge + '</td>' +
         '<td><div class="assign-row"><select id="sp-' + i + '">' + spOptions + '</select></div></td>' +
         '<td><button class="btn btn-gold btn-sm" onclick="assignBooking(' + i + ')">Assign &amp; Confirm</button></td>' +
@@ -863,6 +862,8 @@
     var p = allPending[idx];
     var sp = document.getElementById('sp-' + idx).value;
     if (!sp) { showToast('Please select a salesperson.', 'error'); return; }
+    var spObj = SALESPEOPLE.find(function(s) { return s.name === sp; }) || { name: sp, email: '' };
+    var spEmail = spObj.email;
     openModal(
       'Confirm Assignment',
       'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + '?\n\nThis will send confirmation emails to the customer and salesperson.',
@@ -878,7 +879,8 @@
               title: p.title,
               date: p.date,
               time: p.time,
-              salesperson_name: sp
+              salesperson_name: sp,
+              salesperson_email: spEmail
             })
           });
           var result = await res.json();
