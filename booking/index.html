@@ -496,7 +496,7 @@
     });
 
     // Fetch available slots from n8n
-    fetch('http://72.62.64.236:5678/webhook/gls-slots')
+    fetch('https://n8n.okahh.com/webhook/gls-slots')
       .then(function(r) { return r.json(); })
       .then(function(data) { availableSlots = data.slots || []; })
       .catch(function() { availableSlots = []; });
@@ -514,7 +514,7 @@
       document.querySelectorAll('.time-radio-opt').forEach(function(opt) {
         var time = opt.querySelector('input').value;
         var isAvailable = availableSlots.some(function(s) {
-          return s.date === date && s.time === time;
+          return s.Date === date && s.Time === time;
         });
         opt.style.display = isAvailable ? '' : 'none';
         if (isAvailable) visibleCount++;
