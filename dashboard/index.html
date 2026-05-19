@@ -803,7 +803,7 @@
     try {
       var res = await fetch(N8N + '/gls-pending');
       var data = await res.json();
-      allPending = data.pending || [];
+      allPending = (data.bookings || []).filter(b => b.status === 'pending');
     } catch(e) {
       allPending = [];
     }
