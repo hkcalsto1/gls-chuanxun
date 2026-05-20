@@ -100,6 +100,8 @@
     .stat-card.gold .num { color: #F5A500; }
     .stat-card.green .num { color: #2e7d32; }
     .stat-card.orange .num { color: #e65100; }
+    .stat-card.with-action { display: flex; flex-direction: column; justify-content: space-between; min-width: 140px; }
+    .stat-card.with-action .btn { margin-top: 10px; width: 100%; font-size: 11px; }
 
     /* ── SECTION HEADER ── */
     .section-hdr {
@@ -365,6 +367,14 @@
       <div class="stat-card green"><div class="num" id="s-opened">—</div><div class="lbl">Opened</div></div>
       <div class="stat-card gold"><div class="num" id="s-clicked">—</div><div class="lbl">Clicked Form</div></div>
       <div class="stat-card green"><div class="num" id="s-booked">—</div><div class="lbl">Booked</div></div>
+      <div class="stat-card orange with-action">
+        <div><div class="num" id="s-not-opened">—</div><div class="lbl">Not Opened</div></div>
+        <button class="btn btn-outline btn-sm" onclick="remindNotOpened()">Send Reminders</button>
+      </div>
+      <div class="stat-card with-action" style="border:1.5px solid #e0e4ed;">
+        <div><div class="num" id="s-not-booked">—</div><div class="lbl">Not Booked</div></div>
+        <button class="btn btn-outline btn-sm" onclick="remindNotBooked()">Send Reminders</button>
+      </div>
     </div>
 
     <!-- ADD CONTACTS -->
@@ -550,6 +560,7 @@
           <div><code>{{booking_link}}</code> — Booking URL</div>
           <div><code>{{cal_link}}</code> — Calendar link</div>
           <div><code>{{_when}}</code> — "7 days" / "1 day" / "1 hour"</div>
+          <div><code>{{unsubscribe_link}}</code> — Unsubscribe URL</div>
         </div>
       </div>
 
@@ -580,8 +591,8 @@
   const N8N = 'https://n8n.okahh.com/webhook';
   const PASSWORD = 'GLS2026!';
 
-  // Salesperson list — update to match your Staff sheet
-  const SALESPEOPLE = [
+  // Salesperson list — populated from Staff sheet at login, falls back to defaults
+  var SALESPEOPLE = [
     { name: 'Kitty Wong', email: 'Kitty.Wong@glshk.com' },
     { name: 'GLS Team',   email: 'marketing@glshk.com' }
   ];
@@ -631,7 +642,7 @@
   // INIT
   // ═══════════════════════════════════════
   function initDashboard() {
-    populateSPFilter();
+    loadStaff();
     loadContacts();
     loadPending();
     loadBookings();
@@ -646,11 +657,22 @@
 
   function populateSPFilter() {
     var sel = document.getElementById('spFilter');
+    while (sel.options.length > 1) sel.remove(1);
     SALESPEOPLE.forEach(function(sp) {
       var o = document.createElement('option');
       o.value = sp.name; o.textContent = sp.name;
       sel.appendChild(o);
     });
+  }
+
+  async function loadStaff() {
+    try {
+      var res = await fetch(N8N + '/gls-staff');
+      var data = await res.json();
+      if (data.staff && data.staff.length) SALESPEOPLE = data.staff;
+    } catch(e) { /* use default SALESPEOPLE */ }
+    populateSPFilter();
+    if (allPending.length) renderPending(allPending);
   }
 
   // ═══════════════════════════════════════
@@ -672,11 +694,14 @@
   }
 
   function updateContactStats(contacts) {
-    document.getElementById('s-total').textContent   = contacts.length;
-    document.getElementById('s-sent').textContent    = contacts.filter(c => c.invite_sent).length;
-    document.getElementById('s-opened').textContent  = contacts.filter(c => c.status === 'opened' || c.status === 'clicked' || c.status === 'booked').length;
-    document.getElementById('s-clicked').textContent = contacts.filter(c => c.status === 'clicked' || c.status === 'booked').length;
-    document.getElementById('s-booked').textContent  = contacts.filter(c => c.status === 'booked').length;
+    var sent = contacts.filter(c => c.invite_sent === 'yes');
+    document.getElementById('s-total').textContent     = contacts.length;
+    document.getElementById('s-sent').textContent      = sent.length;
+    document.getElementById('s-opened').textContent    = contacts.filter(c => ['opened','clicked','booked'].includes(c.status)).length;
+    document.getElementById('s-clicked').textContent   = contacts.filter(c => ['clicked','booked'].includes(c.status)).length;
+    document.getElementById('s-booked').textContent    = contacts.filter(c => c.status === 'booked').length;
+    document.getElementById('s-not-opened').textContent = sent.filter(c => !['opened','clicked','booked'].includes(c.status)).length;
+    document.getElementById('s-not-booked').textContent = sent.filter(c => c.status !== 'booked').length;
   }
 
   function renderContacts(contacts) {
@@ -874,6 +899,50 @@
         } catch(e) {
           showToast('Failed to send invites.', 'error');
         }
+      }
+    );
+  }
+
+  async function remindNotOpened() {
+    var targets = allContacts.filter(c => c.invite_sent === 'yes' && !['opened','clicked','booked'].includes(c.status));
+    if (!targets.length) { showToast('No contacts to remind — everyone has opened!', 'success'); return; }
+    openModal(
+      'Remind ' + targets.length + ' contacts?',
+      'Send a reminder to all invited contacts who have not yet opened the invite email.',
+      async function() {
+        var done = 0;
+        for (var i = 0; i < targets.length; i++) {
+          try {
+            await fetch(N8N + '/gls-remind', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: targets[i].name, email: targets[i].email, company: targets[i].company })
+            });
+            done++;
+          } catch(e) {}
+        }
+        showToast(done + ' reminders sent.', 'success');
+      }
+    );
+  }
+
+  async function remindNotBooked() {
+    var targets = allContacts.filter(c => c.invite_sent === 'yes' && c.status !== 'booked');
+    if (!targets.length) { showToast('Everyone who was invited has booked!', 'success'); return; }
+    openModal(
+      'Remind ' + targets.length + ' contacts?',
+      'Send a reminder to all invited contacts who have not yet booked a meeting.',
+      async function() {
+        var done = 0;
+        for (var i = 0; i < targets.length; i++) {
+          try {
+            await fetch(N8N + '/gls-remind', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: targets[i].name, email: targets[i].email, company: targets[i].company })
+            });
+            done++;
+          } catch(e) {}
+        }
+        showToast(done + ' reminders sent.', 'success');
       }
     );
   }
@@ -1142,7 +1211,8 @@
     '{{client_email}}': 'david@apfreight.com',
     '{{booking_link}}': 'https://hkcalsto1.github.io/gls-chuanxun/booking/',
     '{{cal_link}}': 'https://calendar.google.com/calendar/render?action=TEMPLATE',
-    '{{_when}}': '1 day'
+    '{{_when}}': '1 day',
+    '{{unsubscribe_link}}': 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=david@apfreight.com'
   };
 
   function renderPreview(subject, body) {
@@ -1171,7 +1241,14 @@
       '<div class="tpl-split">' +
         '<div class="tpl-split-edit">' +
           '<div class="tpl-field"><label>Subject</label><input type="text" id="tplSubject" value="' + escHtml(t.subject || '') + '" oninput="renderPreview(this.value, document.getElementById(\'tplBody\').value)"></div>' +
-          '<div class="tpl-field"><label>Body</label><textarea id="tplBody" oninput="renderPreview(document.getElementById(\'tplSubject\').value, this.value)">' + escHtml(bodyClean) + '</textarea></div>' +
+          '<div class="tpl-field"><label>Body</label>' +
+            '<div style="margin-bottom:6px;display:flex;gap:8px;align-items:center;">' +
+              '<button class="btn btn-outline btn-sm" onclick="document.getElementById(\'imgFileInput\').click()">📎 Upload Image</button>' +
+              '<span id="imgUploadStatus" style="font-size:11px;color:#888;"></span>' +
+              '<input type="file" id="imgFileInput" accept="image/*" style="display:none;" onchange="uploadImage(event)">' +
+            '</div>' +
+            '<textarea id="tplBody" oninput="renderPreview(document.getElementById(\'tplSubject\').value, this.value)">' + escHtml(bodyClean) + '</textarea>' +
+          '</div>' +
         '</div>' +
         '<div class="tpl-preview-wrap">' +
           '<div class="tpl-preview-label">Preview</div>' +
@@ -1209,6 +1286,43 @@
     } catch(e) {
       showToast('Failed to save template', 'error');
     }
+  }
+
+  async function uploadImage(event) {
+    var file = event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    var statusEl = document.getElementById('imgUploadStatus');
+    statusEl.textContent = 'Uploading…';
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      var base64 = e.target.result.split(',')[1];
+      var ext = file.name.split('.').pop().toLowerCase();
+      var filename = 'img_' + Date.now() + '.' + ext;
+      try {
+        var res = await fetch(N8N + '/gls-upload-image', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: filename, content: base64 })
+        });
+        var data = await res.json();
+        if (data.url) {
+          var textarea = document.getElementById('tplBody');
+          var url = data.url;
+          var insert = '[image](' + url + ')';
+          var pos = textarea.selectionStart;
+          textarea.value = textarea.value.slice(0, pos) + insert + textarea.value.slice(pos);
+          textarea.selectionStart = textarea.selectionEnd = pos + insert.length;
+          statusEl.textContent = '✓ Uploaded';
+          renderPreview(document.getElementById('tplSubject').value, textarea.value);
+          setTimeout(function() { statusEl.textContent = ''; }, 3000);
+        } else {
+          statusEl.textContent = 'Upload failed';
+        }
+      } catch(e) {
+        statusEl.textContent = 'Upload failed';
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   // MODAL

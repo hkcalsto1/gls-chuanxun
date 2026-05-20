@@ -294,10 +294,10 @@
       "parameters": {
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
-        "fromName": "Kitty Wong",
+        "fromName": "GLS \u4f20\u8baf",
         "toEmail": "={{ $json.email }}",
-        "subject": "GLS \u4f20\u8baf invites you \u2014 Air Cargo China 2026 \u4e9a\u6d32\u822a\u7a7a\u8d27\u8fd0\u5c55\u89c8\u4f1a",
-        "contentValue": "=Dear {{ $json.name }},\n\nGLS \u4f20\u8baf (\u9999\u6e2f\u5168\u7403\u7269\u6d41\u670d\u52a1\u4e2d\u5fc3) would like to invite you to meet our team at Air Cargo China 2026.\n\n\ud83d\udcc5 June 24\u201326, 2026\n\ud83d\udccd Shanghai New International Expo Centre (\u4e0a\u6d77\u65b0\u56fd\u9645\u535a\u89c8\u4e2d\u5fc3)\n\nSpaces are limited. Click below to book your meeting slot now:\nhttps://jolly-bunny-04d897.netlify.app/\n\n\u6211\u4eec\u671f\u5f85\u4e0e\u60a8\u4f1a\u9762\uff01We look forward to meeting you!\n\nGLS \u4f20\u8baf Team\nmarketing@glshk.com",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
       "id": "a4000003-a400-a400-a400-a40000000003",
@@ -305,7 +305,7 @@
       "type": "n8n-nodes-base.sendGrid",
       "typeVersion": 1,
       "position": [
-        700,
+        1200,
         1000
       ],
       "credentials": {
@@ -317,7 +317,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var item = $input.first().json;\nvar email = item.toEmail || item.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString()}}];"
+        "jsCode": "var item = $input.first().json;\nvar email = item.toEmail || item.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
       },
       "id": "a4000004-a400-a400-a400-a40000000004",
       "name": "Mark Invite Sent",
@@ -344,6 +344,7 @@
           "value": {
             "invite_sent": "={{ $json.invite_sent }}",
             "invite_sent_at": "={{ $json.invite_sent_at }}",
+            "status": "={{ $json.status }}",
             "email": "={{ $json.email }}"
           },
           "matchingColumns": [
@@ -547,10 +548,10 @@
       "parameters": {
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
-        "fromName": "Kitty Wong",
+        "fromName": "GLS \u4f20\u8baf",
         "toEmail": "={{ $json.email }}",
-        "subject": "GLS \u4f20\u8baf invites you \u2014 Air Cargo China 2026",
-        "contentValue": "=Dear {{ $json.name }},\n\nGLS \u4f20\u8baf (\u9999\u6e2f\u5168\u7403\u7269\u6d41\u670d\u52a1\u4e2d\u5fc3) would like to invite you to meet our team at Air Cargo China 2026.\n\n\ud83d\udcc5 June 24\u201326, 2026\n\ud83d\udccd Shanghai New International Expo Centre (\u4e0a\u6d77\u65b0\u56fd\u9645\u535a\u89c8\u4e2d\u5fc3)\n\nClick below to book your meeting slot:\nhttps://jolly-bunny-04d897.netlify.app/\n\nGLS \u4f20\u8baf Team\nmarketing@glshk.com",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
       "id": "a5000008-a500-a500-a500-a50000000008",
@@ -570,7 +571,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var item = $input.first().json;\nvar email = item.toEmail || item.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString()}}];"
+        "jsCode": "var item = $input.first().json;\nvar email = item.toEmail || item.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
       },
       "id": "a5000009-a500-a500-a500-a50000000009",
       "name": "Mark All Sent",
@@ -597,6 +598,7 @@
           "value": {
             "invite_sent": "={{ $json.invite_sent }}",
             "invite_sent_at": "={{ $json.invite_sent_at }}",
+            "status": "={{ $json.status }}",
             "email": "={{ $json.email }}"
           },
           "matchingColumns": [
@@ -656,10 +658,10 @@
       "parameters": {
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
-        "fromName": "Kitty Wong",
+        "fromName": "GLS \u4f20\u8baf",
         "toEmail": "={{ $json.email }}",
-        "subject": "Reminder: Book your meeting with GLS \u4f20\u8baf \u2014 Air Cargo China 2026",
-        "contentValue": "=Dear {{ $json.name }},\n\nThis is a friendly reminder that GLS \u4f20\u8baf would love to meet you at Air Cargo China 2026.\n\n\ud83d\udcc5 June 24\u201326, 2026\n\ud83d\udccd Shanghai New International Expo Centre\n\nMeeting slots are filling up. Book yours now:\nhttps://jolly-bunny-04d897.netlify.app/\n\nIf you have any questions, please reply to this email.\n\nGLS \u4f20\u8baf Team\nmarketing@glshk.com",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
       "id": "a6000003-a600-a600-a600-a60000000003",
@@ -859,9 +861,9 @@
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
         "fromName": "GLS \u4f20\u8baf",
-        "toEmail": "={{ $node['Prep Assign'].json.salesperson_email }}",
-        "subject": "=[GLS \u4f20\u8baf] New appointment assigned \u2014 {{ $node['Prep Assign'].json.client_name }} | {{ $node['Prep Assign'].json.date }} {{ $node['Prep Assign'].json.time }}",
-        "contentValue": "=Dear {{ $node['Prep Assign'].json.salesperson_name }},\n\nYou have been assigned the following meeting at Air Cargo China 2026:\n\n\ud83d\udc64 Client: {{ $node['Prep Assign'].json.client_name }}\n\ud83c\udfe2 Company: {{ $node['Prep Assign'].json.company }}\n\ud83d\udce7 Email: {{ $node['Prep Assign'].json.client_email }}\n\ud83d\udcc5 Date: {{ $node['Prep Assign'].json.date }}\n\u23f0 Time: {{ $node['Prep Assign'].json.time }}\n\ud83d\udccd Location: Shanghai New International Expo Centre\n\nPlease be prepared for this meeting. For questions contact marketing@glshk.com.\n\nGLS \u4f20\u8baf Team",
+        "toEmail": "={{ $json.salesperson_email }}",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
       "id": "a8000004-a800-a800-a800-a80000000004",
@@ -884,11 +886,11 @@
       "parameters": {
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
-        "fromName": "Kitty Wong",
-        "toEmail": "={{ $node['Prep Assign'].json.client_email }}",
-        "subject": "=[GLS \u4f20\u8baf] Your meeting is confirmed \u2014 Air Cargo China 2026",
-        "additionalFields": {},
-        "contentValue": "=Dear {{ $node['Prep Assign'].json.client_name }},\n\nGreat news! Your meeting with GLS \u4f20\u8baf has been confirmed.\n\n\ud83d\udcc5 Date: {{ $node['Prep Assign'].json.date }}\n\u23f0 Time: {{ $node['Prep Assign'].json.time }}\n\ud83e\udd1d Your GLS contact: {{ $node['Prep Assign'].json.salesperson_name }} ({{ $node['Prep Assign'].json.salesperson_email }})\n\ud83d\udccd Location: Shanghai New International Expo Centre\n\nAdd to Calendar: {{ $node['Prep Assign'].json.cal_link }}\n\nWe look forward to meeting you at Air Cargo China 2026!\n\nGLS \u4f20\u8baf Team\nmarketing@glshk.com"
+        "fromName": "GLS \u4f20\u8baf",
+        "toEmail": "={{ $json.client_email }}",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
+        "additionalFields": {}
       },
       "id": "a8000005-a800-a800-a800-a80000000005",
       "name": "Send Customer Confirm",
@@ -1245,7 +1247,254 @@
         "responseBody": "={\"success\":true}",
         "options": {}
       }
+    },
+
+    {
+      "id": "S1000001",
+      "name": "Staff Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 3400],
+      "parameters": { "httpMethod": "GET", "path": "gls-staff", "responseMode": "responseNode", "options": {} },
+      "webhookId": "staff-webhook-001"
+    },
+    {
+      "id": "S1000002",
+      "name": "Read Staff Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 3400],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Staff" },
+        "options": {}
+      }
+    },
+    {
+      "id": "S1000003",
+      "name": "Respond Staff",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 3400],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({staff: $input.all().map(i => ({name: i.json.salesperson_name, email: i.json.salesperson_email}))}) }}",
+        "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } }
+      }
+    },
+
+    {
+      "id": "I1000001",
+      "name": "Image Upload Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 3560],
+      "parameters": { "httpMethod": "POST", "path": "gls-upload-image", "responseMode": "responseNode", "options": {} }
+    },
+    {
+      "id": "I1000002",
+      "name": "GitHub Upload Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 3560],
+      "parameters": {
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar filename = body.filename || ('img_' + Date.now() + '.png');\nvar content = body.content || '';\nvar token = process.env.GLS_GITHUB_TOKEN || '';\nvar url = 'https://api.github.com/repos/hkcalsto1/gls-chuanxun/contents/assets/' + filename;\nvar resp = await fetch(url, {\n  method: 'PUT',\n  headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'User-Agent': 'n8n' },\n  body: JSON.stringify({ message: 'Upload image ' + filename, content: content })\n});\nvar result = await resp.json();\nvar pageUrl = result.content && result.content.html_url\n  ? 'https://hkcalsto1.github.io/gls-chuanxun/assets/' + filename\n  : '';\nreturn [{json: {url: pageUrl, filename: filename, success: !!pageUrl}}];"
+      }
+    },
+    {
+      "id": "I1000003",
+      "name": "Respond Image Upload",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 3560],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } }
+      }
+    },
+
+    {
+      "id": "U1000001",
+      "name": "Unsubscribe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 3720],
+      "parameters": { "httpMethod": "GET", "path": "gls-unsubscribe", "responseMode": "responseNode", "options": {} },
+      "webhookId": "unsub-webhook-001"
+    },
+    {
+      "id": "U1000002",
+      "name": "Update Unsubscribe Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 3720],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Contacts" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.query.email || $json.email }}",
+            "status": "=unsubscribed"
+          },
+          "matchingColumns": ["email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "U1000003",
+      "name": "Respond Unsubscribe",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 3720],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<html><body style='font-family:sans-serif;text-align:center;padding:60px'><h2>Unsubscribed</h2><p>You have been removed from GLS 传讯 mailing list.</p></body></html>",
+        "options": { "responseHeaders": { "entries": [{ "name": "Content-Type", "value": "text/html" }] } }
+      }
+    },
+
+    {
+      "id": "T1001",
+      "name": "Read Tpl Invite",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [700, 1000],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "T1002",
+      "name": "Sub Invite Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [950, 1000],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you — Air Cargo China 2026',body:'Dear {{name}},\\n\\nGLS 传讯 would like to invite you to meet our team at Air Cargo China 2026.\\n\\n📅 June 24–26, 2026\\n📍 Shanghai New International Expo Centre\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Invite'].json;\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||'')};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+      }
+    },
+
+    {
+      "id": "T2001",
+      "name": "Read Tpl Bulk Invite",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1450, 1100],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "T2002",
+      "name": "Prep Bulk Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 1100],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you — Air Cargo China 2026',body:'Dear {{name}},\\n\\nPlease book your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||'')};\n  var subject = tpl.subject;\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
+      }
+    },
+
+    {
+      "id": "T3001",
+      "name": "Read Tpl Remind",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [700, 1800],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "T3002",
+      "name": "Sub Remind Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [950, 1800],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS 传讯',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS 传讯 would love to meet you at Air Cargo China 2026.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Remind'].json;\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||'')};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+      }
+    },
+
+    {
+      "id": "T4001",
+      "name": "Read Tpl SP",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [700, 2400],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "T4002",
+      "name": "Sub SP Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [950, 2400],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+      }
+    },
+
+    {
+      "id": "T5001",
+      "name": "Read Tpl Confirm",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [950, 2550],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "T5002",
+      "name": "Sub Confirm Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 2550],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting is confirmed!\\n📅 {{date}} {{time}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n📍 Shanghai New International Expo Centre\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||'')};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+      }
     }
+
   ],
   "pinData": {},
   "connections": {
@@ -1360,15 +1609,13 @@
       ]
     },
     "Prep Invite": {
-      "main": [
-        [
-          {
-            "node": "Send Invite Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Tpl Invite", "type": "main", "index": 0}]]
+    },
+    "Read Tpl Invite": {
+      "main": [[{"node": "Sub Invite Vars", "type": "main", "index": 0}]]
+    },
+    "Sub Invite Vars": {
+      "main": [[{"node": "Send Invite Email", "type": "main", "index": 0}]]
     },
     "Send Invite Email": {
       "main": [
@@ -1455,26 +1702,13 @@
       ]
     },
     "Respond Sending": {
-      "main": [
-        [
-          {
-            "node": "Expand Contacts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Tpl Bulk Invite", "type": "main", "index": 0}]]
     },
-    "Expand Contacts": {
-      "main": [
-        [
-          {
-            "node": "Send All Invites",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+    "Read Tpl Bulk Invite": {
+      "main": [[{"node": "Prep Bulk Emails", "type": "main", "index": 0}]]
+    },
+    "Prep Bulk Emails": {
+      "main": [[{"node": "Send All Invites", "type": "main", "index": 0}]]
     },
     "Send All Invites": {
       "main": [
@@ -1510,15 +1744,13 @@
       ]
     },
     "Prep Remind": {
-      "main": [
-        [
-          {
-            "node": "Send Remind Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Tpl Remind", "type": "main", "index": 0}]]
+    },
+    "Read Tpl Remind": {
+      "main": [[{"node": "Sub Remind Vars", "type": "main", "index": 0}]]
+    },
+    "Sub Remind Vars": {
+      "main": [[{"node": "Send Remind Email", "type": "main", "index": 0}]]
     },
     "Send Remind Email": {
       "main": [
@@ -1587,26 +1819,22 @@
       ]
     },
     "Update Booking Assigned": {
-      "main": [
-        [
-          {
-            "node": "Send SP Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Tpl SP", "type": "main", "index": 0}]]
+    },
+    "Read Tpl SP": {
+      "main": [[{"node": "Sub SP Vars", "type": "main", "index": 0}]]
+    },
+    "Sub SP Vars": {
+      "main": [[{"node": "Send SP Email", "type": "main", "index": 0}]]
     },
     "Send SP Email": {
-      "main": [
-        [
-          {
-            "node": "Send Customer Confirm",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Tpl Confirm", "type": "main", "index": 0}]]
+    },
+    "Read Tpl Confirm": {
+      "main": [[{"node": "Sub Confirm Vars", "type": "main", "index": 0}]]
+    },
+    "Sub Confirm Vars": {
+      "main": [[{"node": "Send Customer Confirm", "type": "main", "index": 0}]]
     },
     "Send Customer Confirm": {
       "main": [
@@ -1719,15 +1947,25 @@
       ]
     },
     "Update Contact Status": {
-      "main": [
-        [
-          {
-            "node": "Respond SG Events",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Respond SG Events", "type": "main", "index": 0}]]
+    },
+    "Staff Webhook": {
+      "main": [[{"node": "Read Staff Sheet", "type": "main", "index": 0}]]
+    },
+    "Read Staff Sheet": {
+      "main": [[{"node": "Respond Staff", "type": "main", "index": 0}]]
+    },
+    "Image Upload Webhook": {
+      "main": [[{"node": "GitHub Upload Code", "type": "main", "index": 0}]]
+    },
+    "GitHub Upload Code": {
+      "main": [[{"node": "Respond Image Upload", "type": "main", "index": 0}]]
+    },
+    "Unsubscribe Webhook": {
+      "main": [[{"node": "Update Unsubscribe Status", "type": "main", "index": 0}]]
+    },
+    "Update Unsubscribe Status": {
+      "main": [[{"node": "Respond Unsubscribe", "type": "main", "index": 0}]]
     }
   },
   "active": true,

@@ -15,21 +15,36 @@
       "name": "Schedule",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [5856, 1568]
+      "position": [
+        5856,
+        1568
+      ]
     },
     {
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "options": {}
       },
       "id": "c6cb540e-994a-4ca5-95a4-dd673ec33460",
       "name": "Read Bookings",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [6064, 1568],
+      "position": [
+        6064,
+        1568
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
@@ -40,25 +55,34 @@
       "name": "Check Reminders",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [6256, 1568]
+      "position": [
+        6256,
+        1568
+      ]
     },
     {
       "parameters": {
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
-        "fromName": "Kitty Wong",
+        "fromName": "GLS 传讯",
         "toEmail": "={{ $json.email }}",
-        "subject": "=[GLS 传讯] Meeting reminder in {{ $json._when }}",
-        "contentValue": "=Dear {{ $json.client_name }},\n\nThis is a reminder that your meeting with GLS 传讯 is in {{ $json._when }}.\n\n📅 Date: {{ $json.date }}\n⏰ Time: {{ $json.time }}\n🤝 Your GLS contact: {{ $json.salesperson_name }}\n\nSee you at Air Cargo China 2026, Shanghai!\n\nGLS 传讯 Team\n",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
       "id": "939f5f49-ce23-4cb4-a67b-206f174177a5",
       "name": "Send Reminder",
       "type": "n8n-nodes-base.sendGrid",
       "typeVersion": 1,
-      "position": [6464, 1568],
+      "position": [
+        6464,
+        1568
+      ],
       "credentials": {
-        "sendGridApi": { "id": "rrjx8UnEzsCE8Ok3", "name": "SendGrid account" }
+        "sendGridApi": {
+          "id": "rrjx8UnEzsCE8Ok3",
+          "name": "SendGrid account"
+        }
       }
     },
     {
@@ -69,7 +93,10 @@
       "name": "Done Reminder",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [6656, 1568]
+      "position": [
+        6656,
+        1568
+      ]
     },
     {
       "parameters": {
@@ -82,22 +109,37 @@
       "name": "GLS Form Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [5856, 2160],
+      "position": [
+        5856,
+        2160
+      ],
       "webhookId": "5c0f2d8a-9e65-4899-922a-7257bd30efa8"
     },
     {
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "options": {}
       },
       "id": "79678eda-e81d-4321-bca2-134348ecb13a",
       "name": "Read Slots (Form)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [6064, 2160],
+      "position": [
+        6064,
+        2160
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
@@ -108,18 +150,29 @@
       "name": "Match Slot (Form)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [6256, 2160]
+      "position": [
+        6256,
+        2160
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
           "combinator": "and",
           "conditions": [
             {
               "id": "gf-cond",
               "leftValue": "={{ $json._found }}",
-              "operator": { "type": "boolean", "operation": "true", "singleValue": true },
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
               "rightValue": ""
             }
           ]
@@ -130,36 +183,63 @@
       "name": "IF Slot Free",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [6464, 2160]
+      "position": [
+        6464,
+        2160
+      ]
     },
     {
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Staff" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Staff"
+        },
         "options": {}
       },
       "id": "6a011dc9-7367-4008-9384-d441fb5f21f6",
       "name": "Read Staff (Form)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [6656, 2064],
+      "position": [
+        6656,
+        2064
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "options": {}
       },
       "id": "a1eb3660-0d7f-4b7e-8e37-c81aeecc75f7",
       "name": "Read Bookings (Form)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [6864, 2064],
+      "position": [
+        6864,
+        2064
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
@@ -170,13 +250,22 @@
       "name": "Assign SP (Form)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [7072, 2064]
+      "position": [
+        7072,
+        2064
+      ]
     },
     {
       "parameters": {
         "operation": "append",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -199,23 +288,37 @@
       "name": "Append Booking (Form)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [7264, 2064],
+      "position": [
+        7264,
+        2064
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
             "Status": "booked",
             "Slot_Id": "={{ $node[\"Assign SP (Form)\"].json.slot_id }}"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
         },
@@ -225,9 +328,15 @@
       "name": "Mark Booked (Form)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [7472, 2064],
+      "position": [
+        7472,
+        2064
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       },
       "onError": "continueRegularOutput"
     },
@@ -235,19 +344,25 @@
       "parameters": {
         "resource": "mail",
         "fromEmail": "marketing@glshk.com",
-        "fromName": "Kitty Wong",
-        "toEmail": "={{ $node[\"Assign SP (Form)\"].json.email }}",
-        "subject": "[GLS 传讯] Meeting Request Received — Air Cargo China 2026",
-        "contentValue": "=Dear {{ $node[\"Assign SP (Form)\"].json.client_name }},\n\nThank you for requesting a meeting with GLS 传讯 at Air Cargo China 2026.\n\nWe have received your request for:\n📅 Date: {{ $node[\"Assign SP (Form)\"].json.date }}\n⏰ Time: {{ $node[\"Assign SP (Form)\"].json.time }}\n\nYou will receive a meeting confirmation within 3 working days.\n\nIf you have any questions, please contact us at marketing@glshk.com.\n\nGLS 传讯 Team\nmarketing@glshk.com\n",
+        "fromName": "GLS 传讯",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
       "id": "a6cc10b7-7b98-4dde-96d2-20032fabb899",
       "name": "Send Confirmation (Form)",
       "type": "n8n-nodes-base.sendGrid",
       "typeVersion": 1,
-      "position": [7664, 2064],
+      "position": [
+        7664,
+        2064
+      ],
       "credentials": {
-        "sendGridApi": { "id": "rrjx8UnEzsCE8Ok3", "name": "SendGrid account" }
+        "sendGridApi": {
+          "id": "rrjx8UnEzsCE8Ok3",
+          "name": "SendGrid account"
+        }
       },
       "onError": "continueRegularOutput"
     },
@@ -261,7 +376,10 @@
       "name": "Respond OK (Form)",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [7872, 2064]
+      "position": [
+        7872,
+        2064
+      ]
     },
     {
       "parameters": {
@@ -273,7 +391,10 @@
       "name": "Respond Fail (Form)",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [6656, 2320]
+      "position": [
+        6656,
+        2320
+      ]
     },
     {
       "parameters": {
@@ -285,22 +406,37 @@
       "name": "Dashboard Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [5856, 1856],
+      "position": [
+        5856,
+        1856
+      ],
       "webhookId": "26f63707-aa0d-4d85-870a-fe1924f9bed8"
     },
     {
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "options": {}
       },
       "id": "a4192639-f46a-4d4b-a642-6211a91ef9ae",
       "name": "Read All Bookings",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [6064, 1856],
+      "position": [
+        6064,
+        1856
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
@@ -311,7 +447,10 @@
       "name": "Generate Dashboard",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [6256, 1856]
+      "position": [
+        6256,
+        1856
+      ]
     },
     {
       "parameters": {
@@ -319,7 +458,12 @@
         "responseBody": "={{ $json.html }}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Content-Type", "value": "text/html" }]
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html"
+              }
+            ]
           }
         }
       },
@@ -327,7 +471,10 @@
       "name": "Respond Dashboard",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [6464, 1856]
+      "position": [
+        6464,
+        1856
+      ]
     },
     {
       "parameters": {
@@ -337,20 +484,31 @@
       "name": "Build Reminder Sent",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [6656, 1568]
+      "position": [
+        6656,
+        1568
+      ]
     },
     {
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
             "_reminders_sent": "=={{ $json._reminders_sent_new }}",
             "slot_id": "=={{ $json.slot_id }}"
           },
-          "matchingColumns": ["slot_id"],
+          "matchingColumns": [
+            "slot_id"
+          ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
         },
@@ -360,9 +518,15 @@
       "name": "Update Reminder Sent",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [6864, 1568],
+      "position": [
+        6864,
+        1568
+      ],
       "credentials": {
-        "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" }
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
       }
     },
     {
@@ -375,7 +539,10 @@
       "name": "GLS Page Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [5856, 2464],
+      "position": [
+        5856,
+        2464
+      ],
       "webhookId": "444e5aed-8e42-4fb8-a4fb-8f301606e79a"
     },
     {
@@ -384,7 +551,12 @@
         "responseBody": "<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"UTF-8\">\n<title>GLS - Book an Appointment</title>\n</head>\n<body>\n<p>Booking form</p>\n</body>\n</html>",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Content-Type", "value": "text/html; charset=utf-8" }]
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
           }
         }
       },
@@ -392,41 +564,384 @@
       "name": "Serve Form Page",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [6064, 2432]
+      "position": [
+        6064,
+        2432
+      ]
+    },
+    {
+      "id": "A_T1001",
+      "name": "Read Tpl Reminder",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        6456,
+        1568
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
+        "options": {
+          "continueIfEmpty": true
+        }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "A_T1002",
+      "name": "Sub Reminder Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6656,
+        1568
+      ],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_auto') || {subject:'[GLS 传讯] Meeting reminder in {{_when}}',body:'Dear {{client_name}},\\n\\nYour meeting with GLS 传讯 is in {{_when}}.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nGLS 传讯 Team'};\nvar d = $node['Check Reminders'].json;\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{_when}}':d._when||'','{{company}}':d.company||'','{{salesperson_name}}':d.salesperson_name||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+      }
+    },
+    {
+      "id": "A_T2001",
+      "name": "Read Tpl Booking Received",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        6456,
+        1800
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
+        "options": {
+          "continueIfEmpty": true
+        }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "A_T2002",
+      "name": "Sub Booking Received Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6656,
+        1800
+      ],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'booking_received') || {subject:'[GLS 传讯] Meeting Request Received',body:'Dear {{client_name}},\\n\\nThank you for requesting a meeting with GLS 传讯 at Air Cargo China 2026.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nWe will confirm your slot and send a confirmation email shortly.\\n\\nGLS 传讯 Team'};\nvar d = $node['Assign SP (Form)'].json;\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{company}}':d.company||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+      }
     }
   ],
   "pinData": {},
   "connections": {
-    "Schedule": { "main": [[{"node":"Read Bookings","type":"main","index":0}]] },
-    "Read Bookings": { "main": [[{"node":"Check Reminders","type":"main","index":0}]] },
-    "Check Reminders": { "main": [[{"node":"Send Reminder","type":"main","index":0}]] },
-    "Send Reminder": { "main": [[{"node":"Build Reminder Sent","type":"main","index":0}]] },
-    "Build Reminder Sent": { "main": [[{"node":"Update Reminder Sent","type":"main","index":0}]] },
-    "Update Reminder Sent": { "main": [[{"node":"Done Reminder","type":"main","index":0}]] },
-    "GLS Form Webhook": { "main": [[{"node":"Read Slots (Form)","type":"main","index":0}]] },
-    "Read Slots (Form)": { "main": [[{"node":"Match Slot (Form)","type":"main","index":0}]] },
-    "Match Slot (Form)": { "main": [[{"node":"IF Slot Free","type":"main","index":0}]] },
-    "IF Slot Free": {
+    "Schedule": {
       "main": [
-        [{"node":"Read Staff (Form)","type":"main","index":0}],
-        [{"node":"Respond Fail (Form)","type":"main","index":0}]
+        [
+          {
+            "node": "Read Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
-    "Read Staff (Form)": { "main": [[{"node":"Read Bookings (Form)","type":"main","index":0}]] },
-    "Read Bookings (Form)": { "main": [[{"node":"Assign SP (Form)","type":"main","index":0}]] },
-    "Assign SP (Form)": { "main": [[{"node":"Append Booking (Form)","type":"main","index":0}]] },
-    "Append Booking (Form)": { "main": [[{"node":"Mark Booked (Form)","type":"main","index":0}]] },
-    "Mark Booked (Form)": { "main": [[{"node":"Send Confirmation (Form)","type":"main","index":0}]] },
-    "Send Confirmation (Form)": { "main": [[{"node":"Respond OK (Form)","type":"main","index":0}]] },
-    "Dashboard Webhook": { "main": [[{"node":"Read All Bookings","type":"main","index":0}]] },
-    "Read All Bookings": { "main": [[{"node":"Generate Dashboard","type":"main","index":0}]] },
-    "Generate Dashboard": { "main": [[{"node":"Respond Dashboard","type":"main","index":0}]] },
-    "GLS Page Webhook": { "main": [[{"node":"Serve Form Page","type":"main","index":0}]] }
+    "Read Bookings": {
+      "main": [
+        [
+          {
+            "node": "Check Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reminders": {
+      "main": [
+        [
+          {
+            "node": "Read Tpl Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reminder": {
+      "main": [
+        [
+          {
+            "node": "Build Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reminder Sent": {
+      "main": [
+        [
+          {
+            "node": "Update Reminder Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Reminder Sent": {
+      "main": [
+        [
+          {
+            "node": "Done Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GLS Form Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read Slots (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Slots (Form)": {
+      "main": [
+        [
+          {
+            "node": "Match Slot (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Slot (Form)": {
+      "main": [
+        [
+          {
+            "node": "IF Slot Free",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Slot Free": {
+      "main": [
+        [
+          {
+            "node": "Read Staff (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Fail (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Staff (Form)": {
+      "main": [
+        [
+          {
+            "node": "Read Bookings (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Bookings (Form)": {
+      "main": [
+        [
+          {
+            "node": "Assign SP (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign SP (Form)": {
+      "main": [
+        [
+          {
+            "node": "Append Booking (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Booking (Form)": {
+      "main": [
+        [
+          {
+            "node": "Mark Booked (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Booked (Form)": {
+      "main": [
+        [
+          {
+            "node": "Read Tpl Booking Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation (Form)": {
+      "main": [
+        [
+          {
+            "node": "Respond OK (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dashboard Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read All Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Bookings": {
+      "main": [
+        [
+          {
+            "node": "Generate Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Respond Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GLS Page Webhook": {
+      "main": [
+        [
+          {
+            "node": "Serve Form Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Tpl Reminder": {
+      "main": [
+        [
+          {
+            "node": "Sub Reminder Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sub Reminder Vars": {
+      "main": [
+        [
+          {
+            "node": "Send Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Tpl Booking Received": {
+      "main": [
+        [
+          {
+            "node": "Sub Booking Received Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sub Booking Received Vars": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "active": true,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "versionId": "35b5ff3e-448f-44ac-a776-2e2ed74768f4",
-  "meta": { "instanceId": "f46520974004fbdd26797e65a10feedff5b3e19c804b73bcd97f01b2e649364f" },
+  "meta": {
+    "instanceId": "f46520974004fbdd26797e65a10feedff5b3e19c804b73bcd97f01b2e649364f"
+  },
   "id": "L269wytouZf0zKUk",
   "tags": []
 }
