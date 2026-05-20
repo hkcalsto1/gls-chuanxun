@@ -212,8 +212,29 @@
       transition: border-color 0.2s;
     }
     .tpl-field input:focus, .tpl-field textarea:focus { outline: none; border-color: #0C1F3F; }
-    .tpl-field textarea { resize: vertical; min-height: 200px; line-height: 1.6; }
+    .tpl-field textarea { resize: vertical; min-height: 240px; line-height: 1.6; }
     code { background: #f0f2f7; padding: 1px 5px; border-radius: 4px; font-size: 11px; color: #0C1F3F; }
+    .tpl-split { display: flex; gap: 16px; }
+    .tpl-split-edit { flex: 1; min-width: 0; }
+    .tpl-preview-wrap { flex: 1; min-width: 0; }
+    .tpl-preview-label { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .tpl-email-preview {
+      border: 1.5px solid #e0e4ed; border-radius: 8px; overflow: hidden;
+      background: white; min-height: 320px;
+    }
+    .tpl-email-header {
+      background: #f8f9fc; border-bottom: 1px solid #e0e4ed;
+      padding: 12px 16px; font-size: 12px; color: #555;
+    }
+    .tpl-email-header .ep-row { display: flex; gap: 6px; margin-bottom: 4px; }
+    .tpl-email-header .ep-row:last-child { margin-bottom: 0; }
+    .tpl-email-header .ep-label { font-weight: 700; color: #0C1F3F; min-width: 48px; }
+    .tpl-email-header .ep-subject { font-weight: 700; color: #1a1a2e; font-size: 13px; }
+    .tpl-email-body {
+      padding: 20px; font-size: 13px; line-height: 1.8; color: #222;
+      white-space: pre-wrap; word-break: break-word; min-height: 200px;
+    }
+    .tpl-var-sample { color: #F5A500; font-style: italic; }
 
     /* ── TOAST ── */
     #toast {
@@ -1110,6 +1131,32 @@
     }).join('');
   }
 
+  var SAMPLE_VARS = {
+    '{{name}}': 'David Chen',
+    '{{client_name}}': 'Mr David Chen',
+    '{{date}}': '06/25/2026',
+    '{{time}}': '10:00',
+    '{{salesperson_name}}': 'Kitty Wong',
+    '{{salesperson_email}}': 'Kitty.Wong@glshk.com',
+    '{{company}}': 'Asia Pacific Freight Ltd',
+    '{{client_email}}': 'david@apfreight.com',
+    '{{booking_link}}': 'https://hkcalsto1.github.io/gls-chuanxun/booking/',
+    '{{cal_link}}': 'https://calendar.google.com/calendar/render?action=TEMPLATE',
+    '{{_when}}': '1 day'
+  };
+
+  function renderPreview(subject, body) {
+    var s = subject;
+    var b = body.replace(/\\n/g, '\n');
+    Object.keys(SAMPLE_VARS).forEach(function(k) {
+      var safe = '<span class="tpl-var-sample">' + SAMPLE_VARS[k] + '</span>';
+      s = s.split(k).join(safe);
+      b = b.split(k).join(SAMPLE_VARS[k]);
+    });
+    document.getElementById('epSubject').innerHTML = s;
+    document.getElementById('epBody').textContent = b;
+  }
+
   function selectTemplate(idx) {
     activeTemplate = idx;
     document.querySelectorAll('.tpl-item').forEach(function(el, i) {
@@ -1119,16 +1166,33 @@
     var label = TEMPLATE_LABELS[t.template_name] || t.template_name;
     document.getElementById('tplEditorTitle').textContent = label;
     document.getElementById('tplSaveBtn').style.display = '';
+    var bodyClean = (t.body || '').replace(/\\n/g, '\n');
     document.getElementById('tplEditorBody').innerHTML =
-      '<div class="tpl-field"><label>Subject</label><input type="text" id="tplSubject" value="' + escHtml(t.subject || '') + '"></div>' +
-      '<div class="tpl-field"><label>Body</label><textarea id="tplBody">' + escHtml(t.body || '') + '</textarea></div>';
+      '<div class="tpl-split">' +
+        '<div class="tpl-split-edit">' +
+          '<div class="tpl-field"><label>Subject</label><input type="text" id="tplSubject" value="' + escHtml(t.subject || '') + '" oninput="renderPreview(this.value, document.getElementById(\'tplBody\').value)"></div>' +
+          '<div class="tpl-field"><label>Body</label><textarea id="tplBody" oninput="renderPreview(document.getElementById(\'tplSubject\').value, this.value)">' + escHtml(bodyClean) + '</textarea></div>' +
+        '</div>' +
+        '<div class="tpl-preview-wrap">' +
+          '<div class="tpl-preview-label">Preview</div>' +
+          '<div class="tpl-email-preview">' +
+            '<div class="tpl-email-header">' +
+              '<div class="ep-row"><span class="ep-label">From:</span><span>GLS 传讯 &lt;marketing@glshk.com&gt;</span></div>' +
+              '<div class="ep-row"><span class="ep-label">To:</span><span>David Chen &lt;david@apfreight.com&gt;</span></div>' +
+              '<div class="ep-row"><span class="ep-label">Subject:</span><span class="ep-subject" id="epSubject"></span></div>' +
+            '</div>' +
+            '<div class="tpl-email-body" id="epBody"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    renderPreview(t.subject || '', t.body || '');
   }
 
   async function saveTemplate() {
     if (activeTemplate === null) return;
     var t = allTemplates[activeTemplate];
     var subject = document.getElementById('tplSubject').value.trim();
-    var body = document.getElementById('tplBody').value;
+    var body = document.getElementById('tplBody').value.replace(/\n/g, '\\n');
     try {
       var res = await fetch(N8N + '/gls-save-template', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
