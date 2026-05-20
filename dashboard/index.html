@@ -196,6 +196,25 @@
     }
     .assign-row select:focus { outline: none; border-color: #0C1F3F; }
 
+    /* ── TEMPLATES ── */
+    .tpl-item {
+      padding: 10px 16px; cursor: pointer; font-size: 13px;
+      border-left: 3px solid transparent; transition: all 0.15s;
+      color: #444;
+    }
+    .tpl-item:hover { background: #f5f7ff; color: #0C1F3F; }
+    .tpl-item.active { border-left-color: #F5A500; background: #fffbf0; color: #0C1F3F; font-weight: 600; }
+    .tpl-field { margin-bottom: 16px; }
+    .tpl-field label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tpl-field input, .tpl-field textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid #e0e4ed;
+      border-radius: 8px; font-size: 13px; font-family: inherit; color: #222;
+      transition: border-color 0.2s;
+    }
+    .tpl-field input:focus, .tpl-field textarea:focus { outline: none; border-color: #0C1F3F; }
+    .tpl-field textarea { resize: vertical; min-height: 200px; line-height: 1.6; }
+    code { background: #f0f2f7; padding: 1px 5px; border-radius: 4px; font-size: 11px; color: #0C1F3F; }
+
     /* ── TOAST ── */
     #toast {
       position: fixed; bottom: 28px; right: 28px;
@@ -311,6 +330,9 @@
     </button>
     <button class="tab-btn" onclick="switchTab('bookings', this)">
       Confirmed Bookings <span class="tab-count" id="bookingsCount">—</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('templates', this)">
+      Email Templates
     </button>
   </div>
 
@@ -472,6 +494,47 @@
     </div>
   </div>
 
+  <!-- ═══ TAB: TEMPLATES ═══ -->
+  <div class="tab-content" id="tab-templates">
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+
+      <!-- Template List -->
+      <div class="card" style="width:220px;flex-shrink:0;">
+        <div class="card-header"><h3>Templates</h3></div>
+        <div id="templateList" style="padding:8px 0;"></div>
+      </div>
+
+      <!-- Editor -->
+      <div class="card" style="flex:1;">
+        <div class="card-header">
+          <h3 id="tplEditorTitle">Select a template</h3>
+          <button class="btn btn-gold btn-sm" onclick="saveTemplate()" id="tplSaveBtn" style="display:none">Save Template</button>
+        </div>
+        <div id="tplEditorBody" style="padding:20px;">
+          <p style="color:#999;font-size:13px;">Select a template from the left to edit it.</p>
+        </div>
+      </div>
+
+      <!-- Variable Guide -->
+      <div class="card" style="width:200px;flex-shrink:0;">
+        <div class="card-header"><h3>Variables</h3></div>
+        <div style="padding:14px;font-size:12px;color:#555;line-height:2;">
+          <div><code>{{name}}</code> — Contact name</div>
+          <div><code>{{client_name}}</code> — Booking name</div>
+          <div><code>{{date}}</code> — Meeting date</div>
+          <div><code>{{time}}</code> — Meeting time</div>
+          <div><code>{{salesperson_name}}</code> — SP name</div>
+          <div><code>{{salesperson_email}}</code> — SP email</div>
+          <div><code>{{company}}</code> — Company</div>
+          <div><code>{{booking_link}}</code> — Booking URL</div>
+          <div><code>{{cal_link}}</code> — Calendar link</div>
+          <div><code>{{_when}}</code> — "7 days" / "1 day" / "1 hour"</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div><!-- end #dashboard -->
 
 <!-- TOAST -->
@@ -537,9 +600,10 @@
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
-    if (name === 'contacts') loadContacts();
-    if (name === 'pending')  loadPending();
-    if (name === 'bookings') loadBookings();
+    if (name === 'contacts')  loadContacts();
+    if (name === 'pending')   loadPending();
+    if (name === 'bookings')  loadBookings();
+    if (name === 'templates') loadTemplates();
   }
 
   // ═══════════════════════════════════════
@@ -1007,6 +1071,82 @@
   }
 
   // ═══════════════════════════════════════
+  // ═══════════════════════════════════════
+  // TEMPLATES
+  // ═══════════════════════════════════════
+  var allTemplates = [];
+  var activeTemplate = null;
+
+  var TEMPLATE_LABELS = {
+    invite:           'Invite Email',
+    reminder_manual:  'Manual Reminder',
+    reminder_auto:    'Auto Reminder (7d/1d/1h)',
+    sp_confirm:       'SP Assignment Notice',
+    customer_confirm: 'Meeting Confirmed',
+    booking_received: 'Booking Received'
+  };
+
+  async function loadTemplates() {
+    try {
+      var res = await fetch(N8N + '/gls-templates');
+      var data = await res.json();
+      allTemplates = data.templates || [];
+    } catch(e) {
+      allTemplates = [];
+    }
+    renderTemplateList();
+    if (allTemplates.length) selectTemplate(0);
+  }
+
+  function renderTemplateList() {
+    var list = document.getElementById('templateList');
+    if (!allTemplates.length) {
+      list.innerHTML = '<div style="padding:16px;font-size:12px;color:#999;">No templates found.<br>Check your Templates sheet.</div>';
+      return;
+    }
+    list.innerHTML = allTemplates.map(function(t, i) {
+      var label = TEMPLATE_LABELS[t.template_name] || t.template_name;
+      return '<div class="tpl-item" id="tpl-item-' + i + '" onclick="selectTemplate(' + i + ')">' + label + '</div>';
+    }).join('');
+  }
+
+  function selectTemplate(idx) {
+    activeTemplate = idx;
+    document.querySelectorAll('.tpl-item').forEach(function(el, i) {
+      el.classList.toggle('active', i === idx);
+    });
+    var t = allTemplates[idx];
+    var label = TEMPLATE_LABELS[t.template_name] || t.template_name;
+    document.getElementById('tplEditorTitle').textContent = label;
+    document.getElementById('tplSaveBtn').style.display = '';
+    document.getElementById('tplEditorBody').innerHTML =
+      '<div class="tpl-field"><label>Subject</label><input type="text" id="tplSubject" value="' + escHtml(t.subject || '') + '"></div>' +
+      '<div class="tpl-field"><label>Body</label><textarea id="tplBody">' + escHtml(t.body || '') + '</textarea></div>';
+  }
+
+  async function saveTemplate() {
+    if (activeTemplate === null) return;
+    var t = allTemplates[activeTemplate];
+    var subject = document.getElementById('tplSubject').value.trim();
+    var body = document.getElementById('tplBody').value;
+    try {
+      var res = await fetch(N8N + '/gls-save-template', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template_name: t.template_name, subject: subject, body: body })
+      });
+      var result = await res.json();
+      if (result.success) {
+        allTemplates[activeTemplate].subject = subject;
+        allTemplates[activeTemplate].body = body;
+        showToast('✓ Template saved', 'success');
+      } else {
+        showToast('Failed to save template', 'error');
+      }
+    } catch(e) {
+      showToast('Failed to save template', 'error');
+    }
+  }
+
   // MODAL
   // ═══════════════════════════════════════
   var modalCallback = null;

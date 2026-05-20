@@ -1010,6 +1010,237 @@
         950,
         2700
       ]
+    },
+    {
+      "id": "A5CF2A7A",
+      "name": "Templates Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        2900
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "gls-templates",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "1C4660EE",
+      "name": "Read Templates Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        2900
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Templates"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "E3AC3404",
+      "name": "Respond Templates",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        2900
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({templates: $input.all().map(i => i.json)}) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "1CE47B92",
+      "name": "Save Template Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        3060
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-save-template",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ACFE4342",
+      "name": "Update Template Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        3060
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Templates"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "template_name": "={{ $json.body.template_name || $json.template_name }}",
+            "subject": "={{ $json.body.subject || $json.subject }}",
+            "body": "={{ $json.body.body || $json.body_text }}"
+          },
+          "matchingColumns": [
+            "template_name"
+          ],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "FE88EFE8",
+      "name": "Respond Save Template",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        3060
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "910C315F",
+      "name": "SendGrid Events Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        3220
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-sendgrid-events",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "FAC401E6",
+      "name": "Process SG Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        3220
+      ],
+      "parameters": {
+        "jsCode": "var events = $input.first().json.body || $input.first().json;\nif (!Array.isArray(events)) events = [events];\nvar statusMap = { open: 'opened', click: 'clicked', bounce: 'bounced', unsubscribe: 'unsubscribed', spamreport: 'spam' };\nvar results = [];\nevents.forEach(function(e) {\n  var status = statusMap[e.event];\n  if (status && e.email) results.push({ email: e.email, status: status });\n});\nreturn results.map(function(r) { return { json: r }; });"
+      }
+    },
+    {
+      "id": "63ACD35D",
+      "name": "Update Contact Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        3220
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Contacts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "status": "={{ $json.status }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "04F63759",
+      "name": "Respond SG Events",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        3220
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {}
+      }
     }
   ],
   "pinData": {},
@@ -1411,6 +1642,83 @@
         [
           {
             "node": "Respond Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Templates Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read Templates Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Templates Sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond Templates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Template Webhook": {
+      "main": [
+        [
+          {
+            "node": "Update Template Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Template Sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond Save Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SendGrid Events Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process SG Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process SG Events": {
+      "main": [
+        [
+          {
+            "node": "Update Contact Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Contact Status": {
+      "main": [
+        [
+          {
+            "node": "Respond SG Events",
             "type": "main",
             "index": 0
           }
