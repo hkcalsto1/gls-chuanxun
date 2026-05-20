@@ -611,7 +611,7 @@
         1568
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_auto') || {subject:'[GLS 传讯] Meeting reminder in {{_when}}',body:'Dear {{client_name}},\\n\\nYour meeting with GLS 传讯 is in {{_when}}.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nGLS 传讯 Team'};\nvar d = $node['Check Reminders'].json;\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{_when}}':d._when||'','{{company}}':d.company||'','{{salesperson_name}}':d.salesperson_name||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_auto') || {subject:'[GLS 传讯] Meeting reminder in {{_when}}',body:'Dear {{client_name}},\\n\\nYour meeting with GLS 传讯 is in {{_when}}.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nGLS 传讯 Team'};\nvar d = $node['Check Reminders'].json;\nvar unsub = 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=' + encodeURIComponent(d.email||'');\nvar vars = {'{{unsubscribe_link}}':unsub,'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{_when}}':d._when||'','{{company}}':d.company||'','{{salesperson_name}}':d.salesperson_name||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -656,8 +656,49 @@
         1800
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'booking_received') || {subject:'[GLS 传讯] Meeting Request Received',body:'Dear {{client_name}},\\n\\nThank you for requesting a meeting with GLS 传讯 at Air Cargo China 2026.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nWe will confirm your slot and send a confirmation email shortly.\\n\\nGLS 传讯 Team'};\nvar d = $node['Assign SP (Form)'].json;\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{company}}':d.company||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'booking_received') || {subject:'[GLS 传讯] Meeting Request Received',body:'Dear {{client_name}},\\n\\nThank you for requesting a meeting with GLS 传讯 at Air Cargo China 2026.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nWe will confirm your slot and send a confirmation email shortly.\\n\\nGLS 传讯 Team'};\nvar d = $node['Assign SP (Form)'].json;\nvar unsub = 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=' + encodeURIComponent(d.email||'');\nvar vars = {'{{unsubscribe_link}}':unsub,'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{company}}':d.company||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
+    },
+    {
+      "id": "A_BOOK_STATUS",
+      "name": "Update Contact Booked",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        6456,
+        1950
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Contacts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $node['Assign SP (Form)'].json.email }}",
+            "status": "=booked"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
     }
   ],
   "pinData": {},
@@ -816,7 +857,7 @@
       "main": [
         [
           {
-            "node": "Mark Booked (Form)",
+            "node": "Update Contact Booked",
             "type": "main",
             "index": 0
           }
@@ -927,6 +968,17 @@
         [
           {
             "node": "Send Confirmation (Form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Contact Booked": {
+      "main": [
+        [
+          {
+            "node": "Mark Booked (Form)",
             "type": "main",
             "index": 0
           }
