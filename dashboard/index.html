@@ -563,7 +563,7 @@
     var sel = document.getElementById('spFilter');
     SALESPEOPLE.forEach(function(sp) {
       var o = document.createElement('option');
-      o.value = sp; o.textContent = sp;
+      o.value = sp.name; o.textContent = sp.name;
       sel.appendChild(o);
     });
   }
