@@ -720,7 +720,7 @@
       }[c.status || 'not_sent'] || '<span class="badge not-sent">Not Sent</span>';
 
       var actions = '';
-      if (!c.invite_sent) {
+      if (c.invite_sent !== 'yes') {
         actions += '<button class="btn btn-primary btn-sm" onclick="sendInvite(' + i + ')">Send Invite</button>';
       } else if (c.status === 'sent' || c.status === 'opened') {
         actions += '<button class="btn btn-outline btn-sm" onclick="sendReminder(' + i + ')">Send Reminder</button>';
