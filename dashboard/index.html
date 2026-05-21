@@ -237,6 +237,22 @@
       white-space: pre-wrap; word-break: break-word; min-height: 200px;
     }
     .tpl-var-sample { color: #F5A500; font-style: italic; }
+    .tpl-when-banner { background:#f0f4ff; border:1.5px solid #c8d8ff; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:12.5px; color:#1a3a6e; line-height:1.5; }
+    .tpl-when-banner strong { font-weight:700; }
+    .tpl-item-sub { font-size:11px; color:#aaa; margin-top:2px; font-weight:400; line-height:1.3; display:block; }
+    .var-chips-wrap { display:flex; flex-wrap:wrap; gap:7px; padding:8px 0 2px; }
+    .var-chip { display:inline-flex; flex-direction:column; align-items:center; background:#f8f9fc; border:1.5px solid #e0e4ed; border-radius:8px; padding:6px 10px; cursor:pointer; transition:all 0.15s; text-align:center; min-width:72px; user-select:none; }
+    .var-chip:hover { background:#fffbf0; border-color:#F5A500; transform:translateY(-1px); }
+    .var-chip:active { transform:translateY(0); }
+    .var-chip-label { font-size:11.5px; font-weight:600; color:#0C1F3F; }
+    .var-chip-code { font-size:9.5px; color:#aaa; font-family:monospace; margin-top:2px; }
+    .psm-modal { max-width:620px !important; }
+    .psm-email-wrap { border:1.5px solid #e0e4ed; border-radius:8px; overflow:hidden; margin-bottom:16px; }
+    .psm-email-header { background:#f8f9fc; border-bottom:1px solid #e0e4ed; padding:12px 16px; font-size:12px; color:#555; }
+    .psm-email-header .ep-row { display:flex; gap:6px; margin-bottom:4px; }
+    .psm-email-header .ep-row:last-child { margin-bottom:0; }
+    .psm-email-header .ep-label { font-weight:700; color:#0C1F3F; min-width:54px; }
+    .psm-email-body { padding:20px; font-size:13px; line-height:1.8; color:#222; max-height:380px; overflow-y:auto; }
 
     /* ── TOAST ── */
     #toast {
@@ -530,7 +546,7 @@
     <div style="display:flex;gap:20px;align-items:flex-start;">
 
       <!-- Template List -->
-      <div class="card" style="width:220px;flex-shrink:0;">
+      <div class="card" style="width:240px;flex-shrink:0;">
         <div class="card-header"><h3>Templates</h3></div>
         <div id="templateList" style="padding:8px 0;"></div>
       </div>
@@ -546,23 +562,6 @@
         </div>
       </div>
 
-      <!-- Variable Guide -->
-      <div class="card" style="width:200px;flex-shrink:0;">
-        <div class="card-header"><h3>Variables</h3></div>
-        <div style="padding:14px;font-size:12px;color:#555;line-height:2;">
-          <div><code>{{name}}</code> — Contact name</div>
-          <div><code>{{client_name}}</code> — Booking name</div>
-          <div><code>{{date}}</code> — Meeting date</div>
-          <div><code>{{time}}</code> — Meeting time</div>
-          <div><code>{{salesperson_name}}</code> — SP name</div>
-          <div><code>{{salesperson_email}}</code> — SP email</div>
-          <div><code>{{company}}</code> — Company</div>
-          <div><code>{{booking_link}}</code> — Booking URL</div>
-          <div><code>{{cal_link}}</code> — Calendar link</div>
-          <div><code>{{_when}}</code> — "7 days" / "1 day" / "1 hour"</div>
-          <div><code>{{unsubscribe_link}}</code> — Unsubscribe URL</div>
-        </div>
-      </div>
 
     </div>
   </div>
@@ -580,6 +579,28 @@
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
       <button class="btn btn-gold" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW & SEND MODAL -->
+<div class="modal-overlay" id="previewSendModal">
+  <div class="modal psm-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="psmTitle" style="margin:0;">Preview Email</h3>
+      <button onclick="closePreviewSendModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
+    </div>
+    <div class="psm-email-wrap">
+      <div class="psm-email-header">
+        <div class="ep-row"><span class="ep-label">To:</span><span id="psmTo"></span></div>
+        <div class="ep-row"><span class="ep-label">Subject:</span><span id="psmSubject" style="font-weight:700;color:#1a1a2e;font-size:13px;"></span></div>
+      </div>
+      <div class="psm-email-body" id="psmBody"></div>
+    </div>
+    <p style="font-size:12px;color:#aaa;margin-bottom:12px;">This is how the email will look. Confirm to send it now.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closePreviewSendModal()">Cancel</button>
+      <button class="btn btn-gold" id="psmSendBtn">Send Email</button>
     </div>
   </div>
 </div>
@@ -646,6 +667,7 @@
     loadContacts();
     loadPending();
     loadBookings();
+    loadTemplates();
     // Auto-refresh every 90 seconds
     setInterval(function() {
       var active = document.querySelector('.tab-btn.active').textContent.trim();
@@ -844,42 +866,46 @@
 
   async function sendInvite(idx) {
     var c = allContacts[idx];
-    openModal(
-      'Send Invite to ' + c.name + '?',
-      'This will send the exhibition invite email to ' + c.email + '.',
-      async function() {
-        try {
-          await fetch(N8N + '/gls-invite', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: c.name, email: c.email, company: c.company })
-          });
-          showToast('Invite sent to ' + c.name, 'success');
-          loadContacts();
-        } catch(e) {
-          showToast('Failed to send invite.', 'error');
-        }
+    var tpl = allTemplates.find(function(t) { return t.template_name === 'invite'; });
+    var doSend = async function() {
+      try {
+        await fetch(N8N + '/gls-invite', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: c.name, email: c.email, company: c.company })
+        });
+        showToast('Invite sent to ' + c.name, 'success');
+        loadContacts();
+      } catch(e) {
+        showToast('Failed to send invite.', 'error');
       }
-    );
+    };
+    if (tpl) {
+      openPreviewSendModal('Send Invite — ' + c.name, c, tpl, doSend);
+    } else {
+      openModal('Send Invite to ' + c.name + '?', 'This will send the exhibition invite email to ' + c.email + '.', doSend);
+    }
   }
 
   async function sendReminder(idx) {
     var c = allContacts[idx];
-    openModal(
-      'Send Reminder to ' + c.name + '?',
-      'This will send a booking reminder email to ' + c.email + '.',
-      async function() {
-        try {
-          await fetch(N8N + '/gls-remind', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: c.name, email: c.email, company: c.company })
-          });
-          showToast('Reminder sent to ' + c.name, 'success');
-          loadContacts();
-        } catch(e) {
-          showToast('Failed to send reminder.', 'error');
-        }
+    var tpl = allTemplates.find(function(t) { return t.template_name === 'reminder_manual'; });
+    var doSend = async function() {
+      try {
+        await fetch(N8N + '/gls-remind', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: c.name, email: c.email, company: c.company })
+        });
+        showToast('Reminder sent to ' + c.name, 'success');
+        loadContacts();
+      } catch(e) {
+        showToast('Failed to send reminder.', 'error');
       }
-    );
+    };
+    if (tpl) {
+      openPreviewSendModal('Send Reminder — ' + c.name, c, tpl, doSend);
+    } else {
+      openModal('Send Reminder to ' + c.name + '?', 'This will send a booking reminder email to ' + c.email + '.', doSend);
+    }
   }
 
   async function sendAllUnsent() {
@@ -1176,6 +1202,28 @@
     booking_received: 'Booking Received'
   };
 
+  var TEMPLATE_WHEN = {
+    invite:           { short: 'Staff sends invite',       full: 'Staff clicks "Send Invite" on a contact in the Contacts tab' },
+    reminder_manual:  { short: 'Staff sends reminder',     full: 'Staff clicks "Send Reminder" on a contact who has been invited but not booked' },
+    reminder_auto:    { short: 'Auto: 7d / 1d / 1h before', full: 'Sent automatically 7 days, 1 day and 1 hour before a confirmed meeting' },
+    sp_confirm:       { short: 'SP assigned to booking',   full: 'Staff assigns a salesperson to a pending booking in the Pending tab' },
+    customer_confirm: { short: 'Booking confirmed',        full: 'Sent to the customer when their booking is confirmed and a salesperson is assigned' },
+    booking_received: { short: 'Customer submits form',    full: 'Sent automatically when a customer submits the online booking form' }
+  };
+
+  var VAR_LIST = [
+    { label: 'Contact Name',  code: '{{name}}' },
+    { label: 'Company',       code: '{{company}}' },
+    { label: 'Booking Link',  code: '{{booking_link}}' },
+    { label: 'Meeting Date',  code: '{{date}}' },
+    { label: 'Meeting Time',  code: '{{time}}' },
+    { label: 'Calendar Link', code: '{{cal_link}}' },
+    { label: 'Sales Person',  code: '{{salesperson_name}}' },
+    { label: 'SP Email',      code: '{{salesperson_email}}' },
+    { label: 'Time Until',    code: '{{_when}}' },
+    { label: 'Unsubscribe',   code: '{{unsubscribe_link}}' }
+  ];
+
   async function loadTemplates() {
     try {
       var res = await fetch(N8N + '/gls-templates');
@@ -1196,7 +1244,10 @@
     }
     list.innerHTML = allTemplates.map(function(t, i) {
       var label = TEMPLATE_LABELS[t.template_name] || t.template_name;
-      return '<div class="tpl-item" id="tpl-item-' + i + '" onclick="selectTemplate(' + i + ')">' + label + '</div>';
+      var sub = (TEMPLATE_WHEN[t.template_name] || {}).short || '';
+      return '<div class="tpl-item" id="tpl-item-' + i + '" onclick="selectTemplate(' + i + ')">' +
+        label + (sub ? '<span class="tpl-item-sub">' + sub + '</span>' : '') +
+      '</div>';
     }).join('');
   }
 
@@ -1221,10 +1272,26 @@
     Object.keys(SAMPLE_VARS).forEach(function(k) {
       var safe = '<span class="tpl-var-sample">' + SAMPLE_VARS[k] + '</span>';
       s = s.split(k).join(safe);
-      b = b.split(k).join(SAMPLE_VARS[k]);
+      b = b.split(k).join('<span class="tpl-var-sample">' + SAMPLE_VARS[k] + '</span>');
     });
     document.getElementById('epSubject').innerHTML = s;
-    document.getElementById('epBody').textContent = b;
+    var epBody = document.getElementById('epBody');
+    if (/<[a-z]/i.test(b)) {
+      epBody.innerHTML = b;
+    } else {
+      epBody.innerHTML = b.replace(/\n/g, '<br>');
+    }
+  }
+
+  function insertVariable(v) {
+    var ta = document.getElementById('tplBody');
+    if (!ta) return;
+    var start = ta.selectionStart;
+    var end = ta.selectionEnd;
+    ta.value = ta.value.slice(0, start) + v + ta.value.slice(end);
+    ta.selectionStart = ta.selectionEnd = start + v.length;
+    ta.focus();
+    renderPreview(document.getElementById('tplSubject').value, ta.value);
   }
 
   function selectTemplate(idx) {
@@ -1237,7 +1304,18 @@
     document.getElementById('tplEditorTitle').textContent = label;
     document.getElementById('tplSaveBtn').style.display = '';
     var bodyClean = (t.body || '').replace(/\\n/g, '\n');
+    var whenInfo = TEMPLATE_WHEN[t.template_name];
+    var whenBanner = whenInfo
+      ? '<div class="tpl-when-banner">Sent when: <strong>' + whenInfo.full + '</strong></div>'
+      : '';
+    var chips = VAR_LIST.map(function(v) {
+      return '<div class="var-chip" onclick="insertVariable(\'' + v.code + '\')">' +
+        '<span class="var-chip-label">' + v.label + '</span>' +
+        '<span class="var-chip-code">' + v.code + '</span>' +
+      '</div>';
+    }).join('');
     document.getElementById('tplEditorBody').innerHTML =
+      whenBanner +
       '<div class="tpl-split">' +
         '<div class="tpl-split-edit">' +
           '<div class="tpl-field"><label>Subject</label><input type="text" id="tplSubject" value="' + escHtml(t.subject || '') + '" oninput="renderPreview(this.value, document.getElementById(\'tplBody\').value)"></div>' +
@@ -1248,10 +1326,14 @@
               '<input type="file" id="imgFileInput" accept="image/*" style="display:none;" onchange="uploadImage(event)">' +
             '</div>' +
             '<textarea id="tplBody" oninput="renderPreview(document.getElementById(\'tplSubject\').value, this.value)">' + escHtml(bodyClean) + '</textarea>' +
+            '<div style="margin-top:10px;">' +
+              '<div style="font-size:11px;color:#aaa;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Click a variable to insert at cursor</div>' +
+              '<div class="var-chips-wrap">' + chips + '</div>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="tpl-preview-wrap">' +
-          '<div class="tpl-preview-label">Preview</div>' +
+          '<div class="tpl-preview-label">Live Preview <span style="font-size:10px;color:#bbb;font-weight:400;text-transform:none;">(sample values)</span></div>' +
           '<div class="tpl-email-preview">' +
             '<div class="tpl-email-header">' +
               '<div class="ep-row"><span class="ep-label">From:</span><span>GLS 传讯 &lt;marketing@glshk.com&gt;</span></div>' +
@@ -1345,6 +1427,42 @@
   });
   document.getElementById('confirmModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
+  });
+
+  // PREVIEW & SEND MODAL
+  // ═══════════════════════════════════════
+  var psmCallback = null;
+  function openPreviewSendModal(title, contact, tpl, onSend) {
+    var vars = Object.assign({}, SAMPLE_VARS, {
+      '{{name}}':         contact.name    || '',
+      '{{company}}':      contact.company || '',
+      '{{client_name}}':  contact.name    || ''
+    });
+    var subject = tpl.subject || '';
+    var body = (tpl.body || '').replace(/\\n/g, '\n');
+    Object.keys(vars).forEach(function(k) {
+      subject = subject.split(k).join(vars[k]);
+      body    = body.split(k).join(vars[k]);
+    });
+    var bodyHtml = /<[a-z]/i.test(body) ? body : body.replace(/\n/g, '<br>');
+    document.getElementById('psmTitle').textContent = title;
+    document.getElementById('psmTo').textContent = (contact.name || '') + ' <' + (contact.email || '') + '>';
+    document.getElementById('psmSubject').textContent = subject;
+    document.getElementById('psmBody').innerHTML = bodyHtml;
+    psmCallback = onSend;
+    document.getElementById('previewSendModal').classList.add('open');
+  }
+  function closePreviewSendModal() {
+    document.getElementById('previewSendModal').classList.remove('open');
+    psmCallback = null;
+  }
+  document.getElementById('psmSendBtn').addEventListener('click', async function() {
+    var cb = psmCallback;
+    closePreviewSendModal();
+    if (cb) await cb();
+  });
+  document.getElementById('previewSendModal').addEventListener('click', function(e) {
+    if (e.target === this) closePreviewSendModal();
   });
 
   // ═══════════════════════════════════════
