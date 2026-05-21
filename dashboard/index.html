@@ -240,12 +240,10 @@
     .tpl-when-banner { background:#f0f4ff; border:1.5px solid #c8d8ff; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:12.5px; color:#1a3a6e; line-height:1.5; }
     .tpl-when-banner strong { font-weight:700; }
     .tpl-item-sub { font-size:11px; color:#aaa; margin-top:2px; font-weight:400; line-height:1.3; display:block; }
-    .var-chips-wrap { display:flex; flex-wrap:wrap; gap:7px; padding:8px 0 2px; }
-    .var-chip { display:inline-flex; flex-direction:column; align-items:center; background:#f8f9fc; border:1.5px solid #e0e4ed; border-radius:8px; padding:6px 10px; cursor:pointer; transition:all 0.15s; text-align:center; min-width:72px; user-select:none; }
-    .var-chip:hover { background:#fffbf0; border-color:#F5A500; transform:translateY(-1px); }
-    .var-chip:active { transform:translateY(0); }
-    .var-chip-label { font-size:11.5px; font-weight:600; color:#0C1F3F; }
-    .var-chip-code { font-size:9.5px; color:#aaa; font-family:monospace; margin-top:2px; }
+    .var-chips-wrap { display:flex; flex-wrap:wrap; gap:7px; }
+    .var-chip { display:inline-block; background:white; border:1.5px solid #d0d5e8; border-radius:20px; padding:6px 14px; cursor:pointer; font-size:12.5px; font-weight:600; color:#0C1F3F; transition:all 0.15s; user-select:none; }
+    .var-chip:hover { background:#fffbf0; border-color:#F5A500; color:#0C1F3F; }
+    .var-chip:active { transform:scale(0.97); }
     .psm-modal { max-width:620px !important; }
     .psm-email-wrap { border:1.5px solid #e0e4ed; border-radius:8px; overflow:hidden; margin-bottom:16px; }
     .psm-email-header { background:#f8f9fc; border-bottom:1px solid #e0e4ed; padding:12px 16px; font-size:12px; color:#555; }
@@ -1212,17 +1210,28 @@
   };
 
   var VAR_LIST = [
-    { label: 'Contact Name',  code: '{{name}}' },
-    { label: 'Company',       code: '{{company}}' },
-    { label: 'Booking Link',  code: '{{booking_link}}' },
-    { label: 'Meeting Date',  code: '{{date}}' },
-    { label: 'Meeting Time',  code: '{{time}}' },
-    { label: 'Calendar Link', code: '{{cal_link}}' },
-    { label: 'Sales Person',  code: '{{salesperson_name}}' },
-    { label: 'SP Email',      code: '{{salesperson_email}}' },
-    { label: 'Time Until',    code: '{{_when}}' },
-    { label: 'Unsubscribe',   code: '{{unsubscribe_link}}' }
+    { friendly: '[Contact Name]',       code: '{{name}}' },
+    { friendly: '[Company]',            code: '{{company}}' },
+    { friendly: '[Booking Link]',       code: '{{booking_link}}' },
+    { friendly: '[Meeting Date]',       code: '{{date}}' },
+    { friendly: '[Meeting Time]',       code: '{{time}}' },
+    { friendly: '[Calendar Link]',      code: '{{cal_link}}' },
+    { friendly: '[Sales Person]',       code: '{{salesperson_name}}' },
+    { friendly: '[SP Email]',           code: '{{salesperson_email}}' },
+    { friendly: '[Time Until Meeting]', code: '{{_when}}' },
+    { friendly: '[Unsubscribe Link]',   code: '{{unsubscribe_link}}' }
   ];
+
+  function bodyToDisplay(raw) {
+    var s = raw;
+    VAR_LIST.forEach(function(v) { s = s.split(v.code).join(v.friendly); });
+    return s;
+  }
+  function bodyToSave(display) {
+    var s = display;
+    VAR_LIST.forEach(function(v) { s = s.split(v.friendly).join(v.code); });
+    return s;
+  }
 
   async function loadTemplates() {
     try {
@@ -1266,9 +1275,9 @@
     '{{unsubscribe_link}}': 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=david@apfreight.com'
   };
 
-  function renderPreview(subject, body) {
+  function renderPreview(subject, displayBody) {
     var s = subject;
-    var b = body.replace(/\\n/g, '\n');
+    var b = bodyToSave(displayBody).replace(/\\n/g, '\n');
     Object.keys(SAMPLE_VARS).forEach(function(k) {
       var safe = '<span class="tpl-var-sample">' + SAMPLE_VARS[k] + '</span>';
       s = s.split(k).join(safe);
@@ -1283,13 +1292,13 @@
     }
   }
 
-  function insertVariable(v) {
+  function insertVariable(friendly) {
     var ta = document.getElementById('tplBody');
     if (!ta) return;
     var start = ta.selectionStart;
     var end = ta.selectionEnd;
-    ta.value = ta.value.slice(0, start) + v + ta.value.slice(end);
-    ta.selectionStart = ta.selectionEnd = start + v.length;
+    ta.value = ta.value.slice(0, start) + friendly + ta.value.slice(end);
+    ta.selectionStart = ta.selectionEnd = start + friendly.length;
     ta.focus();
     renderPreview(document.getElementById('tplSubject').value, ta.value);
   }
@@ -1303,16 +1312,13 @@
     var label = TEMPLATE_LABELS[t.template_name] || t.template_name;
     document.getElementById('tplEditorTitle').textContent = label;
     document.getElementById('tplSaveBtn').style.display = '';
-    var bodyClean = (t.body || '').replace(/\\n/g, '\n');
+    var bodyClean = bodyToDisplay((t.body || '').replace(/\\n/g, '\n'));
     var whenInfo = TEMPLATE_WHEN[t.template_name];
     var whenBanner = whenInfo
       ? '<div class="tpl-when-banner">Sent when: <strong>' + whenInfo.full + '</strong></div>'
       : '';
     var chips = VAR_LIST.map(function(v) {
-      return '<div class="var-chip" onclick="insertVariable(\'' + v.code + '\')">' +
-        '<span class="var-chip-label">' + v.label + '</span>' +
-        '<span class="var-chip-code">' + v.code + '</span>' +
-      '</div>';
+      return '<div class="var-chip" onclick="insertVariable(\'' + v.friendly.replace(/'/g, "\\'") + '\')">' + v.friendly + '</div>';
     }).join('');
     document.getElementById('tplEditorBody').innerHTML =
       whenBanner +
@@ -1320,14 +1326,10 @@
         '<div class="tpl-split-edit">' +
           '<div class="tpl-field"><label>Subject</label><input type="text" id="tplSubject" value="' + escHtml(t.subject || '') + '" oninput="renderPreview(this.value, document.getElementById(\'tplBody\').value)"></div>' +
           '<div class="tpl-field"><label>Body</label>' +
-            '<div style="margin-bottom:6px;display:flex;gap:8px;align-items:center;">' +
-              '<button class="btn btn-outline btn-sm" onclick="document.getElementById(\'imgFileInput\').click()">📎 Upload Image</button>' +
-              '<span id="imgUploadStatus" style="font-size:11px;color:#888;"></span>' +
-              '<input type="file" id="imgFileInput" accept="image/*" style="display:none;" onchange="uploadImage(event)">' +
-            '</div>' +
             '<textarea id="tplBody" oninput="renderPreview(document.getElementById(\'tplSubject\').value, this.value)">' + escHtml(bodyClean) + '</textarea>' +
-            '<div style="margin-top:10px;">' +
-              '<div style="font-size:11px;color:#aaa;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Click a variable to insert at cursor</div>' +
+            '<div style="margin-top:12px;padding:12px;background:#f8f9fc;border-radius:8px;border:1px solid #e8eaf0;">' +
+              '<div style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;">Add a dynamic field</div>' +
+              '<div style="font-size:12px;color:#888;margin-bottom:10px;">Click a button to insert it into your email. Items in <strong>[brackets]</strong> are automatically filled in with real values when the email is sent.</div>' +
               '<div class="var-chips-wrap">' + chips + '</div>' +
             '</div>' +
           '</div>' +
@@ -1344,14 +1346,14 @@
           '</div>' +
         '</div>' +
       '</div>';
-    renderPreview(t.subject || '', t.body || '');
+    renderPreview(t.subject || '', bodyClean);
   }
 
   async function saveTemplate() {
     if (activeTemplate === null) return;
     var t = allTemplates[activeTemplate];
     var subject = document.getElementById('tplSubject').value.trim();
-    var body = document.getElementById('tplBody').value.replace(/\n/g, '\\n');
+    var body = bodyToSave(document.getElementById('tplBody').value).replace(/\n/g, '\\n');
     try {
       var res = await fetch(N8N + '/gls-save-template', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
