@@ -386,8 +386,19 @@
     </div>
 
     <div class="node-row"><div class="node system wide">System saves booking request to database<sub>Status: PENDING</sub></div></div>
-    <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
-    <div class="node-row"><div class="node email wide">📧 ACKNOWLEDGEMENT EMAIL → Customer<sub>"We received your request. You will receive confirmation within 3 working days."</sub></div></div>
+    <div class="v-space-sm"></div>
+
+    <div style="display:flex;justify-content:center;gap:32px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:220px;">📧 ACKNOWLEDGEMENT EMAIL → Customer<sub>"We received your request. Confirmation within 3 working days."</sub></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="v-line" style="height:16px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
+        <div class="node email" style="min-width:220px;">📧 INSTANT NOTIFICATION → Kitty<sub>kitty.wong@glshk.com · Guest name, company, email, requested slot</sub></div>
+      </div>
+    </div>
+
     <div class="v-space-sm"></div><div class="v-line" style="height:20px"></div><div class="arrow-down"></div><div class="v-space-sm"></div>
     <div class="node-row"><div class="node gls wide">Booking appears in GLS Dashboard as PENDING<sub>Awaiting GLS team review</sub></div></div>
 
@@ -562,6 +573,7 @@
           <tr><td>2</td><td><strong>Reminder — No Open</strong></td><td>Contact</td><td>Auto — 3 days after invite, if not opened</td><td>"Did you see our invite?" — re-engage</td></tr>
           <tr><td>3</td><td><strong>Reminder — No Click</strong></td><td>Contact</td><td>Auto — 2 days after open, if no booking</td><td>"You haven't booked your slot yet" + form link</td></tr>
           <tr><td>4</td><td><strong>Acknowledgement</strong></td><td>Customer</td><td>Auto — immediately on form submit</td><td>Confirm we received the request. Confirmation within 3 working days.</td></tr>
+          <tr><td>4b</td><td><strong>New Booking Alert</strong></td><td>Kitty (marketing@GLS)</td><td>Auto — immediately on form submit</td><td>Instant notification: guest name, company, email, requested slot. Prompt GLS team to review in dashboard.</td></tr>
           <tr><td>5</td><td><strong>Salesperson Assignment</strong></td><td>Salesperson</td><td>Auto — when GLS assigns in dashboard</td><td>You have a meeting. Customer details + date/time.</td></tr>
           <tr><td>6</td><td><strong>Booking Confirmation</strong></td><td>Customer</td><td>Auto — when GLS assigns in dashboard</td><td>Meeting confirmed. Date, time, salesperson, calendar link.</td></tr>
           <tr><td>7</td><td><strong>Reminder 7 days</strong></td><td>Customer + Salesperson</td><td>Auto — 7 days before meeting</td><td>Meeting reminder</td></tr>
