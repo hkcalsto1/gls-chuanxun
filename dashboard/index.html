@@ -558,6 +558,9 @@
       <div class="card" style="width:240px;flex-shrink:0;">
         <div class="card-header"><h3>Templates</h3></div>
         <div id="templateList" style="padding:8px 0;"></div>
+        <div style="padding:8px 12px 12px;">
+          <button class="btn btn-gold btn-sm" style="width:100%;" onclick="newTemplate()">+ New Template</button>
+        </div>
       </div>
 
       <!-- Editor -->
@@ -1485,6 +1488,19 @@
     } catch(e) {
       showToast('Failed to save template', 'error');
     }
+  }
+
+  function newTemplate() {
+    var name = prompt('Template name (no spaces, e.g. follow_up_email):');
+    if (!name) return;
+    name = name.trim().toLowerCase().replace(/\s+/g, '_');
+    if (allTemplates.find(function(t) { return t.template_name === name; })) {
+      showToast('A template with that name already exists.', 'error');
+      return;
+    }
+    allTemplates.push({ template_name: name, subject: '', body: '' });
+    renderTemplateList();
+    selectTemplate(allTemplates.length - 1);
   }
 
   async function uploadImage(event) {
