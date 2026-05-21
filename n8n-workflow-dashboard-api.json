@@ -292,33 +292,57 @@
     },
     {
       "parameters": {
-        "resource": "mail",
-        "fromEmail": "marketing@glshk.com",
-        "fromName": "GLS 传讯",
-        "toEmail": "={{ $json.email }}",
-        "subject": "={{ $json.subject }}",
-        "contentType": "text/html",
-        "contentValue": "={{ $json.body }}",
-        "additionalFields": {}
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
       },
       "id": "a4000003-a400-a400-a400-a40000000003",
       "name": "Send Invite Email",
-      "type": "n8n-nodes-base.sendGrid",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1200,
         1000
       ],
       "credentials": {
-        "sendGridApi": {
-          "id": "rrjx8UnEzsCE8Ok3",
-          "name": "SendGrid account"
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "var item = $input.first().json;\nvar email = item.toEmail || item.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
+        "jsCode": "var email = $node['Sub Invite Vars'].json.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
       },
       "id": "a4000004-a400-a400-a400-a40000000004",
       "name": "Mark Invite Sent",
@@ -547,33 +571,57 @@
     },
     {
       "parameters": {
-        "resource": "mail",
-        "fromEmail": "marketing@glshk.com",
-        "fromName": "GLS 传讯",
-        "toEmail": "={{ $json.email }}",
-        "subject": "={{ $json.subject }}",
-        "contentType": "text/html",
-        "contentValue": "={{ $json.body }}",
-        "additionalFields": {}
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
       },
       "id": "a5000008-a500-a500-a500-a50000000008",
       "name": "Send All Invites",
-      "type": "n8n-nodes-base.sendGrid",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1700,
         1100
       ],
       "credentials": {
-        "sendGridApi": {
-          "id": "rrjx8UnEzsCE8Ok3",
-          "name": "SendGrid account"
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "var item = $input.first().json;\nvar email = item.toEmail || item.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
+        "jsCode": "var email = $node['Prep Bulk Emails'].json.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
       },
       "id": "a5000009-a500-a500-a500-a50000000009",
       "name": "Mark All Sent",
@@ -658,34 +706,58 @@
     },
     {
       "parameters": {
-        "resource": "mail",
-        "fromEmail": "marketing@glshk.com",
-        "fromName": "GLS 传讯",
-        "toEmail": "={{ $json.email }}",
-        "subject": "={{ $json.subject }}",
-        "contentType": "text/html",
-        "contentValue": "={{ $json.body }}",
-        "additionalFields": {}
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
       },
       "id": "a6000003-a600-a600-a600-a60000000003",
       "name": "Send Remind Email",
-      "type": "n8n-nodes-base.sendGrid",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         700,
         1800
       ],
       "credentials": {
-        "sendGridApi": {
-          "id": "rrjx8UnEzsCE8Ok3",
-          "name": "SendGrid account"
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
         }
       }
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({success:true,email:$json.toEmail||$json.email}) }}",
+        "responseBody": "={{ JSON.stringify({success:true,email:$node['Sub Remind Vars'].json.email}) }}",
         "options": {
           "responseHeaders": {
             "entries": [
@@ -861,57 +933,105 @@
     },
     {
       "parameters": {
-        "resource": "mail",
-        "fromEmail": "marketing@glshk.com",
-        "fromName": "GLS 传讯",
-        "toEmail": "={{ $json.salesperson_email }}",
-        "subject": "={{ $json.subject }}",
-        "contentType": "text/html",
-        "contentValue": "={{ $json.body }}",
-        "additionalFields": {}
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.salesperson_email }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
       },
       "id": "a8000004-a800-a800-a800-a80000000004",
       "name": "Send SP Email",
-      "type": "n8n-nodes-base.sendGrid",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         950,
         2400
       ],
+      "onError": "continueRegularOutput",
       "credentials": {
-        "sendGridApi": {
-          "id": "rrjx8UnEzsCE8Ok3",
-          "name": "SendGrid account"
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "parameters": {
-        "resource": "mail",
-        "fromEmail": "marketing@glshk.com",
-        "fromName": "GLS 传讯",
-        "toEmail": "={{ $json.client_email }}",
-        "subject": "={{ $json.subject }}",
-        "contentType": "text/html",
-        "contentValue": "={{ $json.body }}",
-        "additionalFields": {}
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.client_email }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
+          ]
+        },
+        "options": {}
       },
       "id": "a8000005-a800-a800-a800-a80000000005",
       "name": "Send Customer Confirm",
-      "type": "n8n-nodes-base.sendGrid",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1200,
         2400
       ],
+      "onError": "continueRegularOutput",
       "credentials": {
-        "sendGridApi": {
-          "id": "rrjx8UnEzsCE8Ok3",
-          "name": "SendGrid account"
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
         }
-      },
-      "onError": "continueRegularOutput"
+      }
     },
     {
       "parameters": {
@@ -1496,7 +1616,7 @@
         1000
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Invite'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Invite'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
       }
     },
     {
@@ -1541,7 +1661,7 @@
         1100
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subject = tpl.subject;\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  if(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  if(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
       }
     },
     {
@@ -1586,7 +1706,7 @@
         1800
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS 传讯 at {{event_name}}',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS 传讯 would love to meet you at {{event_name}}.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Remind'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS 传讯 at {{event_name}}',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS 传讯 would love to meet you at {{event_name}}.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Remind'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
       }
     },
     {
@@ -1631,7 +1751,7 @@
         2400
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -1676,7 +1796,7 @@
         2550
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -1684,17 +1804,46 @@
       "name": "Settings Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 4200],
-      "parameters": { "httpMethod": "GET", "path": "gls-settings", "responseMode": "responseNode", "options": {} }
+      "position": [
+        250,
+        4200
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "gls-settings",
+        "responseMode": "responseNode",
+        "options": {}
+      }
     },
     {
       "id": "S1000002",
       "name": "Read Settings Sheet",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [500, 4200],
-      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
-      "parameters": { "operation": "read", "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" }, "sheetName": { "mode": "name", "value": "Settings" }, "options": { "continueIfEmpty": true } },
+      "position": [
+        500,
+        4200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Settings"
+        },
+        "options": {
+          "continueIfEmpty": true
+        }
+      },
       "onError": "continueRegularOutput",
       "continueOnFail": true
     },
@@ -1703,36 +1852,79 @@
       "name": "Format Settings",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [750, 4200],
-      "parameters": { "jsCode": "var rows = $input.all().map(function(i){return i.json;});\nvar s = rows[0] || {};\nreturn [{json:{event_name:s.event_name||'',event_dates:s.event_dates||'',event_venue:s.event_venue||''}}];" }
+      "position": [
+        750,
+        4200
+      ],
+      "parameters": {
+        "jsCode": "var rows = $input.all().map(function(i){return i.json;});\nvar s = rows[0] || {};\nreturn [{json:{event_name:s.event_name||'',event_dates:s.event_dates||'',event_venue:s.event_venue||''}}];"
+      }
     },
     {
       "id": "S1000004",
       "name": "Respond Settings",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1000, 4200],
-      "parameters": { "respondWith": "json", "responseBody": "={{ JSON.stringify($json) }}", "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } } }
+      "position": [
+        1000,
+        4200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
     },
     {
       "id": "S2000001",
       "name": "Save Settings Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 4400],
-      "parameters": { "httpMethod": "POST", "path": "gls-save-settings", "responseMode": "responseNode", "options": {} }
+      "position": [
+        250,
+        4400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-save-settings",
+        "responseMode": "responseNode",
+        "options": {}
+      }
     },
     {
       "id": "S2000002",
       "name": "Update Settings Sheet",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [500, 4400],
-      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "position": [
+        500,
+        4400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
       "parameters": {
         "operation": "appendOrUpdate",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Settings" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Settings"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -1741,12 +1933,50 @@
             "event_dates": "={{ $json.body.event_dates }}",
             "event_venue": "={{ $json.body.event_venue }}"
           },
-          "matchingColumns": ["id"],
+          "matchingColumns": [
+            "id"
+          ],
           "schema": [
-            { "id": "id", "displayName": "id", "required": false, "defaultMatch": true, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false },
-            { "id": "event_name", "displayName": "event_name", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false },
-            { "id": "event_dates", "displayName": "event_dates", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false },
-            { "id": "event_venue", "displayName": "event_venue", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false }
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "event_name",
+              "displayName": "event_name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "event_dates",
+              "displayName": "event_dates",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "event_venue",
+              "displayName": "event_venue",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            }
           ]
         },
         "options": {}
@@ -1759,8 +1989,24 @@
       "name": "Respond Save Settings",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [750, 4400],
-      "parameters": { "respondWith": "json", "responseBody": "={\"success\":true}", "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } } }
+      "position": [
+        750,
+        4400
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   "pinData": {},
@@ -2410,11 +2656,61 @@
         ]
       ]
     },
-    "Settings Webhook": { "main": [[{ "node": "Read Settings Sheet", "type": "main", "index": 0 }]] },
-    "Read Settings Sheet": { "main": [[{ "node": "Format Settings", "type": "main", "index": 0 }]] },
-    "Format Settings": { "main": [[{ "node": "Respond Settings", "type": "main", "index": 0 }]] },
-    "Save Settings Webhook": { "main": [[{ "node": "Update Settings Sheet", "type": "main", "index": 0 }]] },
-    "Update Settings Sheet": { "main": [[{ "node": "Respond Save Settings", "type": "main", "index": 0 }]] }
+    "Settings Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read Settings Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Settings Sheet": {
+      "main": [
+        [
+          {
+            "node": "Format Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Settings": {
+      "main": [
+        [
+          {
+            "node": "Respond Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Settings Webhook": {
+      "main": [
+        [
+          {
+            "node": "Update Settings Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Settings Sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond Save Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "active": true,
   "settings": {
