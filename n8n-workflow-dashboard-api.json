@@ -297,6 +297,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -551,6 +552,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -661,6 +663,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -749,7 +752,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var bookings = $input.all().map(function(i){return i.json;}).filter(function(b){return !!b.date;});\nvar confirmed = bookings.filter(function(b){\n  return String(b.status||'').toLowerCase() === 'confirmed';\n}).map(function(b){ return b.slot_Id || b.slot_id || ''; });\nvar pending = bookings.filter(function(b){\n  var s = String(b.status||'').toLowerCase();\n  return b.date && (s==='' || s==='pending');\n});\nvar pendingCount = {};\npending.forEach(function(b){\n  var id = b.slot_Id || b.slot_id || '';\n  pendingCount[id] = (pendingCount[id]||0) + 1;\n});\npending = pending.map(function(b){\n  var id = b.slot_Id || b.slot_id || '';\n  var conflict = confirmed.indexOf(id) !== -1 || pendingCount[id] > 1;\n  return Object.assign({}, b, {slot_status: conflict ? 'taken' : 'available'});\n});\npending.sort(function(a,b){\n  return String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time));\n});\nreturn [{json:{bookings:pending,count:pending.length}}];"
+        "jsCode": "var CAPACITY = 3;\nvar bookings = $input.all().map(function(i){return i.json;}).filter(function(b){return !!b.date;});\nvar confirmedCount = {};\nbookings.filter(function(b){\n  return String(b.status||'').toLowerCase() === 'confirmed';\n}).forEach(function(b){\n  var id = b.slot_Id || b.slot_id || '';\n  confirmedCount[id] = (confirmedCount[id]||0) + 1;\n});\nvar pending = bookings.filter(function(b){\n  var s = String(b.status||'').toLowerCase();\n  return b.date && (s==='' || s==='pending');\n});\nvar pendingCount = {};\npending.forEach(function(b){\n  var id = b.slot_Id || b.slot_id || '';\n  pendingCount[id] = (pendingCount[id]||0) + 1;\n});\npending = pending.map(function(b){\n  var id = b.slot_Id || b.slot_id || '';\n  var conf = confirmedCount[id] || 0;\n  var pend = pendingCount[id] || 0;\n  var conflict = conf >= CAPACITY || (conf + pend) > CAPACITY;\n  return Object.assign({}, b, {slot_status: conflict ? 'taken' : 'available'});\n});\npending.sort(function(a,b){\n  return String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time));\n});\nreturn [{json:{bookings:pending,count:pending.length}}];"
       },
       "id": "a7000003-a700-a700-a700-a70000000003",
       "name": "Format Pending",
@@ -863,6 +866,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.salesperson_email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -889,6 +893,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.client_email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -1491,7 +1496,7 @@
         1000
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you — Air Cargo China 2026',body:'Dear {{name}},\\n\\nGLS 传讯 would like to invite you to meet our team at Air Cargo China 2026.\\n\\n📅 June 24–26, 2026\\n📍 Shanghai New International Expo Centre\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Invite'].json;\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||'')};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Invite'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
       }
     },
     {
@@ -1536,7 +1541,7 @@
         1100
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you — Air Cargo China 2026',body:'Dear {{name}},\\n\\nPlease book your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||'')};\n  var subject = tpl.subject;\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subject = tpl.subject;\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  if(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
       }
     },
     {
@@ -1581,7 +1586,7 @@
         1800
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS 传讯',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS 传讯 would love to meet you at Air Cargo China 2026.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Remind'].json;\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||'')};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS 传讯 at {{event_name}}',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS 传讯 would love to meet you at {{event_name}}.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Remind'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
       }
     },
     {
@@ -1626,7 +1631,7 @@
         2400
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -1671,8 +1676,91 @@
         2550
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting is confirmed!\\n📅 {{date}} {{time}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n📍 Shanghai New International Expo Centre\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||'')};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
+    },
+    {
+      "id": "S1000001",
+      "name": "Settings Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 4200],
+      "parameters": { "httpMethod": "GET", "path": "gls-settings", "responseMode": "responseNode", "options": {} }
+    },
+    {
+      "id": "S1000002",
+      "name": "Read Settings Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [500, 4200],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": { "operation": "read", "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" }, "sheetName": { "mode": "name", "value": "Settings" }, "options": { "continueIfEmpty": true } },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "S1000003",
+      "name": "Format Settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 4200],
+      "parameters": { "jsCode": "var rows = $input.all().map(function(i){return i.json;});\nvar s = rows[0] || {};\nreturn [{json:{event_name:s.event_name||'',event_dates:s.event_dates||'',event_venue:s.event_venue||''}}];" }
+    },
+    {
+      "id": "S1000004",
+      "name": "Respond Settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 4200],
+      "parameters": { "respondWith": "json", "responseBody": "={{ JSON.stringify($json) }}", "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } } }
+    },
+    {
+      "id": "S2000001",
+      "name": "Save Settings Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 4400],
+      "parameters": { "httpMethod": "POST", "path": "gls-save-settings", "responseMode": "responseNode", "options": {} }
+    },
+    {
+      "id": "S2000002",
+      "name": "Update Settings Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [500, 4400],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "AeQwGHbDftGYpvZc", "name": "Google Sheets iamcharlesalston" } },
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Settings" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "settings",
+            "event_name": "={{ $json.body.event_name }}",
+            "event_dates": "={{ $json.body.event_dates }}",
+            "event_venue": "={{ $json.body.event_venue }}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            { "id": "id", "displayName": "id", "required": false, "defaultMatch": true, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false },
+            { "id": "event_name", "displayName": "event_name", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false },
+            { "id": "event_dates", "displayName": "event_dates", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false },
+            { "id": "event_venue", "displayName": "event_venue", "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string", "removed": false }
+          ]
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "S2000003",
+      "name": "Respond Save Settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [750, 4400],
+      "parameters": { "respondWith": "json", "responseBody": "={\"success\":true}", "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } } }
     }
   ],
   "pinData": {},
@@ -2321,7 +2409,12 @@
           }
         ]
       ]
-    }
+    },
+    "Settings Webhook": { "main": [[{ "node": "Read Settings Sheet", "type": "main", "index": 0 }]] },
+    "Read Settings Sheet": { "main": [[{ "node": "Format Settings", "type": "main", "index": 0 }]] },
+    "Format Settings": { "main": [[{ "node": "Respond Settings", "type": "main", "index": 0 }]] },
+    "Save Settings Webhook": { "main": [[{ "node": "Update Settings Sheet", "type": "main", "index": 0 }]] },
+    "Update Settings Sheet": { "main": [[{ "node": "Respond Save Settings", "type": "main", "index": 0 }]] }
   },
   "active": true,
   "settings": {

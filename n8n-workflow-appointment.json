@@ -67,6 +67,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -144,7 +145,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var body = $('GLS Form Webhook').all()[0].json.body || $('GLS Form Webhook').all()[0].json;\nvar slots = $input.all().map(function(i) { return i.json; });\n\nvar salutation = body.salutation || '';\nvar givenNames = body.given_names || '';\nvar surname = body.surname || '';\nvar fullName = [salutation, givenNames, surname].filter(Boolean).join(' ') || 'Unknown';\nvar email = body.email || '';\nvar company = body.company || '';\nvar title = body.title || '';\nvar preferredDate = body.preferred_date || '';\nvar preferredTime = String(body.preferred_time || '').replace(/^0/, '').trim();\n\nvar match = null;\nfor (var i = 0; i < slots.length; i++) {\n  var s = slots[i];\n  if (s.Status !== 'available') continue;\n  var slotDate = String(s.Date || '').trim();\n  var slotTime = String(s.Time || '').replace(/^0/, '').trim();\n  if (slotDate === preferredDate && slotTime === preferredTime) { match = s; break; }\n}\n\nif (!match) {\n  return [{ json: { _found: false, _reason: 'No available slot for ' + preferredDate + ' at ' + preferredTime } }];\n}\n\nreturn [{ json: {\n  _found: true,\n  slot_id: match.Slot_Id,\n  date: match.Date,\n  time: match.Time,\n  client_name: fullName,\n  email: email,\n  company: company,\n  title: title,\n  booked_at: new Date().toISOString()\n} }];"
+        "jsCode": "var body = $('GLS Form Webhook').all()[0].json.body || $('GLS Form Webhook').all()[0].json;\nvar slots = $input.all().map(function(i) { return i.json; });\n\nvar salutation = body.salutation || '';\nvar givenNames = body.given_names || '';\nvar surname = body.surname || '';\nvar fullName = [salutation, givenNames, surname].filter(Boolean).join(' ') || 'Unknown';\nvar email = body.email || '';\nvar company = body.company || '';\nvar title = body.title || '';\nvar preferredDate = body.preferred_date || '';\nvar preferredTime = String(body.preferred_time || '').replace(/^0/, '').trim();\n\nvar match = null;\nfor (var i = 0; i < slots.length; i++) {\n  var s = slots[i];\n  if (String(s.Status||'').toLowerCase() !== 'available') continue;\n  var cap = parseInt(s.capacity || 1);\n  var cnt = parseInt(s.booked_count || 0);\n  if (cnt >= cap) continue;\n  var slotDate = String(s.Date || '').trim();\n  var slotTime = String(s.Time || '').replace(/^0/, '').trim();\n  if (slotDate === preferredDate && slotTime === preferredTime) { match = s; break; }\n}\n\nif (!match) {\n  return [{ json: { _found: false, _reason: 'No available slot for ' + preferredDate + ' at ' + preferredTime } }];\n}\n\nreturn [{ json: {\n  _found: true,\n  slot_id: match.Slot_Id,\n  date: match.Date,\n  time: match.Time,\n  slot_capacity: parseInt(match.capacity || 1),\n  slot_booked_count: parseInt(match.booked_count || 0),\n  client_name: fullName,\n  email: email,\n  company: company,\n  title: title,\n  booked_at: new Date().toISOString()\n} }];"
       },
       "id": "f502baf2-f54b-4b71-b78f-0a998e30832e",
       "name": "Match Slot (Form)",
@@ -244,7 +245,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var staff = $('Read Staff (Form)').all().map(function(i) { return i.json; });\nvar bookings = $input.all().map(function(i) { return i.json; });\nvar formData = $('Match Slot (Form)').all()[0].json;\n\nif (!staff || staff.length === 0) {\n  return [{ json: Object.assign({}, formData, { salesperson_name: 'GLS Team', salesperson_email: 'marketing@glshk.com' }) }];\n}\n\nvar counts = {};\nstaff.forEach(function(s) { counts[s.salesperson_name] = 0; });\nbookings.forEach(function(b) {\n  if (b.salesperson_name && counts[b.salesperson_name] !== undefined) counts[b.salesperson_name]++;\n});\n\nvar assigned = staff[0]; var minCount = Infinity;\nstaff.forEach(function(s) {\n  var c = counts[s.salesperson_name] || 0;\n  if (c < minCount) { minCount = c; assigned = s; }\n});\n\nreturn [{ json: {\n  slot_id: formData.slot_id, date: formData.date, time: formData.time,\n  client_name: formData.client_name, email: formData.email,\n  company: formData.company || '', title: formData.title || '',\n  booked_at: formData.booked_at,\n  salesperson_name: assigned.salesperson_name,\n  salesperson_email: assigned.salesperson_email\n} }];"
+        "jsCode": "var staff = $('Read Staff (Form)').all().map(function(i) { return i.json; });\nvar bookings = $input.all().map(function(i) { return i.json; });\nvar formData = $('Match Slot (Form)').all()[0].json;\n\nif (!staff || staff.length === 0) {\n  return [{ json: Object.assign({}, formData, { salesperson_name: 'GLS Team', salesperson_email: 'marketing@glshk.com' }) }];\n}\n\nvar counts = {};\nstaff.forEach(function(s) { counts[s.salesperson_name] = 0; });\nbookings.forEach(function(b) {\n  if (b.salesperson_name && counts[b.salesperson_name] !== undefined) counts[b.salesperson_name]++;\n});\n\nvar assigned = staff[0]; var minCount = Infinity;\nstaff.forEach(function(s) {\n  var c = counts[s.salesperson_name] || 0;\n  if (c < minCount) { minCount = c; assigned = s; }\n});\n\nreturn [{ json: {\n  slot_id: formData.slot_id, date: formData.date, time: formData.time,\n  slot_capacity: formData.slot_capacity || 1,\n  slot_booked_count: formData.slot_booked_count || 0,\n  client_name: formData.client_name, email: formData.email,\n  company: formData.company || '', title: formData.title || '',\n  booked_at: formData.booked_at,\n  salesperson_name: assigned.salesperson_name,\n  salesperson_email: assigned.salesperson_email\n} }];"
       },
       "id": "c5520371-abc3-4a6c-839e-e05ce6d9042e",
       "name": "Assign SP (Form)",
@@ -313,8 +314,9 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Status": "booked",
-            "Slot_Id": "={{ $node[\"Assign SP (Form)\"].json.slot_id }}"
+            "Status": "={{ $json.new_status }}",
+            "booked_count": "={{ $json.new_booked_count }}",
+            "Slot_Id": "={{ $json.slot_id }}"
           },
           "matchingColumns": [
             "Slot_Id"
@@ -347,6 +349,7 @@
         "fromName": "GLS 传讯",
         "toEmail": "={{ $json.email }}",
         "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
         "contentValue": "={{ $json.body }}",
         "additionalFields": {}
       },
@@ -611,7 +614,7 @@
         1568
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_auto') || {subject:'[GLS 传讯] Meeting reminder in {{_when}}',body:'Dear {{client_name}},\\n\\nYour meeting with GLS 传讯 is in {{_when}}.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nGLS 传讯 Team'};\nvar d = $node['Check Reminders'].json;\nvar unsub = 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=' + encodeURIComponent(d.email||'');\nvar vars = {'{{unsubscribe_link}}':unsub,'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{_when}}':d._when||'','{{company}}':d.company||'','{{salesperson_name}}':d.salesperson_name||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_auto') || {subject:'[GLS 传讯] Meeting reminder in {{_when}}',body:'Dear {{client_name}},\\n\\nYour meeting with GLS 传讯 at {{event_name}} is in {{_when}}.\\n\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Check Reminders'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar unsub = 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=' + encodeURIComponent(d.email||'');\nvar vars = {'{{unsubscribe_link}}':unsub,'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{_when}}':d._when||'','{{company}}':d.company||'','{{salesperson_name}}':d.salesperson_name||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -656,7 +659,7 @@
         1800
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'booking_received') || {subject:'[GLS 传讯] Meeting Request Received',body:'Dear {{client_name}},\\n\\nThank you for requesting a meeting with GLS 传讯 at Air Cargo China 2026.\\n\\n📅 {{date}} {{time}}\\n📍 Shanghai New International Expo Centre\\n\\nWe will confirm your slot and send a confirmation email shortly.\\n\\nGLS 传讯 Team'};\nvar d = $node['Assign SP (Form)'].json;\nvar unsub = 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=' + encodeURIComponent(d.email||'');\nvar vars = {'{{unsubscribe_link}}':unsub,'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{company}}':d.company||''};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'booking_received') || {subject:'[GLS 传讯] Meeting Request Received',body:'Dear {{client_name}},\\n\\nThank you for requesting a meeting with GLS 传讯 at {{event_name}}.\\n\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nWe will confirm your slot shortly.\\n\\nGLS 传讯 Team'};\nvar d = $node['Assign SP (Form)'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar unsub = 'https://n8n.okahh.com/webhook/gls-unsubscribe?email=' + encodeURIComponent(d.email||'');\nvar vars = {'{{unsubscribe_link}}':unsub,'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{company}}':d.company||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = tpl.subject;\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -699,6 +702,16 @@
       },
       "onError": "continueRegularOutput",
       "continueOnFail": true
+    },
+    {
+      "id": "PREP_MARK_BOOKED_001",
+      "name": "Prep Mark Booked",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [7370, 2064],
+      "parameters": {
+        "jsCode": "var d = $input.first().json;\nvar newCount = (parseInt(d.slot_booked_count || 0)) + 1;\nvar cap = parseInt(d.slot_capacity || 1);\nvar newStatus = newCount >= cap ? 'booked' : 'available';\nreturn [{json: Object.assign({}, d, {new_booked_count: newCount, new_status: newStatus})}];"
+      }
     }
   ],
   "pinData": {},
@@ -975,6 +988,17 @@
       ]
     },
     "Update Contact Booked": {
+      "main": [
+        [
+          {
+            "node": "Prep Mark Booked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Mark Booked": {
       "main": [
         [
           {

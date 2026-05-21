@@ -379,6 +379,9 @@
     <button class="tab-btn" onclick="switchTab('templates', this)">
       Email Templates
     </button>
+    <button class="tab-btn" onclick="switchTab('settings', this)">
+      ⚙ Event Settings
+    </button>
   </div>
 
   <!-- ═══ TAB: CONTACTS ═══ -->
@@ -572,6 +575,39 @@
     </div>
   </div>
 
+  <!-- ═══ TAB: SETTINGS ═══ -->
+  <div class="tab-content" id="tab-settings">
+    <div style="max-width:600px;">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <h3>Event Settings</h3>
+          <button class="btn btn-gold btn-sm" onclick="saveSettings()">Save Changes</button>
+        </div>
+        <div style="padding:24px;">
+          <p style="font-size:13px;color:#888;margin-bottom:20px;">These values are used in all emails automatically. Update them here when the event changes — no need to edit individual templates.</p>
+          <div class="tpl-field">
+            <label>Event Name</label>
+            <input type="text" id="settingEventName" placeholder="e.g. Air Cargo China 2026">
+          </div>
+          <div class="tpl-field">
+            <label>Event Dates</label>
+            <input type="text" id="settingEventDates" placeholder="e.g. June 24–26, 2026">
+          </div>
+          <div class="tpl-field">
+            <label>Event Venue</label>
+            <input type="text" id="settingEventVenue" placeholder="e.g. Shanghai New International Expo Centre">
+          </div>
+        </div>
+      </div>
+      <div class="card" style="background:#f8f9fc;border:none;">
+        <div style="padding:16px 20px;font-size:12.5px;color:#888;line-height:1.8;">
+          <strong style="color:#555;">How it works:</strong><br>
+          In your email templates, use <strong>[Event Name]</strong>, <strong>[Event Dates]</strong> and <strong>[Event Venue]</strong> where you want these to appear. The system fills in the values above automatically when emails are sent.
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- end #dashboard -->
 
 <!-- TOAST -->
@@ -664,17 +700,48 @@
     if (name === 'pending')   loadPending();
     if (name === 'bookings')  loadBookings();
     if (name === 'templates') loadTemplates();
+    if (name === 'settings')  renderSettingsForm();
   }
 
   // ═══════════════════════════════════════
   // INIT
   // ═══════════════════════════════════════
+  var eventSettings = { event_name: '', event_dates: '', event_venue: '' };
+
+  async function loadSettings() {
+    try {
+      var res = await fetch(N8N + '/gls-settings');
+      var data = await res.json();
+      eventSettings = data;
+    } catch(e) {}
+  }
+  function renderSettingsForm() {
+    document.getElementById('settingEventName').value  = eventSettings.event_name  || '';
+    document.getElementById('settingEventDates').value = eventSettings.event_dates || '';
+    document.getElementById('settingEventVenue').value = eventSettings.event_venue || '';
+  }
+  async function saveSettings() {
+    eventSettings.event_name  = document.getElementById('settingEventName').value.trim();
+    eventSettings.event_dates = document.getElementById('settingEventDates').value.trim();
+    eventSettings.event_venue = document.getElementById('settingEventVenue').value.trim();
+    try {
+      await fetch(N8N + '/gls-save-settings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventSettings)
+      });
+      showToast('✓ Event settings saved', 'success');
+    } catch(e) {
+      showToast('Failed to save settings', 'error');
+    }
+  }
+
   function initDashboard() {
     loadStaff();
     loadContacts();
     loadPending();
     loadBookings();
     loadTemplates();
+    loadSettings();
     // Auto-refresh every 90 seconds
     setInterval(function() {
       var active = document.querySelector('.tab-btn.active').textContent.trim();
@@ -1220,6 +1287,9 @@
   };
 
   var VAR_LIST = [
+    { friendly: '[Event Name]',         code: '{{event_name}}' },
+    { friendly: '[Event Dates]',        code: '{{event_dates}}' },
+    { friendly: '[Event Venue]',        code: '{{event_venue}}' },
     { friendly: '[Contact Name]',       code: '{{name}}' },
     { friendly: '[Company]',            code: '{{company}}' },
     { friendly: '[Booking Link]',       code: '{{booking_link}}' },
@@ -1271,6 +1341,9 @@
   }
 
   var SAMPLE_VARS = {
+    '{{event_name}}':  'Air Cargo China 2026',
+    '{{event_dates}}': 'June 24–26, 2026',
+    '{{event_venue}}': 'Shanghai New International Expo Centre',
     '{{name}}': 'David Chen',
     '{{client_name}}': 'Mr David Chen',
     '{{date}}': '06/25/2026',
@@ -1478,6 +1551,9 @@
   var psmCallback = null;
   function openPreviewSendModal(title, contact, tpl, onSend) {
     var vars = Object.assign({}, SAMPLE_VARS, {
+      '{{event_name}}':   eventSettings.event_name  || SAMPLE_VARS['{{event_name}}'],
+      '{{event_dates}}':  eventSettings.event_dates || SAMPLE_VARS['{{event_dates}}'],
+      '{{event_venue}}':  eventSettings.event_venue || SAMPLE_VARS['{{event_venue}}'],
       '{{name}}':         contact.name    || '',
       '{{company}}':      contact.company || '',
       '{{client_name}}':  contact.name    || ''
