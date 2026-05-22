@@ -614,6 +614,39 @@
 
 </div><!-- end #dashboard -->
 
+<!-- RESCHEDULE MODAL -->
+<div class="modal-overlay" id="rescheduleModal">
+  <div class="modal" style="max-width:500px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">Reschedule Booking</h3>
+      <button onclick="closeRescheduleModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
+    </div>
+    <div id="rsCurrentInfo" style="background:#f4f7fb;border-left:4px solid #F5A500;padding:12px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;"></div>
+    <div class="form-field" style="margin-bottom:14px;">
+      <label>New Date</label>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:400;cursor:pointer;">
+          <input type="radio" name="rs-date" value="06/24/2026" onchange="rescheduleLoadSlots()"> Wed 24 Jun 2026
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:400;cursor:pointer;">
+          <input type="radio" name="rs-date" value="06/25/2026" onchange="rescheduleLoadSlots()"> Thu 25 Jun 2026
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:400;cursor:pointer;">
+          <input type="radio" name="rs-date" value="06/26/2026" onchange="rescheduleLoadSlots()"> Fri 26 Jun 2026
+        </label>
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:20px;">
+      <label>Available Time Slots</label>
+      <div id="rsTimeGroup" style="margin-top:8px;font-size:13px;color:#aaa;font-style:italic;">Select a date above.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeRescheduleModal()">Cancel</button>
+      <button class="btn btn-gold" id="rsConfirmBtn" onclick="submitReschedule()" disabled>Confirm Reschedule</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -1113,7 +1146,11 @@
         '<td>' + escHtml(formatTime(p.time)) + '</td>' +
         '<td>' + slotBadge + '</td>' +
         '<td><div class="assign-row"><select id="sp-' + i + '">' + spOptions + '</select></div></td>' +
-        '<td><button class="btn btn-gold btn-sm" onclick="assignBooking(' + i + ')">Assign &amp; Confirm</button></td>' +
+        '<td class="actions-cell">' +
+          '<button class="btn btn-gold btn-sm" onclick="assignBooking(' + i + ')">Assign &amp; Confirm</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="openRescheduleModal(' + i + ')">Reschedule</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="cancelPending(' + i + ')">Cancel</button>' +
+        '</td>' +
         '</tr>';
     }).join('');
   }
@@ -1548,6 +1585,109 @@
     };
     reader.readAsDataURL(file);
   }
+
+  // ═══════════════════════════════════════
+  // CANCEL & RESCHEDULE PENDING
+  // ═══════════════════════════════════════
+  async function cancelPending(idx) {
+    var p = allPending[idx];
+    openModal(
+      'Cancel This Booking?',
+      'Cancel the pending request from ' + p.client_name + ' (' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + ')? The slot will be freed.',
+      async function() {
+        try {
+          await fetch(N8N + '/gls-cancel-pending', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slot_id: p.slot_Id || p.slot_id, email: p.email })
+          });
+          showToast('Booking cancelled. Slot freed.', 'success');
+          loadPending();
+        } catch(e) {
+          showToast('Failed to cancel booking.', 'error');
+        }
+      }
+    );
+  }
+
+  var rsTarget = null;
+  var rsAvailableSlots = [];
+  var rsNewSlot = null;
+
+  async function openRescheduleModal(idx) {
+    rsTarget = allPending[idx];
+    rsNewSlot = null;
+    document.querySelectorAll('input[name="rs-date"]').forEach(function(r) { r.checked = false; });
+    document.getElementById('rsTimeGroup').innerHTML = '<span style="color:#aaa;font-style:italic;">Select a date above.</span>';
+    document.getElementById('rsConfirmBtn').disabled = true;
+    document.getElementById('rsCurrentInfo').innerHTML =
+      '<strong>' + escHtml(rsTarget.client_name || '') + '</strong>' +
+      (rsTarget.company ? ' — ' + escHtml(rsTarget.company) : '') + '<br>' +
+      'Current slot: <strong>' + escHtml(formatDateDisplay(rsTarget.date)) + ' at ' + escHtml(formatTime(rsTarget.time)) + '</strong>';
+    try {
+      var res = await fetch(N8N + '/gls-slots');
+      var data = await res.json();
+      rsAvailableSlots = data.slots || [];
+    } catch(e) { rsAvailableSlots = []; }
+    document.getElementById('rescheduleModal').classList.add('open');
+  }
+
+  function closeRescheduleModal() {
+    document.getElementById('rescheduleModal').classList.remove('open');
+    rsTarget = null; rsNewSlot = null;
+  }
+
+  function rescheduleLoadSlots() {
+    var sel = document.querySelector('input[name="rs-date"]:checked');
+    if (!sel) return;
+    var date = sel.value;
+    rsNewSlot = null;
+    document.getElementById('rsConfirmBtn').disabled = true;
+    var forDate = rsAvailableSlots.filter(function(s) { return s.Date === date; });
+    var group = document.getElementById('rsTimeGroup');
+    if (!forDate.length) {
+      group.innerHTML = '<span style="color:#aaa;font-style:italic;">No available slots for this date.</span>';
+      return;
+    }
+    group.innerHTML = forDate.map(function(s) {
+      return '<label style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #f0f0f0;font-size:13px;cursor:pointer;">' +
+        '<input type="radio" name="rs-time" value="' + escHtml(s.Time) + '" data-slot-id="' + escHtml(s.Slot_Id || '') + '" onchange="rsPickSlot(this,\'' + escHtml(date) + '\')">' +
+        escHtml(formatTime(s.Time)) +
+      '</label>';
+    }).join('');
+  }
+
+  function rsPickSlot(input, date) {
+    rsNewSlot = { Slot_Id: input.dataset.slotId, Date: date, Time: input.value };
+    document.getElementById('rsConfirmBtn').disabled = false;
+  }
+
+  async function submitReschedule() {
+    if (!rsTarget || !rsNewSlot) return;
+    var btn = document.getElementById('rsConfirmBtn');
+    btn.disabled = true;
+    try {
+      await fetch(N8N + '/gls-reschedule-pending', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          old_slot_id: rsTarget.slot_Id || rsTarget.slot_id,
+          email: rsTarget.email,
+          new_slot_id: rsNewSlot.Slot_Id,
+          new_date: rsNewSlot.Date,
+          new_time: rsNewSlot.Time
+        })
+      });
+      closeRescheduleModal();
+      showToast('Rescheduled to ' + formatDateDisplay(rsNewSlot.Date) + ' at ' + formatTime(rsNewSlot.Time), 'success');
+      loadPending();
+    } catch(e) {
+      showToast('Failed to reschedule.', 'error');
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById('rescheduleModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRescheduleModal();
+  });
 
   // ═══════════════════════════════════════
   // DELETE OPERATIONS

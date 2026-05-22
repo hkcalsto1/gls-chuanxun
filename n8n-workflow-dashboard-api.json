@@ -2129,6 +2129,268 @@
       }
     },
     {
+      "id": "CP1001",
+      "name": "Cancel Pending Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 5200],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-cancel-pending",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "cp-webhook-001"
+    },
+    {
+      "id": "CP1002",
+      "name": "Read Slots For Cancel",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 5200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "options": {}
+      }
+    },
+    {
+      "id": "CP1003",
+      "name": "Prep Cancel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 5200],
+      "parameters": {
+        "jsCode": "var wb = $('Cancel Pending Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar slotId = String(body.slot_id || '');\nvar email = String(body.email || '');\nvar slots = $input.all().map(function(i){return i.json;});\nvar slot = slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount = slot ? Math.max(0, parseInt(slot.booked_count||0)-1) : 0;\nreturn [{json:{slot_Id:slotId,email:email,new_booked_count:String(newCount),new_slot_status:'available'}}];"
+      }
+    },
+    {
+      "id": "CP1004",
+      "name": "Update Booking Cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [750, 5200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slot_Id": "={{ $json.slot_Id }}",
+            "email": "={{ $json.email }}",
+            "status": "=cancelled"
+          },
+          "matchingColumns": ["slot_Id", "email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CP1005",
+      "name": "Update Slot After Cancel",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1000, 5200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.slot_Id }}",
+            "booked_count": "={{ $json.new_booked_count }}",
+            "Status": "={{ $json.new_slot_status }}"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CP1006",
+      "name": "Respond Cancel Pending",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 5200],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+          }
+        }
+      }
+    },
+    {
+      "id": "RS1001",
+      "name": "Reschedule Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 5400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-reschedule-pending",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "rs-webhook-001"
+    },
+    {
+      "id": "RS1002",
+      "name": "Read Slots For Reschedule",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 5400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "options": {}
+      }
+    },
+    {
+      "id": "RS1003",
+      "name": "Prep Reschedule",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 5400],
+      "parameters": {
+        "jsCode": "var wb = $('Reschedule Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar oldSlotId = String(body.old_slot_id||'');\nvar newSlotId = String(body.new_slot_id||'');\nvar email = String(body.email||'');\nvar newDate = String(body.new_date||'');\nvar newTime = String(body.new_time||'');\nvar slots = $input.all().map(function(i){return i.json;});\nvar oldSlot = slots.find(function(s){return String(s.Slot_Id||'')===oldSlotId;});\nvar newSlot = slots.find(function(s){return String(s.Slot_Id||'')===newSlotId;});\nvar oldNewCount = oldSlot ? Math.max(0,parseInt(oldSlot.booked_count||0)-1) : 0;\nvar newBookCount = newSlot ? parseInt(newSlot.booked_count||0)+1 : 1;\nvar newCap = newSlot ? parseInt(newSlot.capacity||1) : 1;\nvar newSlotStatus = newBookCount >= newCap ? 'booked' : 'available';\nreturn [{json:{old_slot_Id:oldSlotId,new_slot_Id:newSlotId,email:email,new_date:newDate,new_time:newTime,old_new_count:String(oldNewCount),new_count:String(newBookCount),new_slot_status:newSlotStatus}}];"
+      }
+    },
+    {
+      "id": "RS1004",
+      "name": "Update Booking Rescheduled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [750, 5400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "slot_Id": "={{ $json.new_slot_Id }}",
+            "date": "={{ $json.new_date }}",
+            "time": "={{ $json.new_time }}"
+          },
+          "matchingColumns": ["email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RS1005",
+      "name": "Update Old Slot After Reschedule",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1000, 5400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.old_slot_Id }}",
+            "booked_count": "={{ $json.old_new_count }}",
+            "Status": "=available"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RS1006",
+      "name": "Update New Slot After Reschedule",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1250, 5400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.new_slot_Id }}",
+            "booked_count": "={{ $json.new_count }}",
+            "Status": "={{ $json.new_slot_status }}"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RS1007",
+      "name": "Respond Reschedule",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1500, 5400],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+          }
+        }
+      }
+    },
+    {
       "id": "DT1001",
       "name": "Delete Template Webhook",
       "type": "n8n-nodes-base.webhook",
@@ -2890,6 +3152,39 @@
           }
         ]
       ]
+    },
+    "Cancel Pending Webhook": {
+      "main": [[{ "node": "Read Slots For Cancel", "type": "main", "index": 0 }]]
+    },
+    "Read Slots For Cancel": {
+      "main": [[{ "node": "Prep Cancel", "type": "main", "index": 0 }]]
+    },
+    "Prep Cancel": {
+      "main": [[{ "node": "Update Booking Cancelled", "type": "main", "index": 0 }]]
+    },
+    "Update Booking Cancelled": {
+      "main": [[{ "node": "Update Slot After Cancel", "type": "main", "index": 0 }]]
+    },
+    "Update Slot After Cancel": {
+      "main": [[{ "node": "Respond Cancel Pending", "type": "main", "index": 0 }]]
+    },
+    "Reschedule Webhook": {
+      "main": [[{ "node": "Read Slots For Reschedule", "type": "main", "index": 0 }]]
+    },
+    "Read Slots For Reschedule": {
+      "main": [[{ "node": "Prep Reschedule", "type": "main", "index": 0 }]]
+    },
+    "Prep Reschedule": {
+      "main": [[{ "node": "Update Booking Rescheduled", "type": "main", "index": 0 }]]
+    },
+    "Update Booking Rescheduled": {
+      "main": [[{ "node": "Update Old Slot After Reschedule", "type": "main", "index": 0 }]]
+    },
+    "Update Old Slot After Reschedule": {
+      "main": [[{ "node": "Update New Slot After Reschedule", "type": "main", "index": 0 }]]
+    },
+    "Update New Slot After Reschedule": {
+      "main": [[{ "node": "Respond Reschedule", "type": "main", "index": 0 }]]
     },
     "Delete Contact Webhook": {
       "main": [
