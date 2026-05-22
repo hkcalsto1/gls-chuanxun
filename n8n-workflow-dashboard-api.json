@@ -878,7 +878,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar dateParts = String(body.date||'').split('/');\nvar timeParts = String(body.time||'').split(':');\nvar calLink = '';\nif (dateParts.length===3 && timeParts.length>=1) {\n  var yr=dateParts[2], mo=dateParts[0].padStart(2,'0'), dy=dateParts[1].padStart(2,'0');\n  var h=parseInt(timeParts[0]||0), m=parseInt(timeParts[1]||0);\n  var startStr=yr+mo+dy+'T'+String(h).padStart(2,'0')+String(m).padStart(2,'0')+'00';\n  var endM=m+30, endH=h+Math.floor(endM/60); endM=endM%60;\n  var endStr=yr+mo+dy+'T'+String(endH).padStart(2,'0')+String(endM).padStart(2,'0')+'00';\n  calLink='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting+with+GLS&dates='+startStr+'/'+endStr+'&details=GLS+appointment+at+Air+Cargo+China+2026&location=Shanghai+New+International+Expo+Centre';\n}\nreturn [{json:{\n  slot_Id: body.slot_id||body.slot_Id,\n  date: body.date,\n  time: body.time,\n  client_name: body.client_name,\n  client_email: body.email,\n  company: body.company||'',\n  salesperson_name: body.salesperson_name,\n  salesperson_email: body.salesperson_email,\n  cal_link: calLink,\n  status: 'confirmed'\n}}];"
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar dateParts = String(body.date||'').split('/');\nvar timeParts = String(body.time||'').split(':');\nvar calLink = '';\nif (dateParts.length===3 && timeParts.length>=1) {\n  var yr=dateParts[2], mo=dateParts[0].padStart(2,'0'), dy=dateParts[1].padStart(2,'0');\n  var h=parseInt(timeParts[0]||0), m=parseInt(timeParts[1]||0);\n  var startStr=yr+mo+dy+'T'+String(h).padStart(2,'0')+String(m).padStart(2,'0')+'00';\n  var endM=m+30, endH=h+Math.floor(endM/60); endM=endM%60;\n  var endStr=yr+mo+dy+'T'+String(endH).padStart(2,'0')+String(endM).padStart(2,'0')+'00';\n  calLink='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting+with+GLS&dates='+startStr+'/'+endStr+'&details=GLS+appointment+at+Air+Cargo+China+2026&location=Shanghai+New+International+Expo+Centre';\n}\nreturn [{json:{\n  slot_Id: body.slot_id||body.slot_Id,\n  date: body.date,\n  time: body.time,\n  client_name: body.client_name,\n  client_email: body.email,\n  email: body.email,\n  company: body.company||'',\n  salesperson_name: body.salesperson_name,\n  salesperson_email: body.salesperson_email,\n  cal_link: calLink,\n  status: 'confirmed'\n}}];"
       },
       "id": "a8000002-a800-a800-a800-a80000000002",
       "name": "Prep Assign",
@@ -906,10 +906,11 @@
             "salesperson_name": "={{ $json.salesperson_name }}",
             "salesperson_email": "={{ $json.salesperson_email }}",
             "status": "={{ $json.status }}",
-            "slot_Id": "={{ $json.slot_Id }}"
+            "slot_Id": "={{ $json.slot_Id }}",
+            "email": "={{ $json.email }}"
           },
           "matchingColumns": [
-            "slot_Id"
+            "email"
           ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
