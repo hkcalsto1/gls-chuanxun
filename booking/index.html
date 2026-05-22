@@ -540,11 +540,16 @@
       };
 
       try {
+        var controller = new AbortController();
+        var timeout = setTimeout(function() { controller.abort(); }, 15000);
         var res = await fetch('https://n8n.okahh.com/webhook/gls-form', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
-        var result = await res.json();
+        clearTimeout(timeout);
+        var result;
+        try { result = await res.json(); } catch(e) { result = {}; }
         document.getElementById('bookForm').style.display = 'none';
         document.getElementById('footerWrap').style.display = 'none';
         var dateMap = {
@@ -552,7 +557,7 @@
           '06/25/2026': '6月25日(四) Thursday, 25 Jun',
           '06/26/2026': '6月26日(五) Friday, 26 Jun'
         };
-        if (result.success) {
+        if (res.ok && result.success) {
           document.getElementById('confirmDetail').innerHTML =
             '<strong>姓名:</strong> ' + payload.salutation + ' ' + payload.given_names + ' ' + payload.surname + '<br>' +
             '<strong>日期:</strong> ' + (dateMap[payload.preferred_date] || payload.preferred_date) + '<br>' +
@@ -566,7 +571,10 @@
       } catch(err) {
         btn.disabled = false;
         btn.textContent = 'Submit';
-        alert('Connection error. Please try again.\n连接错误，请重试。');
+        var msg = err.name === 'AbortError'
+          ? '提交超时，请重试。\nRequest timed out. Please try again.'
+          : '提交失败，请重试。\nSubmission failed. Please try again.';
+        alert(msg);
       }
     });
   </script>
