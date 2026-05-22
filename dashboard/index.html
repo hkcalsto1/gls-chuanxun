@@ -704,6 +704,27 @@
   </div>
 </div>
 
+<!-- CHANGE SP MODAL -->
+<div class="modal-overlay" id="changeSpModal">
+  <div class="modal" style="max-width:440px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">Change Salesperson</h3>
+      <button onclick="closeChangeSpModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
+    </div>
+    <div id="cspCurrentInfo" style="background:#f4f7fb;border-left:4px solid #F5A500;padding:12px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;"></div>
+    <div class="form-field" style="margin-bottom:20px;">
+      <label>Assign New Salesperson</label>
+      <select id="cspSelect" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
+        <option value="">Select salesperson...</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeChangeSpModal()">Cancel</button>
+      <button class="btn btn-gold" id="cspConfirmBtn" onclick="submitChangeSp()">Confirm Change</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -1259,6 +1280,7 @@
   // BOOKINGS
   // ═══════════════════════════════════════
   var allBookings = [];
+  var sortedBookings = [];
 
   async function loadBookings() {
     try {
@@ -1287,13 +1309,14 @@
     var tbody = document.getElementById('bookingsTableBody');
     if (!bookings.length) {
       tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No confirmed bookings yet.</td></tr>';
+      sortedBookings = [];
       return;
     }
-    var sorted = bookings.slice().sort(function(a, b) {
+    sortedBookings = bookings.slice().sort(function(a, b) {
       var da = new Date(a.date + ' ' + a.time), db = new Date(b.date + ' ' + b.time);
       return da - db;
     });
-    tbody.innerHTML = sorted.map(function(b) {
+    tbody.innerHTML = sortedBookings.map(function(b, i) {
       var reminders = (b._reminders_sent || '').split(',').filter(Boolean);
       var remBadges = ['7d','1d','1h'].map(function(r) {
         return reminders.includes(r)
@@ -1308,7 +1331,12 @@
         '<td>' + escHtml(b.company || '—') + '</td>' +
         '<td><span class="badge confirmed">' + escHtml(b.salesperson_name || '—') + '</span></td>' +
         '<td>' + remBadges + '</td>' +
-        '<td><button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.slot_Id || '') + '\')">Delete</button></td>' +
+        '<td class="actions-cell">' +
+          '<button class="btn btn-outline btn-sm" onclick="openRescheduleConfirmedModal(' + i + ')">Reschedule</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="openChangeSpModal(' + i + ')">Change SP</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="cancelConfirmedBooking(' + i + ')">Cancel</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.slot_Id || '') + '\')">Delete</button>' +
+        '</td>' +
         '</tr>';
     }).join('');
   }
@@ -1787,8 +1815,10 @@
   var rsTarget = null;
   var rsAvailableSlots = [];
   var rsNewSlot = null;
+  var rescheduleType = 'pending';
 
   async function openRescheduleModal(idx) {
+    rescheduleType = 'pending';
     rsTarget = allPending[idx];
     rsNewSlot = null;
     document.querySelectorAll('input[name="rs-date"]').forEach(function(r) { r.checked = false; });
@@ -1809,6 +1839,7 @@
   function closeRescheduleModal() {
     document.getElementById('rescheduleModal').classList.remove('open');
     rsTarget = null; rsNewSlot = null;
+    rescheduleType = 'pending';
   }
 
   function rescheduleLoadSlots() {
@@ -1840,20 +1871,28 @@
     if (!rsTarget || !rsNewSlot) return;
     var btn = document.getElementById('rsConfirmBtn');
     btn.disabled = true;
+    var endpoint = rescheduleType === 'confirmed' ? '/gls-reschedule-confirmed' : '/gls-reschedule-pending';
+    var payload = {
+      old_slot_id: rsTarget.slot_Id || rsTarget.slot_id,
+      email: rsTarget.email,
+      new_slot_id: rsNewSlot.Slot_Id,
+      new_date: rsNewSlot.Date,
+      new_time: rsNewSlot.Time
+    };
+    if (rescheduleType === 'confirmed') {
+      payload.client_name = rsTarget.client_name || '';
+      payload.company = rsTarget.company || '';
+      payload.salesperson_name = rsTarget.salesperson_name || '';
+      payload.salesperson_email = rsTarget.salesperson_email || '';
+    }
     try {
-      await fetch(N8N + '/gls-reschedule-pending', {
+      await fetch(N8N + endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          old_slot_id: rsTarget.slot_Id || rsTarget.slot_id,
-          email: rsTarget.email,
-          new_slot_id: rsNewSlot.Slot_Id,
-          new_date: rsNewSlot.Date,
-          new_time: rsNewSlot.Time
-        })
+        body: JSON.stringify(payload)
       });
       closeRescheduleModal();
       showToast('Rescheduled to ' + formatDateDisplay(rsNewSlot.Date) + ' at ' + formatTime(rsNewSlot.Time), 'success');
-      loadPending();
+      if (rescheduleType === 'confirmed') { loadBookings(); } else { loadPending(); }
     } catch(e) {
       showToast('Failed to reschedule.', 'error');
       btn.disabled = false;
@@ -1862,6 +1901,108 @@
 
   document.getElementById('rescheduleModal').addEventListener('click', function(e) {
     if (e.target === this) closeRescheduleModal();
+  });
+
+  // ═══════════════════════════════════════
+  // CONFIRMED BOOKING ACTIONS
+  // ═══════════════════════════════════════
+  async function cancelConfirmedBooking(idx) {
+    var b = sortedBookings[idx];
+    openModal(
+      'Cancel Confirmed Booking?',
+      'Cancel the booking for ' + b.client_name + ' on ' + formatDateDisplay(b.date) + ' at ' + formatTime(b.time) + '? The slot will be freed. The customer will NOT be notified automatically.',
+      async function() {
+        try {
+          await fetch(N8N + '/gls-cancel-confirmed', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slot_id: b.slot_Id, email: b.email })
+          });
+          showToast('Booking cancelled. Slot freed.', 'success');
+          loadBookings();
+        } catch(e) {
+          showToast('Failed to cancel booking.', 'error');
+        }
+      }
+    );
+  }
+
+  async function openRescheduleConfirmedModal(idx) {
+    rescheduleType = 'confirmed';
+    rsTarget = sortedBookings[idx];
+    rsNewSlot = null;
+    document.querySelectorAll('input[name="rs-date"]').forEach(function(r) { r.checked = false; });
+    document.getElementById('rsTimeGroup').innerHTML = '<span style="color:#aaa;font-style:italic;">Select a date above.</span>';
+    document.getElementById('rsConfirmBtn').disabled = true;
+    document.getElementById('rsCurrentInfo').innerHTML =
+      '<strong>' + escHtml(rsTarget.client_name || '') + '</strong>' +
+      (rsTarget.company ? ' — ' + escHtml(rsTarget.company) : '') + '<br>' +
+      'Current slot: <strong>' + escHtml(formatDateDisplay(rsTarget.date)) + ' at ' + escHtml(formatTime(rsTarget.time)) + '</strong>';
+    try {
+      var res = await fetch(N8N + '/gls-slots');
+      var data = await res.json();
+      rsAvailableSlots = data.slots || [];
+    } catch(e) { rsAvailableSlots = []; }
+    document.getElementById('rescheduleModal').classList.add('open');
+  }
+
+  var cspTarget = null;
+
+  function openChangeSpModal(idx) {
+    cspTarget = sortedBookings[idx];
+    var sel = document.getElementById('cspSelect');
+    sel.innerHTML = '<option value="">Select salesperson...</option>';
+    SALESPEOPLE.forEach(function(sp) {
+      var o = document.createElement('option');
+      o.value = sp.name; o.textContent = sp.name; o.dataset.email = sp.email || '';
+      if (sp.name === cspTarget.salesperson_name) o.selected = true;
+      sel.appendChild(o);
+    });
+    document.getElementById('cspCurrentInfo').innerHTML =
+      '<strong>' + escHtml(cspTarget.client_name || '') + '</strong>' +
+      (cspTarget.company ? ' — ' + escHtml(cspTarget.company) : '') + '<br>' +
+      'Current SP: <strong>' + escHtml(cspTarget.salesperson_name || '—') + '</strong><br>' +
+      'Date: ' + escHtml(formatDateDisplay(cspTarget.date)) + ' at ' + escHtml(formatTime(cspTarget.time));
+    document.getElementById('cspConfirmBtn').disabled = false;
+    document.getElementById('changeSpModal').classList.add('open');
+  }
+
+  function closeChangeSpModal() {
+    document.getElementById('changeSpModal').classList.remove('open');
+    cspTarget = null;
+  }
+
+  async function submitChangeSp() {
+    var sel = document.getElementById('cspSelect');
+    var spName = sel.value;
+    if (!spName) { showToast('Please select a salesperson.', 'error'); return; }
+    var spEmail = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].dataset.email || '';
+    var btn = document.getElementById('cspConfirmBtn');
+    btn.disabled = true;
+    try {
+      await fetch(N8N + '/gls-change-sp', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slot_id: cspTarget.slot_Id,
+          email: cspTarget.email,
+          client_name: cspTarget.client_name || '',
+          company: cspTarget.company || '',
+          date: cspTarget.date || '',
+          time: cspTarget.time || '',
+          salesperson_name: spName,
+          salesperson_email: spEmail
+        })
+      });
+      closeChangeSpModal();
+      showToast('Salesperson changed to ' + spName + '. Notification sent.', 'success');
+      loadBookings();
+    } catch(e) {
+      showToast('Failed to change salesperson.', 'error');
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById('changeSpModal').addEventListener('click', function(e) {
+    if (e.target === this) closeChangeSpModal();
   });
 
   // ═══════════════════════════════════════

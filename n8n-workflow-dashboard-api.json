@@ -2269,7 +2269,530 @@
       "name": "Respond Manual Booking",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
+      "position": [2250, 5600],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+          }
+        }
+      }
+    },
+    {
+      "id": "MB1008",
+      "name": "Read Tpl Manual",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
       "position": [1500, 5600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "MB1009",
+      "name": "Sub Manual Confirm Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 5600],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} is confirmed',body:'Dear {{name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Manual Booking'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':d.client_name||'','{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.email,subject:subject,body:body}}];"
+      }
+    },
+    {
+      "id": "MB1010",
+      "name": "Send Manual Confirm Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 5600],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "from", "value": "GLS 传讯 <notifications@smartflowhk.com>" },
+            { "name": "to", "value": "={{ $json.to }}" },
+            { "name": "reply_to", "value": "marketing@glshk.com" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "html", "value": "={{ $json.body }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CC1001",
+      "name": "Cancel Confirmed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 5800],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-cancel-confirmed",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "cc-webhook-001"
+    },
+    {
+      "id": "CC1002",
+      "name": "Read Slots For Cancel Confirmed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 5800],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "options": {}
+      }
+    },
+    {
+      "id": "CC1003",
+      "name": "Prep Cancel Confirmed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 5800],
+      "parameters": {
+        "jsCode": "var wb = $('Cancel Confirmed Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar slotId = String(body.slot_id || '');\nvar email = String(body.email || '');\nvar slots = $input.all().map(function(i){return i.json;});\nvar slot = slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount = slot ? Math.max(0, parseInt(slot.booked_count||0)-1) : 0;\nreturn [{json:{slot_Id:slotId,email:email,new_booked_count:String(newCount),new_slot_status:'available'}}];"
+      }
+    },
+    {
+      "id": "CC1004",
+      "name": "Update Confirmed Booking Cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [750, 5800],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slot_Id": "={{ $json.slot_Id }}",
+            "email": "={{ $json.email }}",
+            "status": "=cancelled"
+          },
+          "matchingColumns": ["slot_Id", "email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CC1005",
+      "name": "Update Slot After Cancel Confirmed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1000, 5800],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.slot_Id }}",
+            "booked_count": "={{ $json.new_booked_count }}",
+            "Status": "={{ $json.new_slot_status }}"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CC1006",
+      "name": "Respond Cancel Confirmed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 5800],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+          }
+        }
+      }
+    },
+    {
+      "id": "RC1001",
+      "name": "Reschedule Confirmed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 6000],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-reschedule-confirmed",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "rc-webhook-001"
+    },
+    {
+      "id": "RC1002",
+      "name": "Read Slots For Reschedule Confirmed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 6000],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "options": {}
+      }
+    },
+    {
+      "id": "RC1003",
+      "name": "Prep Reschedule Confirmed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 6000],
+      "parameters": {
+        "jsCode": "var wb = $('Reschedule Confirmed Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar oldSlotId = String(body.old_slot_id||'');\nvar newSlotId = String(body.new_slot_id||'');\nvar email = String(body.email||'');\nvar newDate = String(body.new_date||'');\nvar newTime = String(body.new_time||'');\nvar clientName = String(body.client_name||'');\nvar company = String(body.company||'');\nvar spName = String(body.salesperson_name||'');\nvar spEmail = String(body.salesperson_email||'');\nvar slots = $input.all().map(function(i){return i.json;});\nvar oldSlot = slots.find(function(s){return String(s.Slot_Id||'')===oldSlotId;});\nvar newSlot = slots.find(function(s){return String(s.Slot_Id||'')===newSlotId;});\nvar oldNewCount = oldSlot ? Math.max(0,parseInt(oldSlot.booked_count||0)-1) : 0;\nvar newBookCount = newSlot ? parseInt(newSlot.booked_count||0)+1 : 1;\nvar newCap = newSlot ? parseInt(newSlot.capacity||1) : 1;\nvar newSlotStatus = newBookCount >= newCap ? 'booked' : 'available';\nvar dp=newDate.split('/'),tp=newTime.split(':'),calLink='';\nif(dp.length===3&&tp.length>=1){var yr=dp[2],mo=dp[0].padStart(2,'0'),dy=dp[1].padStart(2,'0'),h=parseInt(tp[0]||0),m=parseInt(tp[1]||0),s1=yr+mo+dy+'T'+String(h).padStart(2,'0')+String(m).padStart(2,'0')+'00',em=m+30,eh=h+Math.floor(em/60);em=em%60;var s2=yr+mo+dy+'T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';calLink='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting+with+GLS&dates='+s1+'/'+s2+'&location=Shanghai+New+International+Expo+Centre';}\nreturn [{json:{old_slot_Id:oldSlotId,new_slot_Id:newSlotId,email:email,new_date:newDate,new_time:newTime,old_new_count:String(oldNewCount),new_count:String(newBookCount),new_slot_status:newSlotStatus,client_name:clientName,company:company,salesperson_name:spName,salesperson_email:spEmail,cal_link:calLink}}];"
+      }
+    },
+    {
+      "id": "RC1004",
+      "name": "Update Booking Rescheduled Confirmed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [750, 6000],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "slot_Id": "={{ $json.new_slot_Id }}",
+            "date": "={{ $json.new_date }}",
+            "time": "={{ $json.new_time }}"
+          },
+          "matchingColumns": ["email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RC1005",
+      "name": "Update Old Slot Reschedule Confirmed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1000, 6000],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.old_slot_Id }}",
+            "booked_count": "={{ $json.old_new_count }}",
+            "Status": "=available"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RC1006",
+      "name": "Update New Slot Reschedule Confirmed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1250, 6000],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.new_slot_Id }}",
+            "booked_count": "={{ $json.new_count }}",
+            "Status": "={{ $json.new_slot_status }}"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RC1007",
+      "name": "Read Tpl Reschedule Confirm",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1500, 6000],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "RC1008",
+      "name": "Sub Reschedule Confirm Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 6000],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} has been rescheduled',body:'Dear {{name}},\\n\\nYour meeting at {{event_name}} has been rescheduled.\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Reschedule Confirmed'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':d.client_name||'','{{client_name}}':d.client_name||'','{{date}}':d.new_date||'','{{time}}':d.new_time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.email,subject:subject,body:body}}];"
+      }
+    },
+    {
+      "id": "RC1009",
+      "name": "Send Reschedule Confirm Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 6000],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "from", "value": "GLS 传讯 <notifications@smartflowhk.com>" },
+            { "name": "to", "value": "={{ $json.to }}" },
+            { "name": "reply_to", "value": "marketing@glshk.com" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "html", "value": "={{ $json.body }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "RC1010",
+      "name": "Respond Reschedule Confirmed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2250, 6000],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+          }
+        }
+      }
+    },
+    {
+      "id": "CS1001",
+      "name": "Change SP Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 6200],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-change-sp",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "cs-webhook-001"
+    },
+    {
+      "id": "CS1002",
+      "name": "Prep Change SP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 6200],
+      "parameters": {
+        "jsCode": "var wb = $('Change SP Webhook');\nvar body = wb.first().json.body || wb.first().json;\nreturn [{json:{slot_Id:String(body.slot_id||''),email:String(body.email||''),client_name:String(body.client_name||''),company:String(body.company||''),date:String(body.date||''),time:String(body.time||''),salesperson_name:String(body.salesperson_name||''),salesperson_email:String(body.salesperson_email||'')}}];"
+      }
+    },
+    {
+      "id": "CS1003",
+      "name": "Update Booking Change SP",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [500, 6200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slot_Id": "={{ $json.slot_Id }}",
+            "salesperson_name": "={{ $json.salesperson_name }}",
+            "salesperson_email": "={{ $json.salesperson_email }}"
+          },
+          "matchingColumns": ["slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CS1004",
+      "name": "Read Tpl Change SP",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [750, 6200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "read",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "options": { "continueIfEmpty": true }
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "CS1005",
+      "name": "Sub Change SP Vars",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 6200],
+      "parameters": {
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] Meeting assignment updated at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Change SP'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.salesperson_email,subject:subject,body:body}}];"
+      }
+    },
+    {
+      "id": "CS1006",
+      "name": "Send Change SP Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 6200],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "from", "value": "GLS 传讯 <notifications@smartflowhk.com>" },
+            { "name": "to", "value": "={{ $json.to }}" },
+            { "name": "reply_to", "value": "marketing@glshk.com" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "html", "value": "={{ $json.body }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "CS1007",
+      "name": "Respond Change SP",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1500, 6200],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
@@ -3321,6 +3844,15 @@
       "main": [[{ "node": "Update Contact Manual", "type": "main", "index": 0 }]]
     },
     "Update Contact Manual": {
+      "main": [[{ "node": "Read Tpl Manual", "type": "main", "index": 0 }]]
+    },
+    "Read Tpl Manual": {
+      "main": [[{ "node": "Sub Manual Confirm Vars", "type": "main", "index": 0 }]]
+    },
+    "Sub Manual Confirm Vars": {
+      "main": [[{ "node": "Send Manual Confirm Email", "type": "main", "index": 0 }]]
+    },
+    "Send Manual Confirm Email": {
       "main": [[{ "node": "Respond Manual Booking", "type": "main", "index": 0 }]]
     },
     "Cancel Pending Webhook": {
@@ -3421,6 +3953,66 @@
           }
         ]
       ]
+    },
+    "Cancel Confirmed Webhook": {
+      "main": [[{ "node": "Read Slots For Cancel Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Read Slots For Cancel Confirmed": {
+      "main": [[{ "node": "Prep Cancel Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Prep Cancel Confirmed": {
+      "main": [[{ "node": "Update Confirmed Booking Cancelled", "type": "main", "index": 0 }]]
+    },
+    "Update Confirmed Booking Cancelled": {
+      "main": [[{ "node": "Update Slot After Cancel Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Update Slot After Cancel Confirmed": {
+      "main": [[{ "node": "Respond Cancel Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Reschedule Confirmed Webhook": {
+      "main": [[{ "node": "Read Slots For Reschedule Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Read Slots For Reschedule Confirmed": {
+      "main": [[{ "node": "Prep Reschedule Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Prep Reschedule Confirmed": {
+      "main": [[{ "node": "Update Booking Rescheduled Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Update Booking Rescheduled Confirmed": {
+      "main": [[{ "node": "Update Old Slot Reschedule Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Update Old Slot Reschedule Confirmed": {
+      "main": [[{ "node": "Update New Slot Reschedule Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Update New Slot Reschedule Confirmed": {
+      "main": [[{ "node": "Read Tpl Reschedule Confirm", "type": "main", "index": 0 }]]
+    },
+    "Read Tpl Reschedule Confirm": {
+      "main": [[{ "node": "Sub Reschedule Confirm Vars", "type": "main", "index": 0 }]]
+    },
+    "Sub Reschedule Confirm Vars": {
+      "main": [[{ "node": "Send Reschedule Confirm Email", "type": "main", "index": 0 }]]
+    },
+    "Send Reschedule Confirm Email": {
+      "main": [[{ "node": "Respond Reschedule Confirmed", "type": "main", "index": 0 }]]
+    },
+    "Change SP Webhook": {
+      "main": [[{ "node": "Prep Change SP", "type": "main", "index": 0 }]]
+    },
+    "Prep Change SP": {
+      "main": [[{ "node": "Update Booking Change SP", "type": "main", "index": 0 }]]
+    },
+    "Update Booking Change SP": {
+      "main": [[{ "node": "Read Tpl Change SP", "type": "main", "index": 0 }]]
+    },
+    "Read Tpl Change SP": {
+      "main": [[{ "node": "Sub Change SP Vars", "type": "main", "index": 0 }]]
+    },
+    "Sub Change SP Vars": {
+      "main": [[{ "node": "Send Change SP Email", "type": "main", "index": 0 }]]
+    },
+    "Send Change SP Email": {
+      "main": [[{ "node": "Respond Change SP", "type": "main", "index": 0 }]]
     }
   },
   "active": true,
