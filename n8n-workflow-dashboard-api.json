@@ -303,7 +303,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -582,7 +582,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -717,7 +717,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -944,7 +944,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -995,7 +995,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS 传讯 <notifications@smartflowhk.com>"
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -1561,7 +1561,7 @@
       ],
       "parameters": {
         "respondWith": "text",
-        "responseBody": "=<html><body style='font-family:sans-serif;text-align:center;padding:60px'><h2>Unsubscribed</h2><p>You have been removed from GLS 传讯 mailing list.</p></body></html>",
+        "responseBody": "=<html><body style='font-family:sans-serif;text-align:center;padding:60px'><h2>Unsubscribed</h2><p>You have been removed from GLS \u4f20\u8baf mailing list.</p></body></html>",
         "options": {
           "responseHeaders": {
             "entries": [
@@ -1616,7 +1616,7 @@
         1000
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Invite'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS \u4f20\u8baf invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS \u4f20\u8baf invites you to {{event_name}}.\\n\\n\ud83d\udcc5 {{event_dates}}\\n\ud83d\udccd {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS \u4f20\u8baf Team'};\nvar data = $node['Prep Invite'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
       }
     },
     {
@@ -1661,7 +1661,7 @@
         1100
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS 传讯 invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS 传讯 invites you to {{event_name}}.\\n\\n📅 {{event_dates}}\\n📍 {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  if(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'invite') || {subject:'GLS \u4f20\u8baf invites you to {{event_name}}',body:'Dear {{name}},\\n\\nGLS \u4f20\u8baf invites you to {{event_name}}.\\n\\n\ud83d\udcc5 {{event_dates}}\\n\ud83d\udccd {{event_venue}}\\n\\nBook your slot: {{booking_link}}\\n\\nGLS \u4f20\u8baf Team'};\nvar contacts = $node['Filter Uninvited'].json.contacts || [];\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nreturn contacts.map(function(c){\n  var vars = {'{{name}}':c.name||'','{{company}}':c.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(c.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body = (tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\n  if(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n  return {json:{email:c.email,name:c.name,company:c.company||'',subject:subject,body:body}};\n});"
       }
     },
     {
@@ -1706,7 +1706,7 @@
         1800
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS 传讯 at {{event_name}}',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS 传讯 would love to meet you at {{event_name}}.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS 传讯 Team'};\nvar data = $node['Prep Remind'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'reminder_manual') || {subject:'Reminder: Book your meeting with GLS \u4f20\u8baf at {{event_name}}',body:'Dear {{name}},\\n\\nThis is a friendly reminder that GLS \u4f20\u8baf would love to meet you at {{event_name}}.\\n\\nBook your slot: {{booking_link}}\\n\\nGLS \u4f20\u8baf Team'};\nvar data = $node['Prep Remind'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':data.name||'','{{company}}':data.company||'','{{booking_link}}':'https://hkcalsto1.github.io/gls-chuanxun/booking/','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(data.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{email:data.email,name:data.name,company:data.company,subject:subject,body:body}}];"
       }
     },
     {
@@ -1751,7 +1751,7 @@
         2400
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS \u4f20\u8baf] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n\ud83d\udc64 {{client_name}} ({{company}})\\n\ud83d\udce7 {{client_email}}\\n\ud83d\udcc5 {{date}} {{time}}\\n\ud83d\udccd {{event_venue}}\\n\\nGLS \u4f20\u8baf Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -1796,7 +1796,7 @@
         2550
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS \u4f20\u8baf] Your meeting at {{event_name}} is confirmed',body:'Dear {{client_name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n\ud83d\udcc5 {{date}} {{time}}\\n\ud83d\udccd {{event_venue}}\\n\ud83e\udd1d {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS \u4f20\u8baf Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.client_email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -2013,7 +2013,10 @@
       "name": "Delete Contact Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 4600],
+      "position": [
+        0,
+        4600
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-delete-contact",
@@ -2027,7 +2030,10 @@
       "name": "Mark Contact Deleted",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 4600],
+      "position": [
+        250,
+        4600
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2036,15 +2042,23 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Contacts" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Contacts"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.body.email }}",
             "status": "=deleted"
           },
-          "matchingColumns": ["email"],
+          "matchingColumns": [
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2055,14 +2069,20 @@
       "name": "Respond Delete Contact",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [500, 4600],
+      "position": [
+        500,
+        4600
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
             "entries": [
-              { "name": "Access-Control-Allow-Origin", "value": "*" }
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
             ]
           }
         }
@@ -2073,7 +2093,10 @@
       "name": "Delete Booking Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 4800],
+      "position": [
+        0,
+        4800
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-delete-booking",
@@ -2087,7 +2110,10 @@
       "name": "Mark Booking Cancelled",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 4800],
+      "position": [
+        250,
+        4800
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2096,15 +2122,23 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "slot_Id": "={{ $json.body.slot_id }}",
+            "email": "={{ $json.body.email }}",
             "status": "=cancelled"
           },
-          "matchingColumns": ["slot_Id"],
+          "matchingColumns": [
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2115,14 +2149,20 @@
       "name": "Respond Delete Booking",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [500, 4800],
+      "position": [
+        500,
+        4800
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
             "entries": [
-              { "name": "Access-Control-Allow-Origin", "value": "*" }
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
             ]
           }
         }
@@ -2133,7 +2173,10 @@
       "name": "Manual Booking Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 5600],
+      "position": [
+        0,
+        5600
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-manual-booking",
@@ -2147,7 +2190,10 @@
       "name": "Read Slots For Manual",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 5600],
+      "position": [
+        250,
+        5600
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2155,8 +2201,14 @@
         }
       },
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "options": {}
       }
     },
@@ -2165,7 +2217,10 @@
       "name": "Prep Manual Booking",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [500, 5600],
+      "position": [
+        500,
+        5600
+      ],
       "parameters": {
         "jsCode": "var wb=$('Manual Booking Webhook');\nvar body=wb.first().json.body||wb.first().json;\nvar slotId=String(body.slot_id||'');\nvar slots=$input.all().map(function(i){return i.json;});\nvar slot=slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount=slot?parseInt(slot.booked_count||0)+1:1;\nvar cap=slot?parseInt(slot.capacity||1):1;\nvar newStatus=newCount>=cap?'booked':'available';\nvar date=String(body.date||''),time=String(body.time||'');\nvar dp=date.split('/'),tp=time.split(':'),calLink='';\nif(dp.length===3&&tp.length>=1){\n  var yr=dp[2],mo=dp[0].padStart(2,'0'),dy=dp[1].padStart(2,'0');\n  var h=parseInt(tp[0]||0),m=parseInt(tp[1]||0);\n  var s1=yr+mo+dy+'T'+String(h).padStart(2,'0')+String(m).padStart(2,'0')+'00';\n  var em=m+30,eh=h+Math.floor(em/60);em=em%60;\n  var s2=yr+mo+dy+'T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';\n  calLink='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting+with+GLS&dates='+s1+'/'+s2+'&location=Shanghai+New+International+Expo+Centre';\n}\nreturn [{json:{slot_Id:slotId,new_booked_count:String(newCount),new_slot_status:newStatus,date:date,time:time,client_name:String(body.name||''),email:String(body.email||'').toLowerCase().trim(),company:String(body.company||''),title:String(body.title||''),salesperson_name:String(body.salesperson_name||''),salesperson_email:String(body.salesperson_email||''),cal_link:calLink,booked_at:new Date().toISOString()}}];"
       }
@@ -2175,7 +2230,10 @@
       "name": "Append Manual Booking",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [750, 5600],
+      "position": [
+        750,
+        5600
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2184,8 +2242,14 @@
       },
       "parameters": {
         "operation": "append",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2210,7 +2274,10 @@
       "name": "Update Slot Manual",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1000, 5600],
+      "position": [
+        1000,
+        5600
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2219,8 +2286,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2228,7 +2301,9 @@
             "booked_count": "={{ $json.new_booked_count }}",
             "Status": "={{ $json.new_slot_status }}"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2239,7 +2314,10 @@
       "name": "Update Contact Manual",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1250, 5600],
+      "position": [
+        1250,
+        5600
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2248,15 +2326,23 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Contacts" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Contacts"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.email }}",
             "status": "=booked"
           },
-          "matchingColumns": ["email"],
+          "matchingColumns": [
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2269,13 +2355,21 @@
       "name": "Respond Manual Booking",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [2250, 5600],
+      "position": [
+        2250,
+        5600
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
           }
         }
       }
@@ -2285,7 +2379,10 @@
       "name": "Read Tpl Manual",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [1500, 5600],
+      "position": [
+        1500,
+        5600
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2294,9 +2391,17 @@
       },
       "parameters": {
         "operation": "read",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Template" },
-        "options": { "continueIfEmpty": true }
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
+        "options": {
+          "continueIfEmpty": true
+        }
       },
       "onError": "continueRegularOutput",
       "continueOnFail": true
@@ -2306,9 +2411,12 @@
       "name": "Sub Manual Confirm Vars",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1750, 5600],
+      "position": [
+        1750,
+        5600
+      ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} is confirmed',body:'Dear {{name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Manual Booking'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':d.client_name||'','{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.email,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS \u4f20\u8baf] Your meeting at {{event_name}} is confirmed',body:'Dear {{name}},\\n\\nYour meeting at {{event_name}} is confirmed!\\n\ud83d\udcc5 {{date}} {{time}}\\n\ud83d\udccd {{event_venue}}\\n\ud83e\udd1d {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS \u4f20\u8baf Team'};\nvar d = $node['Prep Manual Booking'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':d.client_name||'','{{client_name}}':d.client_name||'','{{date}}':d.date||'','{{time}}':d.time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.email,subject:subject,body:body}}];"
       }
     },
     {
@@ -2316,7 +2424,10 @@
       "name": "Send Manual Confirm Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2000, 5600],
+      "position": [
+        2000,
+        5600
+      ],
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
@@ -2334,11 +2445,26 @@
         "specifyBody": "keypair",
         "bodyParameters": {
           "parameters": [
-            { "name": "from", "value": "GLS 传讯 <notifications@smartflowhk.com>" },
-            { "name": "to", "value": "={{ $json.to }}" },
-            { "name": "reply_to", "value": "marketing@glshk.com" },
-            { "name": "subject", "value": "={{ $json.subject }}" },
-            { "name": "html", "value": "={{ $json.body }}" }
+            {
+              "name": "from",
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.to }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
           ]
         },
         "options": {}
@@ -2349,7 +2475,10 @@
       "name": "Cancel Confirmed Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 5800],
+      "position": [
+        0,
+        5800
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-cancel-confirmed",
@@ -2363,7 +2492,10 @@
       "name": "Read Slots For Cancel Confirmed",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 5800],
+      "position": [
+        250,
+        5800
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2371,8 +2503,14 @@
         }
       },
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "options": {}
       }
     },
@@ -2381,7 +2519,10 @@
       "name": "Prep Cancel Confirmed",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [500, 5800],
+      "position": [
+        500,
+        5800
+      ],
       "parameters": {
         "jsCode": "var wb = $('Cancel Confirmed Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar slotId = String(body.slot_id || '');\nvar email = String(body.email || '');\nvar slots = $input.all().map(function(i){return i.json;});\nvar slot = slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount = slot ? Math.max(0, parseInt(slot.booked_count||0)-1) : 0;\nreturn [{json:{slot_Id:slotId,email:email,new_booked_count:String(newCount),new_slot_status:'available'}}];"
       }
@@ -2391,7 +2532,10 @@
       "name": "Update Confirmed Booking Cancelled",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [750, 5800],
+      "position": [
+        750,
+        5800
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2400,8 +2544,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2409,7 +2559,10 @@
             "email": "={{ $json.email }}",
             "status": "=cancelled"
           },
-          "matchingColumns": ["slot_Id", "email"],
+          "matchingColumns": [
+            "slot_Id",
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2420,7 +2573,10 @@
       "name": "Update Slot After Cancel Confirmed",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1000, 5800],
+      "position": [
+        1000,
+        5800
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2429,8 +2585,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2438,7 +2600,9 @@
             "booked_count": "={{ $json.new_booked_count }}",
             "Status": "={{ $json.new_slot_status }}"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2449,13 +2613,21 @@
       "name": "Respond Cancel Confirmed",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1250, 5800],
+      "position": [
+        1250,
+        5800
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
           }
         }
       }
@@ -2465,7 +2637,10 @@
       "name": "Reschedule Confirmed Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 6000],
+      "position": [
+        0,
+        6000
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-reschedule-confirmed",
@@ -2479,7 +2654,10 @@
       "name": "Read Slots For Reschedule Confirmed",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 6000],
+      "position": [
+        250,
+        6000
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2487,8 +2665,14 @@
         }
       },
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "options": {}
       }
     },
@@ -2497,7 +2681,10 @@
       "name": "Prep Reschedule Confirmed",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [500, 6000],
+      "position": [
+        500,
+        6000
+      ],
       "parameters": {
         "jsCode": "var wb = $('Reschedule Confirmed Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar oldSlotId = String(body.old_slot_id||'');\nvar newSlotId = String(body.new_slot_id||'');\nvar email = String(body.email||'');\nvar newDate = String(body.new_date||'');\nvar newTime = String(body.new_time||'');\nvar clientName = String(body.client_name||'');\nvar company = String(body.company||'');\nvar spName = String(body.salesperson_name||'');\nvar spEmail = String(body.salesperson_email||'');\nvar slots = $input.all().map(function(i){return i.json;});\nvar oldSlot = slots.find(function(s){return String(s.Slot_Id||'')===oldSlotId;});\nvar newSlot = slots.find(function(s){return String(s.Slot_Id||'')===newSlotId;});\nvar oldNewCount = oldSlot ? Math.max(0,parseInt(oldSlot.booked_count||0)-1) : 0;\nvar newBookCount = newSlot ? parseInt(newSlot.booked_count||0)+1 : 1;\nvar newCap = newSlot ? parseInt(newSlot.capacity||1) : 1;\nvar newSlotStatus = newBookCount >= newCap ? 'booked' : 'available';\nvar dp=newDate.split('/'),tp=newTime.split(':'),calLink='';\nif(dp.length===3&&tp.length>=1){var yr=dp[2],mo=dp[0].padStart(2,'0'),dy=dp[1].padStart(2,'0'),h=parseInt(tp[0]||0),m=parseInt(tp[1]||0),s1=yr+mo+dy+'T'+String(h).padStart(2,'0')+String(m).padStart(2,'0')+'00',em=m+30,eh=h+Math.floor(em/60);em=em%60;var s2=yr+mo+dy+'T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';calLink='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting+with+GLS&dates='+s1+'/'+s2+'&location=Shanghai+New+International+Expo+Centre';}\nreturn [{json:{old_slot_Id:oldSlotId,new_slot_Id:newSlotId,email:email,new_date:newDate,new_time:newTime,old_new_count:String(oldNewCount),new_count:String(newBookCount),new_slot_status:newSlotStatus,client_name:clientName,company:company,salesperson_name:spName,salesperson_email:spEmail,cal_link:calLink}}];"
       }
@@ -2507,7 +2694,10 @@
       "name": "Update Booking Rescheduled Confirmed",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [750, 6000],
+      "position": [
+        750,
+        6000
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2516,8 +2706,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2526,7 +2722,9 @@
             "date": "={{ $json.new_date }}",
             "time": "={{ $json.new_time }}"
           },
-          "matchingColumns": ["email"],
+          "matchingColumns": [
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2537,7 +2735,10 @@
       "name": "Update Old Slot Reschedule Confirmed",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1000, 6000],
+      "position": [
+        1000,
+        6000
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2546,8 +2747,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2555,7 +2762,9 @@
             "booked_count": "={{ $json.old_new_count }}",
             "Status": "=available"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2566,7 +2775,10 @@
       "name": "Update New Slot Reschedule Confirmed",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1250, 6000],
+      "position": [
+        1250,
+        6000
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2575,8 +2787,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2584,7 +2802,9 @@
             "booked_count": "={{ $json.new_count }}",
             "Status": "={{ $json.new_slot_status }}"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2595,7 +2815,10 @@
       "name": "Read Tpl Reschedule Confirm",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [1500, 6000],
+      "position": [
+        1500,
+        6000
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2604,9 +2827,17 @@
       },
       "parameters": {
         "operation": "read",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Template" },
-        "options": { "continueIfEmpty": true }
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
+        "options": {
+          "continueIfEmpty": true
+        }
       },
       "onError": "continueRegularOutput",
       "continueOnFail": true
@@ -2616,9 +2847,12 @@
       "name": "Sub Reschedule Confirm Vars",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1750, 6000],
+      "position": [
+        1750,
+        6000
+      ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS 传讯] Your meeting at {{event_name}} has been rescheduled',body:'Dear {{name}},\\n\\nYour meeting at {{event_name}} has been rescheduled.\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n🤝 {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Reschedule Confirmed'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':d.client_name||'','{{client_name}}':d.client_name||'','{{date}}':d.new_date||'','{{time}}':d.new_time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.email,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'customer_confirm') || {subject:'[GLS \u4f20\u8baf] Your meeting at {{event_name}} has been rescheduled',body:'Dear {{name}},\\n\\nYour meeting at {{event_name}} has been rescheduled.\\n\ud83d\udcc5 {{date}} {{time}}\\n\ud83d\udccd {{event_venue}}\\n\ud83e\udd1d {{salesperson_name}} ({{salesperson_email}})\\n\\nAdd to Calendar: {{cal_link}}\\n\\nGLS \u4f20\u8baf Team'};\nvar d = $node['Prep Reschedule Confirmed'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{name}}':d.client_name||'','{{client_name}}':d.client_name||'','{{date}}':d.new_date||'','{{time}}':d.new_time||'','{{salesperson_name}}':d.salesperson_name||'','{{salesperson_email}}':d.salesperson_email||'','{{cal_link}}':d.cal_link||'','{{company}}':d.company||'','{{unsubscribe_link}}':'https://n8n.okahh.com/webhook/gls-unsubscribe?email='+encodeURIComponent(d.email||''),'{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.email,subject:subject,body:body}}];"
       }
     },
     {
@@ -2626,7 +2860,10 @@
       "name": "Send Reschedule Confirm Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2000, 6000],
+      "position": [
+        2000,
+        6000
+      ],
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
@@ -2644,11 +2881,26 @@
         "specifyBody": "keypair",
         "bodyParameters": {
           "parameters": [
-            { "name": "from", "value": "GLS 传讯 <notifications@smartflowhk.com>" },
-            { "name": "to", "value": "={{ $json.to }}" },
-            { "name": "reply_to", "value": "marketing@glshk.com" },
-            { "name": "subject", "value": "={{ $json.subject }}" },
-            { "name": "html", "value": "={{ $json.body }}" }
+            {
+              "name": "from",
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.to }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
           ]
         },
         "options": {}
@@ -2659,13 +2911,21 @@
       "name": "Respond Reschedule Confirmed",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [2250, 6000],
+      "position": [
+        2250,
+        6000
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
           }
         }
       }
@@ -2675,7 +2935,10 @@
       "name": "Change SP Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 6200],
+      "position": [
+        0,
+        6200
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-change-sp",
@@ -2689,7 +2952,10 @@
       "name": "Prep Change SP",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [250, 6200],
+      "position": [
+        250,
+        6200
+      ],
       "parameters": {
         "jsCode": "var wb = $('Change SP Webhook');\nvar body = wb.first().json.body || wb.first().json;\nreturn [{json:{slot_Id:String(body.slot_id||''),email:String(body.email||''),client_name:String(body.client_name||''),company:String(body.company||''),date:String(body.date||''),time:String(body.time||''),salesperson_name:String(body.salesperson_name||''),salesperson_email:String(body.salesperson_email||'')}}];"
       }
@@ -2699,7 +2965,10 @@
       "name": "Update Booking Change SP",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [500, 6200],
+      "position": [
+        500,
+        6200
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2708,8 +2977,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2717,7 +2992,9 @@
             "salesperson_name": "={{ $json.salesperson_name }}",
             "salesperson_email": "={{ $json.salesperson_email }}"
           },
-          "matchingColumns": ["slot_Id"],
+          "matchingColumns": [
+            "slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2728,7 +3005,10 @@
       "name": "Read Tpl Change SP",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [750, 6200],
+      "position": [
+        750,
+        6200
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2737,9 +3017,17 @@
       },
       "parameters": {
         "operation": "read",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Template" },
-        "options": { "continueIfEmpty": true }
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
+        "options": {
+          "continueIfEmpty": true
+        }
       },
       "onError": "continueRegularOutput",
       "continueOnFail": true
@@ -2749,9 +3037,12 @@
       "name": "Sub Change SP Vars",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1000, 6200],
+      "position": [
+        1000,
+        6200
+      ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] Meeting assignment updated at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Change SP'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.salesperson_email,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS \u4f20\u8baf] Meeting assignment updated at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n\ud83d\udc64 {{client_name}} ({{company}})\\n\ud83d\udcc5 {{date}} {{time}}\\n\ud83d\udccd {{event_venue}}\\n\\nGLS \u4f20\u8baf Team'};\nvar d = $node['Prep Change SP'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24\u201326, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nreturn [{json:{to:d.salesperson_email,subject:subject,body:body}}];"
       }
     },
     {
@@ -2759,7 +3050,10 @@
       "name": "Send Change SP Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1250, 6200],
+      "position": [
+        1250,
+        6200
+      ],
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
@@ -2777,11 +3071,26 @@
         "specifyBody": "keypair",
         "bodyParameters": {
           "parameters": [
-            { "name": "from", "value": "GLS 传讯 <notifications@smartflowhk.com>" },
-            { "name": "to", "value": "={{ $json.to }}" },
-            { "name": "reply_to", "value": "marketing@glshk.com" },
-            { "name": "subject", "value": "={{ $json.subject }}" },
-            { "name": "html", "value": "={{ $json.body }}" }
+            {
+              "name": "from",
+              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.to }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
           ]
         },
         "options": {}
@@ -2792,13 +3101,21 @@
       "name": "Respond Change SP",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1500, 6200],
+      "position": [
+        1500,
+        6200
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
           }
         }
       }
@@ -2808,7 +3125,10 @@
       "name": "Cancel Pending Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 5200],
+      "position": [
+        0,
+        5200
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-cancel-pending",
@@ -2822,7 +3142,10 @@
       "name": "Read Slots For Cancel",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 5200],
+      "position": [
+        250,
+        5200
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2830,8 +3153,14 @@
         }
       },
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "options": {}
       }
     },
@@ -2840,7 +3169,10 @@
       "name": "Prep Cancel",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [500, 5200],
+      "position": [
+        500,
+        5200
+      ],
       "parameters": {
         "jsCode": "var wb = $('Cancel Pending Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar slotId = String(body.slot_id || '');\nvar email = String(body.email || '');\nvar slots = $input.all().map(function(i){return i.json;});\nvar slot = slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount = slot ? Math.max(0, parseInt(slot.booked_count||0)-1) : 0;\nreturn [{json:{slot_Id:slotId,email:email,new_booked_count:String(newCount),new_slot_status:'available'}}];"
       }
@@ -2850,7 +3182,10 @@
       "name": "Update Booking Cancelled",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [750, 5200],
+      "position": [
+        750,
+        5200
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2859,8 +3194,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2868,7 +3209,10 @@
             "email": "={{ $json.email }}",
             "status": "=cancelled"
           },
-          "matchingColumns": ["slot_Id", "email"],
+          "matchingColumns": [
+            "slot_Id",
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2879,7 +3223,10 @@
       "name": "Update Slot After Cancel",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1000, 5200],
+      "position": [
+        1000,
+        5200
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2888,8 +3235,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2897,7 +3250,9 @@
             "booked_count": "={{ $json.new_booked_count }}",
             "Status": "={{ $json.new_slot_status }}"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2908,13 +3263,21 @@
       "name": "Respond Cancel Pending",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1250, 5200],
+      "position": [
+        1250,
+        5200
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
           }
         }
       }
@@ -2924,7 +3287,10 @@
       "name": "Reschedule Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 5400],
+      "position": [
+        0,
+        5400
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-reschedule-pending",
@@ -2938,7 +3304,10 @@
       "name": "Read Slots For Reschedule",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 5400],
+      "position": [
+        250,
+        5400
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2946,8 +3315,14 @@
         }
       },
       "parameters": {
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "options": {}
       }
     },
@@ -2956,7 +3331,10 @@
       "name": "Prep Reschedule",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [500, 5400],
+      "position": [
+        500,
+        5400
+      ],
       "parameters": {
         "jsCode": "var wb = $('Reschedule Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar oldSlotId = String(body.old_slot_id||'');\nvar newSlotId = String(body.new_slot_id||'');\nvar email = String(body.email||'');\nvar newDate = String(body.new_date||'');\nvar newTime = String(body.new_time||'');\nvar slots = $input.all().map(function(i){return i.json;});\nvar oldSlot = slots.find(function(s){return String(s.Slot_Id||'')===oldSlotId;});\nvar newSlot = slots.find(function(s){return String(s.Slot_Id||'')===newSlotId;});\nvar oldNewCount = oldSlot ? Math.max(0,parseInt(oldSlot.booked_count||0)-1) : 0;\nvar newBookCount = newSlot ? parseInt(newSlot.booked_count||0)+1 : 1;\nvar newCap = newSlot ? parseInt(newSlot.capacity||1) : 1;\nvar newSlotStatus = newBookCount >= newCap ? 'booked' : 'available';\nreturn [{json:{old_slot_Id:oldSlotId,new_slot_Id:newSlotId,email:email,new_date:newDate,new_time:newTime,old_new_count:String(oldNewCount),new_count:String(newBookCount),new_slot_status:newSlotStatus}}];"
       }
@@ -2966,7 +3344,10 @@
       "name": "Update Booking Rescheduled",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [750, 5400],
+      "position": [
+        750,
+        5400
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -2975,8 +3356,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Booking" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Booking"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -2985,7 +3372,9 @@
             "date": "={{ $json.new_date }}",
             "time": "={{ $json.new_time }}"
           },
-          "matchingColumns": ["email"],
+          "matchingColumns": [
+            "email"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -2996,7 +3385,10 @@
       "name": "Update Old Slot After Reschedule",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1000, 5400],
+      "position": [
+        1000,
+        5400
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -3005,8 +3397,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -3014,7 +3412,9 @@
             "booked_count": "={{ $json.old_new_count }}",
             "Status": "=available"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -3025,7 +3425,10 @@
       "name": "Update New Slot After Reschedule",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [1250, 5400],
+      "position": [
+        1250,
+        5400
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -3034,8 +3437,14 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Slots" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Slots"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -3043,7 +3452,9 @@
             "booked_count": "={{ $json.new_count }}",
             "Status": "={{ $json.new_slot_status }}"
           },
-          "matchingColumns": ["Slot_Id"],
+          "matchingColumns": [
+            "Slot_Id"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -3054,13 +3465,21 @@
       "name": "Respond Reschedule",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1500, 5400],
+      "position": [
+        1500,
+        5400
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
-            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
           }
         }
       }
@@ -3070,7 +3489,10 @@
       "name": "Delete Template Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 5000],
+      "position": [
+        0,
+        5000
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-delete-template",
@@ -3084,7 +3506,10 @@
       "name": "Mark Template Deleted",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [250, 5000],
+      "position": [
+        250,
+        5000
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -3093,15 +3518,23 @@
       },
       "parameters": {
         "operation": "update",
-        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
-        "sheetName": { "mode": "name", "value": "Template" },
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
             "template_name": "={{ $json.body.template_name }}",
             "subject": "=__deleted__"
           },
-          "matchingColumns": ["template_name"],
+          "matchingColumns": [
+            "template_name"
+          ],
           "attemptToConvertTypes": false
         },
         "options": {}
@@ -3112,14 +3545,20 @@
       "name": "Respond Delete Template",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [500, 5000],
+      "position": [
+        500,
+        5000
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
             "entries": [
-              { "name": "Access-Control-Allow-Origin", "value": "*" }
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
             ]
           }
         }
@@ -3829,64 +4268,224 @@
       ]
     },
     "Manual Booking Webhook": {
-      "main": [[{ "node": "Read Slots For Manual", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Slots For Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Slots For Manual": {
-      "main": [[{ "node": "Prep Manual Booking", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prep Manual Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prep Manual Booking": {
-      "main": [[{ "node": "Append Manual Booking", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Append Manual Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Append Manual Booking": {
-      "main": [[{ "node": "Update Slot Manual", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Slot Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Slot Manual": {
-      "main": [[{ "node": "Update Contact Manual", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Contact Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Contact Manual": {
-      "main": [[{ "node": "Read Tpl Manual", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Tpl Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Tpl Manual": {
-      "main": [[{ "node": "Sub Manual Confirm Vars", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Sub Manual Confirm Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Sub Manual Confirm Vars": {
-      "main": [[{ "node": "Send Manual Confirm Email", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Manual Confirm Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send Manual Confirm Email": {
-      "main": [[{ "node": "Respond Manual Booking", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond Manual Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Cancel Pending Webhook": {
-      "main": [[{ "node": "Read Slots For Cancel", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Slots For Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Slots For Cancel": {
-      "main": [[{ "node": "Prep Cancel", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prep Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prep Cancel": {
-      "main": [[{ "node": "Update Booking Cancelled", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Booking Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Booking Cancelled": {
-      "main": [[{ "node": "Update Slot After Cancel", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Slot After Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Slot After Cancel": {
-      "main": [[{ "node": "Respond Cancel Pending", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond Cancel Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Reschedule Webhook": {
-      "main": [[{ "node": "Read Slots For Reschedule", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Slots For Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Slots For Reschedule": {
-      "main": [[{ "node": "Prep Reschedule", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prep Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prep Reschedule": {
-      "main": [[{ "node": "Update Booking Rescheduled", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Booking Rescheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Booking Rescheduled": {
-      "main": [[{ "node": "Update Old Slot After Reschedule", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Old Slot After Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Old Slot After Reschedule": {
-      "main": [[{ "node": "Update New Slot After Reschedule", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update New Slot After Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update New Slot After Reschedule": {
-      "main": [[{ "node": "Respond Reschedule", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Delete Contact Webhook": {
       "main": [
@@ -3955,64 +4554,224 @@
       ]
     },
     "Cancel Confirmed Webhook": {
-      "main": [[{ "node": "Read Slots For Cancel Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Slots For Cancel Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Slots For Cancel Confirmed": {
-      "main": [[{ "node": "Prep Cancel Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prep Cancel Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prep Cancel Confirmed": {
-      "main": [[{ "node": "Update Confirmed Booking Cancelled", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Confirmed Booking Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Confirmed Booking Cancelled": {
-      "main": [[{ "node": "Update Slot After Cancel Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Slot After Cancel Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Slot After Cancel Confirmed": {
-      "main": [[{ "node": "Respond Cancel Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond Cancel Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Reschedule Confirmed Webhook": {
-      "main": [[{ "node": "Read Slots For Reschedule Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Slots For Reschedule Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Slots For Reschedule Confirmed": {
-      "main": [[{ "node": "Prep Reschedule Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prep Reschedule Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prep Reschedule Confirmed": {
-      "main": [[{ "node": "Update Booking Rescheduled Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Booking Rescheduled Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Booking Rescheduled Confirmed": {
-      "main": [[{ "node": "Update Old Slot Reschedule Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Old Slot Reschedule Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Old Slot Reschedule Confirmed": {
-      "main": [[{ "node": "Update New Slot Reschedule Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update New Slot Reschedule Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update New Slot Reschedule Confirmed": {
-      "main": [[{ "node": "Read Tpl Reschedule Confirm", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Tpl Reschedule Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Tpl Reschedule Confirm": {
-      "main": [[{ "node": "Sub Reschedule Confirm Vars", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Sub Reschedule Confirm Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Sub Reschedule Confirm Vars": {
-      "main": [[{ "node": "Send Reschedule Confirm Email", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Reschedule Confirm Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send Reschedule Confirm Email": {
-      "main": [[{ "node": "Respond Reschedule Confirmed", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond Reschedule Confirmed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Change SP Webhook": {
-      "main": [[{ "node": "Prep Change SP", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prep Change SP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prep Change SP": {
-      "main": [[{ "node": "Update Booking Change SP", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Booking Change SP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Booking Change SP": {
-      "main": [[{ "node": "Read Tpl Change SP", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Read Tpl Change SP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Read Tpl Change SP": {
-      "main": [[{ "node": "Sub Change SP Vars", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Sub Change SP Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Sub Change SP Vars": {
-      "main": [[{ "node": "Send Change SP Email", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Change SP Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send Change SP Email": {
-      "main": [[{ "node": "Respond Change SP", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Respond Change SP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
