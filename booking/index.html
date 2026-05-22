@@ -148,23 +148,6 @@
       color: rgba(255,255,255,0.5);
       letter-spacing: 1px;
     }
-    .right-1688 {
-      position: fixed;
-      bottom: clamp(16px, 3vh, 36px);
-      right: clamp(12px, 2vw, 32px);
-      z-index: 2;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .badge-1688 {
-      width: clamp(30px, 3vw, 46px);
-      height: clamp(30px, 3vw, 46px);
-      background: #FF6000;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-weight: 900;
-      font-size: clamp(7px, 0.75vw, 11px);
-      letter-spacing: -0.5px;
-    }
     .page {
       position: relative; z-index: 10;
       min-height: 100vh;
@@ -305,7 +288,7 @@
     .retry { margin-top: 14px; display: inline-block; color: #0C1F3F; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; }
     @media (max-width: 760px) {
       .left-content, .right-content, .right-cargo-bg,
-      .left-logo-wrap, .right-1688,
+      .left-logo-wrap,
       .bg-left, .bg-right { display: none; }
       .page { padding: 0; }
       .card { max-width: 100%; box-shadow: none; }
@@ -340,10 +323,6 @@
     <div class="right-dates">2026年<br>6月24–26日</div>
     <div class="right-venue">上海新国际博览中心</div>
   </div>
-  <div class="right-1688">
-    <div class="badge-1688">1688</div>
-  </div>
-
   <div class="page">
     <div class="card">
 

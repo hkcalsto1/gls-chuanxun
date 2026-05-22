@@ -128,7 +128,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var contacts = $input.all().map(function(i){return i.json;});\nreturn [{json:{contacts:contacts,count:contacts.length}}];"
+        "jsCode": "var contacts = $input.all().map(function(i){return i.json;}).filter(function(c){return c.status !== 'deleted';});\nreturn [{json:{contacts:contacts,count:contacts.length}}];"
       },
       "id": "a2000003-a200-a200-a200-a20000000003",
       "name": "Format Contacts",
@@ -1103,7 +1103,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var bookings = $input.all().map(function(i){return i.json;}).filter(function(b){return !!b.date;});\nbookings.sort(function(a,b){return String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time));});\nreturn [{json:{bookings:bookings,count:bookings.length}}];"
+        "jsCode": "var bookings = $input.all().map(function(i){return i.json;}).filter(function(b){return !!b.date && b.status !== 'cancelled';});\nbookings.sort(function(a,b){return String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time));});\nreturn [{json:{bookings:bookings,count:bookings.length}}];"
       },
       "id": "a9000003-a900-a900-a900-a90000000003",
       "name": "Format All Bookings",
@@ -2007,6 +2007,186 @@
           }
         }
       }
+    },
+    {
+      "id": "DC1001",
+      "name": "Delete Contact Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 4600],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-delete-contact",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "dc-webhook-001"
+    },
+    {
+      "id": "DC1002",
+      "name": "Mark Contact Deleted",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 4600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Contacts" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.body.email }}",
+            "status": "=deleted"
+          },
+          "matchingColumns": ["email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "DC1003",
+      "name": "Respond Delete Contact",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 4600],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "DB1001",
+      "name": "Delete Booking Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 4800],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-delete-booking",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "db-webhook-001"
+    },
+    {
+      "id": "DB1002",
+      "name": "Mark Booking Cancelled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 4800],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slot_Id": "={{ $json.body.slot_id }}",
+            "status": "=cancelled"
+          },
+          "matchingColumns": ["slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "DB1003",
+      "name": "Respond Delete Booking",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 4800],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "DT1001",
+      "name": "Delete Template Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 5000],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-delete-template",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "dt-webhook-001"
+    },
+    {
+      "id": "DT1002",
+      "name": "Mark Template Deleted",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 5000],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Template" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "template_name": "={{ $json.body.template_name }}",
+            "subject": "=__deleted__"
+          },
+          "matchingColumns": ["template_name"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "DT1003",
+      "name": "Respond Delete Template",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 5000],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      }
     }
   ],
   "pinData": {},
@@ -2705,6 +2885,72 @@
         [
           {
             "node": "Respond Save Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Contact Webhook": {
+      "main": [
+        [
+          {
+            "node": "Mark Contact Deleted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Contact Deleted": {
+      "main": [
+        [
+          {
+            "node": "Respond Delete Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Booking Webhook": {
+      "main": [
+        [
+          {
+            "node": "Mark Booking Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Booking Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Respond Delete Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Template Webhook": {
+      "main": [
+        [
+          {
+            "node": "Mark Template Deleted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Template Deleted": {
+      "main": [
+        [
+          {
+            "node": "Respond Delete Template",
             "type": "main",
             "index": 0
           }
