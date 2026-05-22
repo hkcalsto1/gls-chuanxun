@@ -527,6 +527,7 @@
             style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;">
             <option value="">All Salespeople</option>
           </select>
+          <button class="btn btn-gold btn-sm" onclick="openManualBookingModal()">＋ New Booking</button>
           <button class="btn btn-outline btn-sm" onclick="loadBookings()">↻ Refresh</button>
         </div>
       </div>
@@ -613,6 +614,62 @@
   </div>
 
 </div><!-- end #dashboard -->
+
+<!-- MANUAL BOOKING MODAL -->
+<div class="modal-overlay" id="manualBookingModal">
+  <div class="modal" style="max-width:520px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="margin:0;">Create Manual Booking</h3>
+      <button onclick="closeManualBookingModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="form-field">
+        <label>Full Name *</label>
+        <input type="text" id="mb-name" placeholder="e.g. David Chen" oninput="checkMbReady()">
+      </div>
+      <div class="form-field">
+        <label>Email *</label>
+        <input type="email" id="mb-email" placeholder="email@company.com" oninput="checkMbReady()">
+      </div>
+      <div class="form-field">
+        <label>Company</label>
+        <input type="text" id="mb-company" placeholder="Company name">
+      </div>
+      <div class="form-field">
+        <label>Job Title</label>
+        <input type="text" id="mb-title" placeholder="e.g. Director">
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px;">
+      <label>Assign Salesperson *</label>
+      <select id="mb-sp" onchange="checkMbReady()" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
+        <option value="">Select salesperson...</option>
+      </select>
+    </div>
+    <div class="form-field" style="margin-bottom:14px;">
+      <label>Date *</label>
+      <div style="display:flex;gap:20px;margin-top:8px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
+          <input type="radio" name="mb-date" value="06/24/2026" onchange="manualBookingLoadSlots()"> Wed 24 Jun
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
+          <input type="radio" name="mb-date" value="06/25/2026" onchange="manualBookingLoadSlots()"> Thu 25 Jun
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
+          <input type="radio" name="mb-date" value="06/26/2026" onchange="manualBookingLoadSlots()"> Fri 26 Jun
+        </label>
+      </div>
+    </div>
+    <div class="form-field" style="margin-bottom:22px;">
+      <label>Time Slot *</label>
+      <div id="mbTimeGroup" style="margin-top:8px;font-size:13px;color:#aaa;font-style:italic;">Select a date first.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeManualBookingModal()">Cancel</button>
+      <button class="btn btn-gold" id="mbConfirmBtn" onclick="submitManualBooking()" disabled>Create Booking</button>
+    </div>
+  </div>
+</div>
 
 <!-- RESCHEDULE MODAL -->
 <div class="modal-overlay" id="rescheduleModal">
@@ -860,6 +917,9 @@
         actions += '<button class="btn btn-outline btn-sm" onclick="sendReminder(' + i + ')">Send Reminder</button>';
       } else if (c.status === 'booked') {
         actions += '<span style="font-size:12px;color:#888;">Booked ✓</span>';
+      }
+      if (effectiveStatus !== 'booked') {
+        actions += ' <button class="btn btn-outline btn-sm" onclick="openManualBookingModal(' + i + ')">Book</button>';
       }
       actions += ' <button class="btn btn-danger btn-sm" onclick="deleteContact(' + i + ')">Delete</button>';
 
@@ -1585,6 +1645,121 @@
     };
     reader.readAsDataURL(file);
   }
+
+  // ═══════════════════════════════════════
+  // MANUAL BOOKING
+  // ═══════════════════════════════════════
+  var mbAvailableSlots = [];
+  var mbSelectedSlot = null;
+
+  function openManualBookingModal(contactIdx) {
+    document.getElementById('mb-name').value = '';
+    document.getElementById('mb-email').value = '';
+    document.getElementById('mb-company').value = '';
+    document.getElementById('mb-title').value = '';
+    document.querySelectorAll('input[name="mb-date"]').forEach(function(r) { r.checked = false; });
+    document.querySelectorAll('input[name="mb-time"]').forEach(function(r) { r.checked = false; });
+    document.getElementById('mbTimeGroup').innerHTML = '<span style="color:#aaa;font-style:italic;">Select a date first.</span>';
+    document.getElementById('mbConfirmBtn').disabled = true;
+    document.getElementById('mbConfirmBtn').textContent = 'Create Booking';
+    mbSelectedSlot = null;
+
+    if (contactIdx !== null && contactIdx !== undefined) {
+      var c = allContacts[contactIdx];
+      document.getElementById('mb-name').value = c.name || '';
+      document.getElementById('mb-email').value = c.email || '';
+      document.getElementById('mb-company').value = c.company || '';
+      document.getElementById('mb-title').value = c.title || '';
+    }
+
+    var spSel = document.getElementById('mb-sp');
+    spSel.innerHTML = '<option value="">Select salesperson...</option>';
+    SALESPEOPLE.forEach(function(sp) {
+      var o = document.createElement('option');
+      o.value = sp.name; o.textContent = sp.name; o.dataset.email = sp.email || '';
+      spSel.appendChild(o);
+    });
+
+    fetch(N8N + '/gls-slots')
+      .then(function(r) { return r.json(); })
+      .then(function(data) { mbAvailableSlots = data.slots || []; })
+      .catch(function() { mbAvailableSlots = []; });
+
+    document.getElementById('manualBookingModal').classList.add('open');
+  }
+
+  function closeManualBookingModal() {
+    document.getElementById('manualBookingModal').classList.remove('open');
+    mbSelectedSlot = null;
+  }
+
+  function manualBookingLoadSlots() {
+    var sel = document.querySelector('input[name="mb-date"]:checked');
+    if (!sel) return;
+    var date = sel.value;
+    mbSelectedSlot = null;
+    document.getElementById('mbConfirmBtn').disabled = true;
+    var forDate = mbAvailableSlots.filter(function(s) { return s.Date === date; });
+    var group = document.getElementById('mbTimeGroup');
+    if (!forDate.length) {
+      group.innerHTML = '<span style="color:#aaa;font-style:italic;">No available slots for this date.</span>';
+      return;
+    }
+    group.innerHTML = forDate.map(function(s) {
+      return '<label style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #f0f0f0;font-size:13px;cursor:pointer;">' +
+        '<input type="radio" name="mb-time" value="' + escHtml(s.Time) + '" data-slot-id="' + escHtml(s.Slot_Id || '') + '" onchange="mbPickSlot(this,\'' + escHtml(date) + '\')">' +
+        escHtml(formatTime(s.Time)) +
+      '</label>';
+    }).join('');
+  }
+
+  function mbPickSlot(input, date) {
+    mbSelectedSlot = { Slot_Id: input.dataset.slotId, Date: date, Time: input.value };
+    checkMbReady();
+  }
+
+  function checkMbReady() {
+    var name = document.getElementById('mb-name').value.trim();
+    var email = document.getElementById('mb-email').value.trim();
+    var sp = document.getElementById('mb-sp').value;
+    document.getElementById('mbConfirmBtn').disabled = !(name && email && sp && mbSelectedSlot);
+  }
+
+  async function submitManualBooking() {
+    var name = document.getElementById('mb-name').value.trim();
+    var email = document.getElementById('mb-email').value.trim();
+    var company = document.getElementById('mb-company').value.trim();
+    var title = document.getElementById('mb-title').value.trim();
+    var spSel = document.getElementById('mb-sp');
+    var spName = spSel.value;
+    var spEmail = (spSel.options[spSel.selectedIndex] || {}).dataset && spSel.options[spSel.selectedIndex].dataset.email || '';
+    if (!name || !email || !spName || !mbSelectedSlot) {
+      showToast('Please fill in all required fields.', 'error'); return;
+    }
+    var btn = document.getElementById('mbConfirmBtn');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+      await fetch(N8N + '/gls-manual-booking', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name, email: email, company: company, title: title,
+          slot_id: mbSelectedSlot.Slot_Id,
+          date: mbSelectedSlot.Date, time: mbSelectedSlot.Time,
+          salesperson_name: spName, salesperson_email: spEmail
+        })
+      });
+      closeManualBookingModal();
+      showToast('Booking created for ' + name, 'success');
+      loadBookings(); loadContacts();
+    } catch(e) {
+      showToast('Failed to create booking.', 'error');
+      btn.disabled = false; btn.textContent = 'Create Booking';
+    }
+  }
+
+  document.getElementById('manualBookingModal').addEventListener('click', function(e) {
+    if (e.target === this) closeManualBookingModal();
+  });
 
   // ═══════════════════════════════════════
   // CANCEL & RESCHEDULE PENDING

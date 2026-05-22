@@ -2129,6 +2129,158 @@
       }
     },
     {
+      "id": "MB1001",
+      "name": "Manual Booking Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 5600],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-manual-booking",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "mb-webhook-001"
+    },
+    {
+      "id": "MB1002",
+      "name": "Read Slots For Manual",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [250, 5600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "options": {}
+      }
+    },
+    {
+      "id": "MB1003",
+      "name": "Prep Manual Booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 5600],
+      "parameters": {
+        "jsCode": "var wb=$('Manual Booking Webhook');\nvar body=wb.first().json.body||wb.first().json;\nvar slotId=String(body.slot_id||'');\nvar slots=$input.all().map(function(i){return i.json;});\nvar slot=slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount=slot?parseInt(slot.booked_count||0)+1:1;\nvar cap=slot?parseInt(slot.capacity||1):1;\nvar newStatus=newCount>=cap?'booked':'available';\nvar date=String(body.date||''),time=String(body.time||'');\nvar dp=date.split('/'),tp=time.split(':'),calLink='';\nif(dp.length===3&&tp.length>=1){\n  var yr=dp[2],mo=dp[0].padStart(2,'0'),dy=dp[1].padStart(2,'0');\n  var h=parseInt(tp[0]||0),m=parseInt(tp[1]||0);\n  var s1=yr+mo+dy+'T'+String(h).padStart(2,'0')+String(m).padStart(2,'0')+'00';\n  var em=m+30,eh=h+Math.floor(em/60);em=em%60;\n  var s2=yr+mo+dy+'T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';\n  calLink='https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting+with+GLS&dates='+s1+'/'+s2+'&location=Shanghai+New+International+Expo+Centre';\n}\nreturn [{json:{slot_Id:slotId,new_booked_count:String(newCount),new_slot_status:newStatus,date:date,time:time,client_name:String(body.name||''),email:String(body.email||'').toLowerCase().trim(),company:String(body.company||''),title:String(body.title||''),salesperson_name:String(body.salesperson_name||''),salesperson_email:String(body.salesperson_email||''),cal_link:calLink,booked_at:new Date().toISOString()}}];"
+      }
+    },
+    {
+      "id": "MB1004",
+      "name": "Append Manual Booking",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [750, 5600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "append",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Booking" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slot_Id": "={{ $json.slot_Id }}",
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
+            "client_name": "={{ $json.client_name }}",
+            "email": "={{ $json.email }}",
+            "company": "={{ $json.company }}",
+            "title": "={{ $json.title }}",
+            "salesperson_name": "={{ $json.salesperson_name }}",
+            "salesperson_email": "={{ $json.salesperson_email }}",
+            "booked_at": "={{ $json.booked_at }}",
+            "status": "=confirmed"
+          }
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "MB1005",
+      "name": "Update Slot Manual",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1000, 5600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Slots" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slot_Id": "={{ $json.slot_Id }}",
+            "booked_count": "={{ $json.new_booked_count }}",
+            "Status": "={{ $json.new_slot_status }}"
+          },
+          "matchingColumns": ["Slot_Id"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "MB1006",
+      "name": "Update Contact Manual",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1250, 5600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      },
+      "parameters": {
+        "operation": "update",
+        "documentId": { "mode": "id", "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc" },
+        "sheetName": { "mode": "name", "value": "Contacts" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "status": "=booked"
+          },
+          "matchingColumns": ["email"],
+          "attemptToConvertTypes": false
+        },
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "MB1007",
+      "name": "Respond Manual Booking",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1500, 5600],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true}",
+        "options": {
+          "responseHeaders": {
+            "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }]
+          }
+        }
+      }
+    },
+    {
       "id": "CP1001",
       "name": "Cancel Pending Webhook",
       "type": "n8n-nodes-base.webhook",
@@ -3152,6 +3304,24 @@
           }
         ]
       ]
+    },
+    "Manual Booking Webhook": {
+      "main": [[{ "node": "Read Slots For Manual", "type": "main", "index": 0 }]]
+    },
+    "Read Slots For Manual": {
+      "main": [[{ "node": "Prep Manual Booking", "type": "main", "index": 0 }]]
+    },
+    "Prep Manual Booking": {
+      "main": [[{ "node": "Append Manual Booking", "type": "main", "index": 0 }]]
+    },
+    "Append Manual Booking": {
+      "main": [[{ "node": "Update Slot Manual", "type": "main", "index": 0 }]]
+    },
+    "Update Slot Manual": {
+      "main": [[{ "node": "Update Contact Manual", "type": "main", "index": 0 }]]
+    },
+    "Update Contact Manual": {
+      "main": [[{ "node": "Respond Manual Booking", "type": "main", "index": 0 }]]
     },
     "Cancel Pending Webhook": {
       "main": [[{ "node": "Read Slots For Cancel", "type": "main", "index": 0 }]]
