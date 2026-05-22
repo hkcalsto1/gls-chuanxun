@@ -2020,7 +2020,7 @@
             body: JSON.stringify({ email: c.email })
           });
           showToast(c.name + ' deleted.', 'success');
-          loadContacts();
+          setTimeout(loadContacts, 1000);
         } catch(e) {
           showToast('Failed to delete contact.', 'error');
         }
