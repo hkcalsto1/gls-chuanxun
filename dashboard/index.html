@@ -1609,12 +1609,14 @@
     try {
       var res = await fetch(N8N + '/gls-save-template', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ template_name: t.template_name, subject: subject, body: body })
+        body: JSON.stringify({ template_name: t.template_name, subject: subject, body: body, is_new: !!t._isNew })
       });
-      var result = await res.json();
-      if (result.success) {
+      var result;
+      try { result = await res.json(); } catch(e) { result = {}; }
+      if (res.ok && result.success) {
         allTemplates[activeTemplate].subject = subject;
         allTemplates[activeTemplate].body = body;
+        delete allTemplates[activeTemplate]._isNew;
         showToast('✓ Template saved', 'success');
       } else {
         showToast('Failed to save template', 'error');
@@ -1632,7 +1634,7 @@
       showToast('A template with that name already exists.', 'error');
       return;
     }
-    allTemplates.push({ template_name: name, subject: '', body: '' });
+    allTemplates.push({ template_name: name, subject: '', body: '', _isNew: true });
     renderTemplateList();
     selectTemplate(allTemplates.length - 1);
   }

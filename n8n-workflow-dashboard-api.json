@@ -1242,7 +1242,7 @@
         }
       },
       "parameters": {
-        "operation": "appendOrUpdate",
+        "operation": "update",
         "documentId": {
           "mode": "id",
           "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
@@ -3563,6 +3563,75 @@
           }
         }
       }
+    },
+    {
+      "id": "TNL001",
+      "name": "IF New Template",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        220,
+        3060
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "tpl-new-cond",
+              "leftValue": "={{ $json.body.is_new }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "TNL002",
+      "name": "Append New Template",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        440,
+        2980
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Template"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "template_name": "={{ $json.body.template_name }}",
+            "subject": "={{ $json.body.subject }}",
+            "body": "={{ $json.body.body }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -4095,7 +4164,7 @@
       "main": [
         [
           {
-            "node": "Update Template Sheet",
+            "node": "IF New Template",
             "type": "main",
             "index": 0
           }
@@ -4767,6 +4836,35 @@
         [
           {
             "node": "Respond Change SP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF New Template": {
+      "main": [
+        [
+          {
+            "node": "Append New Template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Template Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append New Template": {
+      "main": [
+        [
+          {
+            "node": "Respond Save Template",
             "type": "main",
             "index": 0
           }
