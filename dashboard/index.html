@@ -313,7 +313,7 @@
     .name-cell strong { display: block; font-size: 13px; color: #111; }
     .name-cell span { font-size: 11.5px; color: #888; }
 
-    .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+    .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
     @media (max-width: 768px) {
       .add-contact-grid { grid-template-columns: 1fr 1fr; }
@@ -811,13 +811,14 @@
       return;
     }
     tbody.innerHTML = contacts.map(function(c, i) {
+      var effectiveStatus = c.status || (c.invite_sent === 'yes' ? 'sent' : 'not_sent');
       var statusBadge = {
         'not_sent': '<span class="badge not-sent">Not Sent</span>',
         'sent':     '<span class="badge sent">Invited</span>',
         'opened':   '<span class="badge opened">✓ Opened</span>',
         'clicked':  '<span class="badge clicked">Clicked Form</span>',
         'booked':   '<span class="badge booked">✓ Booked</span>'
-      }[c.status || 'not_sent'] || '<span class="badge not-sent">Not Sent</span>';
+      }[effectiveStatus] || '<span class="badge not-sent">Not Sent</span>';
 
       var actions = '';
       if (c.invite_sent !== 'yes') {
