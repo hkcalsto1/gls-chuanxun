@@ -83,30 +83,8 @@
       left: clamp(16px, 3vw, 48px);
       z-index: 2;
     }
-    .left-logo {
-      display: inline-flex; align-items: center; gap: clamp(6px, 0.8vw, 12px);
-    }
-    .left-logo svg {
-      width: clamp(32px, 3.5vw, 56px);
-      height: auto;
-    }
-    .left-logo-wordmark {
-      display: flex; align-items: baseline; gap: 5px;
-    }
-    .left-logo-gls {
-      font-size: clamp(16px, 2vw, 32px);
-      font-weight: 900;
-      color: white;
-      letter-spacing: 1px;
-      line-height: 1;
-    }
-    .left-logo-cn {
-      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
-      font-size: clamp(10px, 1.1vw, 18px);
-      font-weight: 400;
-      color: rgba(255,255,255,0.85);
-      letter-spacing: 1px;
-    }
+    .left-logo { display: inline-flex; align-items: center; }
+    .left-logo img { height: clamp(22px, 2.8vw, 44px); width: auto; }
     .right-content {
       position: fixed;
       top: 50%; right: 0;
@@ -166,26 +144,8 @@
       border-left: 6px solid #F5A500;
       position: relative;
     }
-    .card-top-logo-row {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 18px;
-    }
-    .card-top-logo-icon {
-      width: 36px; height: 36px; flex-shrink: 0; position: relative;
-    }
-    .card-top-logo-icon svg { width: 36px; height: 36px; }
-    .card-top-logo-wordmark {
-      display: flex; align-items: baseline; gap: 6px;
-    }
-    .card-top-logo-gls {
-      font-size: 22px; font-weight: 900; color: white;
-      letter-spacing: 1px; line-height: 1;
-    }
-    .card-top-logo-cn {
-      font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
-      font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.85);
-      letter-spacing: 1px;
-    }
+    .card-top-logo-row { margin-bottom: 18px; }
+    .card-top-logo-row img { height: 30px; width: auto; }
     .card-top h1 {
       font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', 'Segoe UI', Arial, sans-serif;
       font-size: clamp(17px, 3.5vw, 26px);
@@ -307,15 +267,7 @@
   </div>
   <div class="left-logo-wrap">
     <div class="left-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <polygon fill="#0C1F3F" points="55.5,42.3 59.5,15.2 12.2,15.2 5,63 29.7,63 32.8,42.3"/>
-        <polygon fill="#0C1F3F" points="55.5,42.3 52.4,63 29.7,63 25.6,90.2 73,90.2 80.1,42.3"/>
-        <polygon fill="#0C1F3F" points="91.9,30.6 95,9.9 72.3,9.9 69.2,30.6"/>
-      </svg>
-      <div class="left-logo-wordmark">
-        <span class="left-logo-gls">GLS</span>
-        <span class="left-logo-cn">传讯</span>
-      </div>
+      <img src="assets/gls-logo-white.svg" alt="GLS 传讯">
     </div>
   </div>
 
@@ -330,17 +282,7 @@
 
       <div class="card-top">
         <div class="card-top-logo-row">
-          <div class="card-top-logo-icon">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <polygon fill="white" points="55.5,42.3 59.5,15.2 12.2,15.2 5,63 29.7,63 32.8,42.3"/>
-              <polygon fill="white" points="55.5,42.3 52.4,63 29.7,63 25.6,90.2 73,90.2 80.1,42.3"/>
-              <polygon fill="white" points="91.9,30.6 95,9.9 72.3,9.9 69.2,30.6"/>
-            </svg>
-          </div>
-          <div class="card-top-logo-wordmark">
-            <span class="card-top-logo-gls">GLS</span>
-            <span class="card-top-logo-cn">传讯</span>
-          </div>
+          <img src="assets/gls-logo-white.svg" alt="GLS 传讯">
         </div>
         <h1>与GLS会面预约登记 Meeting with GLS</h1>
         <p>感谢您拨冗与GLS团队会面交流。敬请告知您可会面的时间，我们将为您预留专属时段。期待在上海与您见面！<br>
