@@ -47,7 +47,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var slots = $input.all().map(function(i){return i.json;});\nvar available = slots.filter(function(s){return String(s.Status||'').toLowerCase()==='available';});\nreturn [{json:{slots:available,count:available.length}}];"
+        "jsCode": "var slots = $input.all().map(function(i){return i.json;});\nvar available = slots.filter(function(s){return String(s.Status||'').toLowerCase()==='available' && parseInt(s.booked_count||0) < parseInt(s.capacity||1);});\nreturn [{json:{slots:available,count:available.length}}];"
       },
       "id": "a1000003-a100-a100-a100-a10000000003",
       "name": "Format Slots",

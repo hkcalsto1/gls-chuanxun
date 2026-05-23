@@ -1253,8 +1253,9 @@
             showToast('⚠ Slot no longer available. Please check.', 'error');
           } else {
             showToast('✓ ' + p.client_name + ' confirmed with ' + sp, 'success');
-            loadPending();
-            loadBookings();
+            allPending = allPending.filter(function(_, i) { return i !== idx; });
+            renderPending(allPending);
+            setTimeout(function() { loadPending(); loadBookings(); }, 1500);
           }
         } catch(e) {
           showToast('Failed to assign. Check n8n connection.', 'error');
