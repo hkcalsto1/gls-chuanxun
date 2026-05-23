@@ -447,14 +447,19 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ success: false, reason: $json._reason }) }}",
+        "respondWith": "text",
+        "responseBody": "={{ '{\"success\":false,\"reason\":\"' + String($json._reason||'no_reason').replace(/\"/g,'') + '\"}' }}",
         "options": {
+          "responseCode": 200,
           "responseHeaders": {
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
                 "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
               }
             ]
           }
