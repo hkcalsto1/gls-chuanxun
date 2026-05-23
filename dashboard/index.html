@@ -1163,7 +1163,7 @@
     try {
       var res = await fetch(N8N + '/gls-pending');
       var data = await res.json();
-      allPending = (data.bookings || []).filter(b => b.status === 'pending');
+      allPending = (data.bookings || []).filter(b => b.status === 'pending' && !_cancelledEmails.has(b.email));
     } catch(e) {
       allPending = [];
     }
@@ -1266,6 +1266,8 @@
 
   // ═══════════════════════════════════════
   // BOOKINGS
+  var _cancelledEmails = new Set();
+
   // ═══════════════════════════════════════
   var allBookings = [];
   var sortedBookings = [];
@@ -1794,6 +1796,7 @@
             body: JSON.stringify({ slot_id: p.slot_Id || p.slot_id, email: p.email })
           });
           showToast('Booking cancelled. Slot freed.', 'success');
+          _cancelledEmails.add(p.email);
           allPending = allPending.filter(function(_, i) { return i !== idx; });
           renderPending(allPending);
         } catch(e) {
