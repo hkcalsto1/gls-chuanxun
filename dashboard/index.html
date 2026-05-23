@@ -1255,7 +1255,7 @@
             showToast('✓ ' + p.client_name + ' confirmed with ' + sp, 'success');
             allPending = allPending.filter(function(_, i) { return i !== idx; });
             renderPending(allPending);
-            setTimeout(function() { loadPending(); loadBookings(); }, 1500);
+            setTimeout(function() { loadPending(); loadBookings(); }, 4000);
           }
         } catch(e) {
           showToast('Failed to assign. Check n8n connection.', 'error');
@@ -1796,7 +1796,7 @@
           showToast('Booking cancelled. Slot freed.', 'success');
           allPending = allPending.filter(function(_, i) { return i !== idx; });
           renderPending(allPending);
-          setTimeout(loadPending, 1500);
+          setTimeout(loadPending, 4000);
         } catch(e) {
           showToast('Failed to cancel booking.', 'error');
         }
