@@ -404,6 +404,7 @@
 
       </div>
 
+      <input type="hidden" id="selected_slot_id" name="selected_slot_id" value="">
       <div class="card-footer" id="footerWrap">
         <button type="submit" form="bookForm" class="submit-btn" id="submitBtn">Submit</button>
         <p class="form-note">Never give out your password. &nbsp;<a href="#">Report abuse</a></p>
@@ -414,6 +415,8 @@
 
   <script>
     var availableSlots = [];
+
+    function normDate(d) { var p=String(d||'').trim().split('/'); return p.length===3?parseInt(p[0])+'/'+parseInt(p[1])+'/'+p[2]:String(d||'').trim(); }
 
     // Hide all time slots initially until a date is selected
     document.querySelectorAll('.time-radio-opt').forEach(function(opt) {
@@ -431,11 +434,11 @@
       var date = selected ? selected.value : null;
       if (!date) return;
 
-      // Clear any previously selected time
+      // Clear any previously selected time and slot_id
       var checkedTime = document.querySelector('input[name="preferred_time"]:checked');
       if (checkedTime) checkedTime.checked = false;
+      document.getElementById('selected_slot_id').value = '';
 
-      function normDate(d) { var p=String(d||'').trim().split('/'); return p.length===3?parseInt(p[0])+'/'+parseInt(p[1])+'/'+p[2]:String(d||'').trim(); }
       var normSelectedDate = normDate(date);
       var visibleCount = 0;
       document.querySelectorAll('.time-radio-opt').forEach(function(opt) {
@@ -452,6 +455,20 @@
 
     document.querySelectorAll('input[name="preferred_date"]').forEach(function(r) {
       r.addEventListener('change', updateTimeSlots);
+    });
+
+    // Capture slot_id when user picks a time
+    document.querySelectorAll('input[name="preferred_time"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        var selDate = document.querySelector('input[name="preferred_date"]:checked');
+        var date = selDate ? selDate.value : '';
+        var time = this.value;
+        var normD = normDate(date);
+        var slot = availableSlots.find(function(s) {
+          return normDate(s.Date||s.date) === normD && (s.Time||s.time) === time;
+        });
+        document.getElementById('selected_slot_id').value = slot ? (slot.Slot_Id||slot.slot_Id||slot.slot_id||'') : '';
+      });
     });
 
     // "Other" source field
@@ -484,6 +501,7 @@
         title: this.title.value.trim(),
         preferred_date: this.preferred_date.value,
         preferred_time: this.preferred_time.value,
+        slot_id: document.getElementById('selected_slot_id').value,
         source: sourceVal
       };
 
