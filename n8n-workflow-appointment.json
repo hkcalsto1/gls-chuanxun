@@ -423,14 +423,18 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ success: true, date: $node[\"Assign SP (Form)\"].json.date, time: $node[\"Assign SP (Form)\"].json.time, salesperson: $node[\"Assign SP (Form)\"].json.salesperson_name }) }}",
+        "respondWith": "text",
+        "responseBody": "{\"success\":true}",
         "options": {
           "responseHeaders": {
             "entries": [
               {
                 "name": "Access-Control-Allow-Origin",
                 "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
               }
             ]
           }
@@ -448,7 +452,7 @@
     {
       "parameters": {
         "respondWith": "text",
-        "responseBody": "={{ '{\"success\":false,\"reason\":\"' + String($json._reason||'no_reason').replace(/\"/g,'') + '\"}' }}",
+        "responseBody": "{\"success\":false}",
         "options": {
           "responseCode": 200,
           "responseHeaders": {

@@ -528,8 +528,8 @@
           document.getElementById('confirmDetail').innerHTML =
             '<strong>姓名:</strong> ' + payload.salutation + ' ' + payload.given_names + ' ' + payload.surname + '<br>' +
             '<strong>日期:</strong> ' + (dateMap[payload.preferred_date] || payload.preferred_date) + '<br>' +
-            '<strong>时间:</strong> ' + result.time + '<br>' +
-            '<strong>顾问:</strong> ' + result.salesperson + '<br>' +
+            '<strong>时间:</strong> ' + payload.preferred_time + '<br>' +
+            '<strong>顾问:</strong> GLS 传讯团队<br>' +
             '<strong>电邮:</strong> ' + payload.email;
           document.getElementById('successResult').style.display = 'block';
         } else {
