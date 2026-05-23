@@ -165,7 +165,8 @@
           "id": "AeQwGHbDftGYpvZc",
           "name": "Google Sheets iamcharlesalston"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -184,21 +185,20 @@
       "parameters": {
         "conditions": {
           "options": {
-            "caseSensitive": true,
+            "caseSensitive": false,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "loose"
           },
           "combinator": "and",
           "conditions": [
             {
               "id": "gf-cond",
-              "leftValue": "={{ $json._found }}",
+              "leftValue": "={{ String($json._found) }}",
               "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
+                "type": "string",
+                "operation": "equals"
               },
-              "rightValue": ""
+              "rightValue": "true"
             }
           ]
         },
@@ -211,7 +211,8 @@
       "position": [
         6464,
         2160
-      ]
+      ],
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -238,7 +239,8 @@
           "id": "AeQwGHbDftGYpvZc",
           "name": "Google Sheets iamcharlesalston"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
