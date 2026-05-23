@@ -1793,7 +1793,7 @@
         try {
           await fetch(N8N + '/gls-cancel-pending', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slot_id: p.slot_Id || p.slot_id, email: p.email })
+            body: JSON.stringify({ slot_id: p.slot_Id || p.slot_id, email: p.email, date: p.date, time: p.time })
           });
           showToast('Booking cancelled. Slot freed.', 'success');
           _cancelledEmails.add(p.email);

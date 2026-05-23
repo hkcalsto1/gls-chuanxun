@@ -3173,7 +3173,7 @@
         5200
       ],
       "parameters": {
-        "jsCode": "var wb = $('Cancel Pending Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar slotId = String(body.slot_id || '');\nvar email = String(body.email || '');\nvar slots = $input.all().map(function(i){return i.json;});\nvar slot = slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount = slot ? Math.max(0, parseInt(slot.booked_count||0)-1) : 0;\nreturn [{json:{slot_Id:slotId,email:email,new_booked_count:String(newCount),new_slot_status:'available'}}];"
+        "jsCode": "var wb = $('Cancel Pending Webhook');\nvar body = wb.first().json.body || wb.first().json;\nvar slotId = String(body.slot_id || '');\nvar email = String(body.email || '');\nvar date = String(body.date || '');\nvar time = String(body.time || '');\nvar slots = $input.all().map(function(i){return i.json;});\nvar slot = slots.find(function(s){return String(s.Slot_Id||'')===slotId;});\nvar newCount = slot ? Math.max(0, parseInt(slot.booked_count||0)-1) : 0;\nreturn [{json:{slot_Id:slotId,email:email,date:date,time:time,new_booked_count:String(newCount),new_slot_status:'available'}}];"
       }
     },
     {
@@ -3204,13 +3204,15 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "slot_Id": "={{ $json.slot_Id }}",
             "email": "={{ $json.email }}",
+            "date": "={{ $json.date }}",
+            "time": "={{ $json.time }}",
             "status": "={{ 'cancelled' }}"
           },
           "matchingColumns": [
-            "slot_Id",
-            "email"
+            "email",
+            "date",
+            "time"
           ],
           "attemptToConvertTypes": false
         },
