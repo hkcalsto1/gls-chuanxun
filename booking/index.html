@@ -399,6 +399,7 @@
           <div class="icon">⚠️</div>
           <h2>时段已满 Slot Unavailable</h2>
           <p>抱歉，该时段已被预约，请选择其他日期或时间。<br>Sorry, that time slot is no longer available.</p>
+          <p id="debugReason" style="font-size:12px;color:#999;word-break:break-all;"></p>
           <span class="retry" onclick="location.reload()">← 重新选择 Try again</span>
         </div>
 
@@ -533,6 +534,7 @@
           document.getElementById('successResult').style.display = 'block';
         } else {
           document.getElementById('errorResult').style.display = 'block';
+          document.getElementById('debugReason').textContent = 'Debug: status=' + res.status + ' reason=' + (result.reason||JSON.stringify(result));
         }
       } catch(err) {
         btn.disabled = false;
