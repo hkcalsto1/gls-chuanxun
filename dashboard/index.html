@@ -1796,7 +1796,6 @@
           showToast('Booking cancelled. Slot freed.', 'success');
           allPending = allPending.filter(function(_, i) { return i !== idx; });
           renderPending(allPending);
-          setTimeout(loadPending, 4000);
         } catch(e) {
           showToast('Failed to cancel booking.', 'error');
         }

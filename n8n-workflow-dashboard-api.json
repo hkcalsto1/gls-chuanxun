@@ -1541,7 +1541,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.query.email || $json.email }}",
-            "status": "=unsubscribed"
+            "status": "={{ 'unsubscribed' }}"
           },
           "matchingColumns": [
             "email"
@@ -2055,7 +2055,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.body.email }}",
-            "status": "=deleted"
+            "status": "={{ 'deleted' }}"
           },
           "matchingColumns": [
             "email"
@@ -2135,7 +2135,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.body.email }}",
-            "status": "=cancelled"
+            "status": "={{ 'cancelled' }}"
           },
           "matchingColumns": [
             "email"
@@ -2264,7 +2264,7 @@
             "salesperson_name": "={{ $json.salesperson_name }}",
             "salesperson_email": "={{ $json.salesperson_email }}",
             "booked_at": "={{ $json.booked_at }}",
-            "status": "=confirmed"
+            "status": "={{ 'confirmed' }}"
           }
         },
         "options": {}
@@ -2339,7 +2339,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.email }}",
-            "status": "=booked"
+            "status": "={{ 'booked' }}"
           },
           "matchingColumns": [
             "email"
@@ -2557,7 +2557,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.email }}",
-            "status": "=cancelled"
+            "status": "={{ 'cancelled' }}"
           },
           "matchingColumns": [
             "email"
@@ -2759,7 +2759,7 @@
           "value": {
             "Slot_Id": "={{ $json.old_slot_Id }}",
             "booked_count": "={{ $json.old_new_count }}",
-            "Status": "=available"
+            "Status": "={{ 'available' }}"
           },
           "matchingColumns": [
             "Slot_Id"
@@ -3205,7 +3205,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "email": "={{ $json.email }}",
-            "status": "=cancelled"
+            "status": "={{ 'cancelled' }}"
           },
           "matchingColumns": [
             "email"
@@ -3407,7 +3407,7 @@
           "value": {
             "Slot_Id": "={{ $json.old_slot_Id }}",
             "booked_count": "={{ $json.old_new_count }}",
-            "Status": "=available"
+            "Status": "={{ 'available' }}"
           },
           "matchingColumns": [
             "Slot_Id"
