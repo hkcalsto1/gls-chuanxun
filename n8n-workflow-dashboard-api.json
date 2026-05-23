@@ -1104,7 +1104,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var bookings = $input.all().map(function(i){return i.json;}).filter(function(b){return !!b.date && b.status !== 'cancelled';});\nbookings.sort(function(a,b){return String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time));});\nreturn [{json:{bookings:bookings,count:bookings.length}}];"
+        "jsCode": "var bookings = $input.all().map(function(i){return i.json;}).filter(function(b){return !!b.date && b.status === 'confirmed';});\nbookings.sort(function(a,b){return String(a.date).localeCompare(String(b.date))||String(a.time).localeCompare(String(b.time));});\nreturn [{json:{bookings:bookings,count:bookings.length}}];"
       },
       "id": "a9000003-a900-a900-a900-a90000000003",
       "name": "Format All Bookings",
