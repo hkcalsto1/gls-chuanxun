@@ -270,7 +270,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var staff = $('Read Staff (Form)').all().map(function(i) { return i.json; });\nvar bookings = $input.all().map(function(i) { return i.json; });\nvar formData = $('Match Slot (Form)').all()[0].json;\n\nif (!staff || staff.length === 0) {\n  return [{ json: Object.assign({}, formData, { salesperson_name: 'GLS Team', salesperson_email: 'marketing@glshk.com' }) }];\n}\n\nvar counts = {};\nstaff.forEach(function(s) { counts[s.salesperson_name] = 0; });\nbookings.forEach(function(b) {\n  if (b.salesperson_name && counts[b.salesperson_name] !== undefined) counts[b.salesperson_name]++;\n});\n\nvar assigned = staff[0]; var minCount = Infinity;\nstaff.forEach(function(s) {\n  var c = counts[s.salesperson_name] || 0;\n  if (c < minCount) { minCount = c; assigned = s; }\n});\n\nreturn [{ json: {\n  slot_id: formData.slot_id, date: formData.date, time: formData.time,\n  slot_capacity: formData.slot_capacity || 1,\n  slot_booked_count: formData.slot_booked_count || 0,\n  client_name: formData.client_name, email: formData.email,\n  company: formData.company || '', title: formData.title || '',\n  booked_at: formData.booked_at,\n  salesperson_name: assigned.salesperson_name,\n  salesperson_email: assigned.salesperson_email\n} }];"
+        "jsCode": "var staff = $('Read Staff (Form)').all().map(function(i) { return i.json; });\nvar bookings = $input.all().map(function(i) { return i.json; });\nvar formData = $('Match Slot (Form)').all()[0].json;\n\nif (!staff || staff.length === 0) {\n  return [{ json: Object.assign({}, formData, { salesperson_name: 'GLS Team', salesperson_email: 'marketing@glshk.com' }) }];\n}\n\nvar counts = {};\nstaff.forEach(function(s) { counts[s.salesperson_name] = 0; });\nbookings.forEach(function(b) {\n  if (b.salesperson_name && counts[b.salesperson_name] !== undefined) counts[b.salesperson_name]++;\n});\n\nvar assigned = staff[0]; var minCount = Infinity;\nstaff.forEach(function(s) {\n  var c = counts[s.salesperson_name] || 0;\n  if (c < minCount) { minCount = c; assigned = s; }\n});\n\nreturn [{ json: {\n  slot_id: formData.slot_id, date: formData.date, time: formData.time,\n  slot_capacity: formData.slot_capacity || 1,\n  slot_booked_count: formData.slot_booked_count || 0,\n  client_name: formData.client_name, email: formData.email,\n  company: formData.company || '', title: formData.title || '',\n  booked_at: formData.booked_at,\n  booking_id: Date.now().toString(36) + Math.random().toString(36).substr(2,5),\n  salesperson_name: assigned.salesperson_name,\n  salesperson_email: assigned.salesperson_email\n} }];"
       },
       "id": "c5520371-abc3-4a6c-839e-e05ce6d9042e",
       "name": "Assign SP (Form)",
@@ -306,6 +306,7 @@
             "salesperson_name": "={{ $json.salesperson_name }}",
             "salesperson_email": "={{ $json.salesperson_email }}",
             "slot_Id": "={{ $json.slot_id }}",
+            "booking_id": "={{ $json.booking_id }}",
             "status": "pending"
           }
         },
