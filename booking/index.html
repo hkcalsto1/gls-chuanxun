@@ -435,11 +435,13 @@
       var checkedTime = document.querySelector('input[name="preferred_time"]:checked');
       if (checkedTime) checkedTime.checked = false;
 
+      function normDate(d) { var p=String(d||'').trim().split('/'); return p.length===3?parseInt(p[0])+'/'+parseInt(p[1])+'/'+p[2]:String(d||'').trim(); }
+      var normSelectedDate = normDate(date);
       var visibleCount = 0;
       document.querySelectorAll('.time-radio-opt').forEach(function(opt) {
         var time = opt.querySelector('input').value;
         var isAvailable = availableSlots.some(function(s) {
-          return s.Date === date && s.Time === time;
+          return normDate(s.Date||s.date) === normSelectedDate && (s.Time||s.time) === time;
         });
         opt.style.display = isAvailable ? '' : 'none';
         if (isAvailable) visibleCount++;
