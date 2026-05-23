@@ -1020,6 +1020,11 @@
       "main": [
         [
           {
+            "node": "Respond OK (Form)",
+            "type": "main",
+            "index": 0
+          },
+          {
             "node": "Update Contact Booked",
             "type": "main",
             "index": 0
@@ -1172,13 +1177,7 @@
     },
     "Send SP Form Notify": {
       "main": [
-        [
-          {
-            "node": "Respond OK (Form)",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     }
   },
