@@ -3204,10 +3204,12 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
+            "slot_Id": "={{ $json.slot_Id }}",
             "email": "={{ $json.email }}",
             "status": "={{ 'cancelled' }}"
           },
           "matchingColumns": [
+            "slot_Id",
             "email"
           ],
           "attemptToConvertTypes": false
