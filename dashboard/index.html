@@ -500,15 +500,15 @@
   <!-- ═══ TAB: BOOKINGS ═══ -->
   <div class="tab-content" id="tab-bookings">
     <div class="stats-row">
-      <div class="stat-card"><div class="num" id="b-total">—</div><div class="lbl">Total Confirmed</div></div>
-      <div class="stat-card gold"><div class="num" id="b-jun24">—</div><div class="lbl">Jun 24</div></div>
-      <div class="stat-card gold"><div class="num" id="b-jun25">—</div><div class="lbl">Jun 25</div></div>
-      <div class="stat-card gold"><div class="num" id="b-jun26">—</div><div class="lbl">Jun 26</div></div>
+      <div class="stat-card" onclick="filterBookingsByDate('')" style="cursor:pointer;" title="Show all"><div class="num" id="b-total">—</div><div class="lbl">Total Confirmed</div></div>
+      <div class="stat-card gold" id="card-jun24" onclick="filterBookingsByDate('06/24')" style="cursor:pointer;" title="Filter Jun 24"><div class="num" id="b-jun24">—</div><div class="lbl">Jun 24</div></div>
+      <div class="stat-card gold" id="card-jun25" onclick="filterBookingsByDate('06/25')" style="cursor:pointer;" title="Filter Jun 25"><div class="num" id="b-jun25">—</div><div class="lbl">Jun 25</div></div>
+      <div class="stat-card gold" id="card-jun26" onclick="filterBookingsByDate('06/26')" style="cursor:pointer;" title="Filter Jun 26"><div class="num" id="b-jun26">—</div><div class="lbl">Jun 26</div></div>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <h3>All Bookings</h3>
+        <h3 id="bookingsHeading">All Bookings</h3>
         <div style="display:flex;gap:8px;align-items:center;">
           <select id="spFilter" onchange="filterBookings()"
             style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;">
@@ -1296,9 +1296,27 @@
     document.getElementById('bookingsCount').textContent = confirmedOnly.length;
   }
 
+  var activeDateFilter = '';
+
+  function filterBookingsByDate(date) {
+    if (activeDateFilter === date) {
+      date = '';
+    }
+    activeDateFilter = date;
+    ['06/24','06/25','06/26'].forEach(function(d) {
+      var card = document.getElementById('card-jun' + d.replace('06/',''));
+      if (card) card.style.outline = (d === date) ? '3px solid #fff' : '';
+    });
+    var label = date ? 'Jun ' + parseInt(date.split('/')[1]) : 'All Bookings';
+    document.getElementById('bookingsHeading').textContent = label;
+    filterBookings();
+  }
+
   function filterBookings() {
     var sp = document.getElementById('spFilter').value;
-    var filtered = sp ? allBookings.filter(b => b.salesperson_name === sp) : allBookings;
+    var filtered = allBookings;
+    if (activeDateFilter) filtered = filtered.filter(b => (b.date || '').includes(activeDateFilter));
+    if (sp) filtered = filtered.filter(b => b.salesperson_name === sp);
     renderBookings(filtered);
   }
 
