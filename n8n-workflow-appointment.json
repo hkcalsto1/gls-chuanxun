@@ -1028,6 +1028,11 @@
             "node": "Update Contact Booked",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Prep SP Form Notify",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1045,13 +1050,7 @@
     },
     "Send Confirmation (Form)": {
       "main": [
-        [
-          {
-            "node": "Prep SP Form Notify",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Dashboard Webhook": {
