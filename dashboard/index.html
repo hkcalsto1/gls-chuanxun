@@ -605,54 +605,56 @@
 
 <!-- MANUAL BOOKING MODAL -->
 <div class="modal-overlay" id="manualBookingModal">
-  <div class="modal" style="max-width:520px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <div class="modal" style="max-width:520px;display:flex;flex-direction:column;max-height:85vh;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-shrink:0;">
       <h3 style="margin:0;">Create Manual Booking</h3>
       <button onclick="closeManualBookingModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-      <div class="form-field">
-        <label>Full Name *</label>
-        <input type="text" id="mb-name" placeholder="e.g. David Chen" oninput="checkMbReady()">
+    <div style="overflow-y:auto;flex:1;padding-right:4px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="form-field">
+          <label>Full Name *</label>
+          <input type="text" id="mb-name" placeholder="e.g. David Chen" oninput="checkMbReady()">
+        </div>
+        <div class="form-field">
+          <label>Email *</label>
+          <input type="email" id="mb-email" placeholder="email@company.com" oninput="checkMbReady()">
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <input type="text" id="mb-company" placeholder="Company name">
+        </div>
+        <div class="form-field">
+          <label>Job Title</label>
+          <input type="text" id="mb-title" placeholder="e.g. Director">
+        </div>
       </div>
-      <div class="form-field">
-        <label>Email *</label>
-        <input type="email" id="mb-email" placeholder="email@company.com" oninput="checkMbReady()">
+      <div class="form-field" style="margin-bottom:14px;">
+        <label>Assign Salesperson *</label>
+        <select id="mb-sp" onchange="checkMbReady()" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
+          <option value="">Select salesperson...</option>
+        </select>
       </div>
-      <div class="form-field">
-        <label>Company</label>
-        <input type="text" id="mb-company" placeholder="Company name">
+      <div class="form-field" style="margin-bottom:14px;">
+        <label>Date *</label>
+        <div style="display:flex;gap:20px;margin-top:8px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
+            <input type="radio" name="mb-date" value="06/24/2026" onchange="manualBookingLoadSlots()"> Wed 24 Jun
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
+            <input type="radio" name="mb-date" value="06/25/2026" onchange="manualBookingLoadSlots()"> Thu 25 Jun
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
+            <input type="radio" name="mb-date" value="06/26/2026" onchange="manualBookingLoadSlots()"> Fri 26 Jun
+          </label>
+        </div>
       </div>
-      <div class="form-field">
-        <label>Job Title</label>
-        <input type="text" id="mb-title" placeholder="e.g. Director">
+      <div class="form-field" style="margin-bottom:8px;">
+        <label>Time Slot *</label>
+        <div id="mbTimeGroup" style="margin-top:8px;font-size:13px;color:#aaa;font-style:italic;">Select a date first.</div>
       </div>
     </div>
-    <div class="form-field" style="margin-bottom:14px;">
-      <label>Assign Salesperson *</label>
-      <select id="mb-sp" onchange="checkMbReady()" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
-        <option value="">Select salesperson...</option>
-      </select>
-    </div>
-    <div class="form-field" style="margin-bottom:14px;">
-      <label>Date *</label>
-      <div style="display:flex;gap:20px;margin-top:8px;flex-wrap:wrap;">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
-          <input type="radio" name="mb-date" value="06/24/2026" onchange="manualBookingLoadSlots()"> Wed 24 Jun
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
-          <input type="radio" name="mb-date" value="06/25/2026" onchange="manualBookingLoadSlots()"> Thu 25 Jun
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;">
-          <input type="radio" name="mb-date" value="06/26/2026" onchange="manualBookingLoadSlots()"> Fri 26 Jun
-        </label>
-      </div>
-    </div>
-    <div class="form-field" style="margin-bottom:22px;">
-      <label>Time Slot *</label>
-      <div id="mbTimeGroup" style="margin-top:8px;font-size:13px;color:#aaa;font-style:italic;">Select a date first.</div>
-    </div>
-    <div class="modal-actions">
+    <div class="modal-actions" style="flex-shrink:0;margin-top:16px;padding-top:16px;border-top:1px solid #eee;">
       <button class="btn btn-outline" onclick="closeManualBookingModal()">Cancel</button>
       <button class="btn btn-gold" id="mbConfirmBtn" onclick="submitManualBooking()" disabled>Create Booking</button>
     </div>
