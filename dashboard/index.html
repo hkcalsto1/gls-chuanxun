@@ -508,7 +508,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h3>All Confirmed Bookings</h3>
+        <h3>All Bookings</h3>
         <div style="display:flex;gap:8px;align-items:center;">
           <select id="spFilter" onchange="filterBookings()"
             style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;">
@@ -527,6 +527,7 @@
               <th>Customer</th>
               <th>Company</th>
               <th>Salesperson</th>
+              <th>Status</th>
               <th>Reminders Sent</th>
               <th>Actions</th>
             </tr>
@@ -1285,11 +1286,12 @@
     }
     renderBookings(allBookings);
 
-    document.getElementById('b-total').textContent  = allBookings.length;
-    document.getElementById('b-jun24').textContent  = allBookings.filter(b => (b.date || '').includes('06/24')).length;
-    document.getElementById('b-jun25').textContent  = allBookings.filter(b => (b.date || '').includes('06/25')).length;
-    document.getElementById('b-jun26').textContent  = allBookings.filter(b => (b.date || '').includes('06/26')).length;
-    document.getElementById('bookingsCount').textContent = allBookings.length;
+    var confirmedOnly = allBookings.filter(b => String(b.status||'').toLowerCase() === 'confirmed');
+    document.getElementById('b-total').textContent  = confirmedOnly.length;
+    document.getElementById('b-jun24').textContent  = confirmedOnly.filter(b => (b.date || '').includes('06/24')).length;
+    document.getElementById('b-jun25').textContent  = confirmedOnly.filter(b => (b.date || '').includes('06/25')).length;
+    document.getElementById('b-jun26').textContent  = confirmedOnly.filter(b => (b.date || '').includes('06/26')).length;
+    document.getElementById('bookingsCount').textContent = confirmedOnly.length;
   }
 
   function filterBookings() {
@@ -1301,7 +1303,7 @@
   function renderBookings(bookings) {
     var tbody = document.getElementById('bookingsTableBody');
     if (!bookings.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No confirmed bookings yet.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No bookings yet.</td></tr>';
       sortedBookings = [];
       return;
     }
@@ -1310,26 +1312,33 @@
       return da - db;
     });
     tbody.innerHTML = sortedBookings.map(function(b, i) {
+      var isCancelled = String(b.status || '').toLowerCase() === 'cancelled';
       var reminders = (b._reminders_sent || '').split(',').filter(Boolean);
       var remBadges = ['7d','1d','1h'].map(function(r) {
         return reminders.includes(r)
           ? '<span class="badge sent" style="margin-right:3px;">' + (r==='7d'?'7 days':r==='1d'?'1 day':'1 hr') + '</span>'
           : '<span class="badge not-sent" style="margin-right:3px;">' + (r==='7d'?'7 days':r==='1d'?'1 day':'1 hr') + '</span>';
       }).join('');
+      var statusBadge = isCancelled
+        ? '<span class="badge" style="background:#f0f0f0;color:#999;font-weight:600;">Cancelled</span>'
+        : '<span class="badge confirmed">Confirmed</span>';
+      var rowStyle = isCancelled ? ' style="opacity:0.5;"' : '';
+      var actions = isCancelled
+        ? '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\',\'' + escHtml(b.booking_id || '') + '\')">Delete</button>'
+        : '<button class="btn btn-outline btn-sm" onclick="openRescheduleConfirmedModal(' + i + ')">Reschedule</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="openChangeSpModal(' + i + ')">Change SP</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="cancelConfirmedBooking(' + i + ')">Cancel</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\',\'' + escHtml(b.booking_id || '') + '\')">Delete</button>';
 
-      return '<tr>' +
+      return '<tr' + rowStyle + '>' +
         '<td style="font-weight:600;">' + escHtml(formatDateDisplay(b.date)) + '</td>' +
         '<td>' + escHtml(formatTime(b.time)) + '</td>' +
         '<td class="name-cell"><strong>' + escHtml(b.client_name || '') + '</strong><span>' + escHtml(b.email || '') + '</span></td>' +
         '<td>' + escHtml(b.company || '—') + '</td>' +
         '<td><span class="badge confirmed">' + escHtml(b.salesperson_name || '—') + '</span></td>' +
+        '<td>' + statusBadge + '</td>' +
         '<td>' + remBadges + '</td>' +
-        '<td class="actions-cell">' +
-          '<button class="btn btn-outline btn-sm" onclick="openRescheduleConfirmedModal(' + i + ')">Reschedule</button>' +
-          '<button class="btn btn-outline btn-sm" onclick="openChangeSpModal(' + i + ')">Change SP</button>' +
-          '<button class="btn btn-danger btn-sm" onclick="cancelConfirmedBooking(' + i + ')">Cancel</button>' +
-          '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\')">Delete</button>' +
-        '</td>' +
+        '<td class="actions-cell">' + actions + '</td>' +
         '</tr>';
     }).join('');
   }
@@ -2025,16 +2034,16 @@
     );
   }
 
-  async function deleteBooking(email) {
+  async function deleteBooking(email, bookingId) {
     if (!email) { showToast('Cannot identify this booking.', 'error'); return; }
     openModal(
       'Delete Booking?',
-      'Remove this confirmed booking from the dashboard? The slot will NOT be automatically freed and the customer will NOT be notified.',
+      'Remove this booking from the dashboard? The slot will NOT be automatically freed and the customer will NOT be notified.',
       async function() {
         try {
           await fetch(N8N + '/gls-delete-booking', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({ email: email, booking_id: bookingId || '' })
           });
           showToast('Booking deleted.', 'success');
           setTimeout(loadBookings, 1000);
