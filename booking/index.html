@@ -276,6 +276,7 @@
     <div class="right-expo-cn">亚洲航空货运博览会</div>
     <div class="right-dates">2026年<br>6月24–26日</div>
     <div class="right-venue">上海新国际博览中心</div>
+    <div class="right-venue" style="margin-top:6px;font-size:13px;">W5馆 展位399 / Hall W5 Booth 399</div>
   </div>
   <div class="page">
     <div class="card">
@@ -389,10 +390,10 @@
 
         <div class="result" id="successResult">
           <div class="icon">✅</div>
-          <h2>预约确认 Booking Confirmed!</h2>
-          <p>您的预约已收到，确认电邮将发送至您的电邮地址。<br>A confirmation email has been sent to your inbox.</p>
+          <h2>接纳通知 Receipt Acknowledgement</h2>
+          <p>您的预约要求已收到，并在3个工作天内确认，确认信息将会发送到您的电邮地址。<br>Your appointment request has been received and will be confirmed within 3 working days. Confirmation will be sent to your email address.</p>
           <div class="dbox" id="confirmDetail"></div>
-          <p style="font-size:12px;color:#999;margin-top:8px">期待与您会面。We look forward to meeting you.</p>
+          <p style="font-size:12px;color:#999;margin-top:8px">如有任何疑问，请与市场部联系: For enquiries, please contact the marketing team: <a href="mailto:marketing@glshk.com" style="color:#F5A500;">marketing@glshk.com</a></p>
         </div>
 
         <div class="result" id="errorResult">
@@ -529,7 +530,6 @@
             '<strong>姓名:</strong> ' + payload.salutation + ' ' + payload.given_names + ' ' + payload.surname + '<br>' +
             '<strong>日期:</strong> ' + (dateMap[payload.preferred_date] || payload.preferred_date) + '<br>' +
             '<strong>时间:</strong> ' + payload.preferred_time + '<br>' +
-            '<strong>顾问:</strong> GLS 传讯团队<br>' +
             '<strong>电邮:</strong> ' + payload.email;
           document.getElementById('successResult').style.display = 'block';
         } else {
