@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GLS — Card Scanner</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+      background: #0C1F3F;
+      min-height: 100vh;
+    }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 48px;
+    }
+    .header {
+      width: 100%;
+      background: #0C1F3F;
+      border-bottom: 4px solid #F5A500;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header img { height: 26px; width: auto; }
+    .header-text h1 { color: #fff; font-size: 15px; font-weight: 700; }
+    .header-text p { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 2px; }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: #f0f2f7;
+      margin-top: 20px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Staff picker strip */
+    .staff-strip {
+      background: #fff;
+      border-bottom: 1px solid #dde0eb;
+      padding: 12px 20px;
+    }
+    .staff-strip label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #F5A500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .staff-strip select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #d0d5e0;
+      background: #f8f9fc;
+      font-size: 14px;
+      color: #0C1F3F;
+      outline: none;
+      font-family: inherit;
+    }
+    .staff-strip select:focus { border-color: #F5A500; }
+
+    /* IDLE */
+    .scan-zone {
+      padding: 40px 24px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .scan-icon {
+      width: 84px; height: 84px;
+      background: rgba(245,165,0,0.1);
+      border: 2px dashed #F5A500;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scan-icon svg { width: 38px; height: 38px; }
+    .scan-hint { text-align: center; color: #666; font-size: 14px; line-height: 1.65; }
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      background: #F5A500;
+      color: #0C1F3F;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-primary:active { background: #d99200; }
+    input[type="file"] { display: none; }
+
+    /* LOADING */
+    .loading-zone {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .preview-img {
+      width: 100%;
+      max-height: 210px;
+      object-fit: contain;
+      background: #fff;
+      border: 1.5px solid #ddd;
+    }
+    .loading-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0C1F3F;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(12,31,63,0.15);
+      border-top-color: #F5A500;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* FORM */
+    .form-preview {
+      padding: 16px 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .retake-btn {
+      font-size: 12px;
+      color: #999;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      font-family: inherit;
+      padding: 0;
+    }
+    .form-body { padding: 20px; }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #F5A500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .field { margin-bottom: 13px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #777;
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #d0d5e0;
+      background: #fff;
+      font-size: 14px;
+      color: #0C1F3F;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: #F5A500; }
+    .divider { height: 1px; background: #dde0eb; margin: 16px 0; }
+    .btn-navy {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #0C1F3F;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+      margin-top: 20px;
+      transition: background 0.15s;
+    }
+    .btn-navy:active { background: #162d58; }
+    .btn-navy:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* ERROR BAR */
+    .error-bar {
+      background: #fdecea;
+      border-left: 4px solid #c62828;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #b71c1c;
+      margin: 0 0 4px;
+    }
+
+    /* SUCCESS */
+    .success-zone {
+      padding: 48px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: #e8f5e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .success-icon svg { width: 30px; height: 30px; }
+    .success-title { font-size: 18px; font-weight: 700; color: #0C1F3F; }
+    .success-sub { font-size: 13px; color: #777; line-height: 1.5; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 420px) {
+      .card { margin-top: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <img src="../assets/gls-logo-white.svg" alt="GLS">
+    <div class="header-text">
+      <h1>Business Card Scanner</h1>
+      <p>Capture → AI reads → Save to sheet</p>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- Staff picker — hidden on success -->
+    <div id="staff-strip" class="staff-strip">
+      <label>Scanned by</label>
+      <select id="scanned-by">
+        <option value="">Loading staff…</option>
+      </select>
+    </div>
+
+    <!-- IDLE -->
+    <div id="state-idle">
+      <div class="scan-zone">
+        <div class="scan-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#F5A500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="14" rx="2"/>
+            <line x1="6" y1="8" x2="10" y2="8"/>
+            <line x1="6" y1="12" x2="18" y2="12"/>
+            <line x1="6" y1="16" x2="14" y2="16"/>
+          </svg>
+        </div>
+        <div class="scan-hint">Point your camera at a business card.<br>AI will extract all contact details.</div>
+        <button class="btn-primary" onclick="openCamera()">📷 &nbsp;Scan Business Card</button>
+        <input type="file" id="file-input" accept="image/*" capture="environment">
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="state-loading" class="hidden">
+      <div class="loading-zone">
+        <img id="preview-img" class="preview-img" src="" alt="Card preview">
+        <div class="loading-row">
+          <div class="spinner"></div>
+          <span>Reading card with AI…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div id="state-form" class="hidden">
+      <div class="form-preview">
+        <img id="form-img" class="preview-img" src="" alt="">
+        <button class="retake-btn" onclick="rescan()">↩ Retake photo</button>
+      </div>
+      <div class="form-body">
+        <div id="error-bar" class="error-bar hidden"></div>
+        <div class="section-label">Verify extracted details</div>
+
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="f-name" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label>Company</label>
+          <input type="text" id="f-company" placeholder="Company name">
+        </div>
+        <div class="field">
+          <label>Title / Position</label>
+          <input type="text" id="f-title" placeholder="Job title">
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="f-email" placeholder="email@example.com">
+        </div>
+        <div class="field">
+          <label>Phone (office)</label>
+          <input type="tel" id="f-phone" placeholder="+852 XXXX XXXX">
+        </div>
+        <div class="field">
+          <label>Mobile</label>
+          <input type="tel" id="f-mobile" placeholder="+852 XXXX XXXX">
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field">
+          <label>Address</label>
+          <input type="text" id="f-address" placeholder="Office address">
+        </div>
+        <div class="field">
+          <label>Website</label>
+          <input type="url" id="f-website" placeholder="www.example.com">
+        </div>
+
+        <button class="btn-navy" id="btn-submit" onclick="submitCard()">Save Contact</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="state-success" class="hidden">
+      <div class="success-zone">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="success-title">Contact Saved!</div>
+        <div class="success-sub" id="success-sub"></div>
+        <button class="btn-primary" style="margin-top:8px; max-width:200px;" onclick="rescan()">Scan Another Card</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var N8N = 'https://n8n.okahh.com/webhook';
+  var MAX_PX = 1400;
+
+  async function loadStaff() {
+    try {
+      var res = await fetch(N8N + '/gls-staff');
+      var data = await res.json();
+      var sel = document.getElementById('scanned-by');
+      sel.innerHTML = '<option value="">Select staff member</option>';
+      (data.staff || []).forEach(function(s) {
+        var o = document.createElement('option');
+        o.value = s.salesperson_name;
+        o.textContent = s.salesperson_name;
+        sel.appendChild(o);
+      });
+    } catch(e) {
+      document.getElementById('scanned-by').innerHTML = '<option value="">— could not load staff —</option>';
+    }
+  }
+
+  function openCamera() {
+    document.getElementById('file-input').click();
+  }
+
+  document.getElementById('file-input').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    e.target.value = '';
+    resizeImage(file, function(dataUrl) {
+      processImage(dataUrl, file.type || 'image/jpeg');
+    });
+  });
+
+  function resizeImage(file, callback) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function() {
+      var w = img.width, h = img.height;
+      if (w > MAX_PX || h > MAX_PX) {
+        var ratio = Math.min(MAX_PX / w, MAX_PX / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(function(blob) {
+        var reader = new FileReader();
+        reader.onload = function(ev) { callback(ev.target.result); };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.88);
+    };
+    img.onerror = function() {
+      URL.revokeObjectURL(url);
+      var reader = new FileReader();
+      reader.onload = function(ev) { callback(ev.target.result); };
+      reader.readAsDataURL(file);
+    };
+    img.src = url;
+  }
+
+  async function processImage(dataUrl, mimeType) {
+    setState('loading');
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('form-img').src = dataUrl;
+
+    var base64 = dataUrl.split(',')[1];
+
+    try {
+      var res = await fetch(N8N + '/gls-scan-ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mimeType: 'image/jpeg' })
+      });
+      if (!res.ok) throw new Error('OCR failed');
+      var data = await res.json();
+
+      document.getElementById('f-name').value    = data.name    || '';
+      document.getElementById('f-company').value = data.company || '';
+      document.getElementById('f-title').value   = data.title   || '';
+      document.getElementById('f-email').value   = data.email   || '';
+      document.getElementById('f-phone').value   = data.phone   || '';
+      document.getElementById('f-mobile').value  = data.mobile  || '';
+      document.getElementById('f-address').value = data.address || '';
+      document.getElementById('f-website').value = data.website || '';
+
+      hideError();
+      setState('form');
+
+    } catch(err) {
+      document.getElementById('f-name').value    = '';
+      document.getElementById('f-company').value = '';
+      document.getElementById('f-title').value   = '';
+      document.getElementById('f-email').value   = '';
+      document.getElementById('f-phone').value   = '';
+      document.getElementById('f-mobile').value  = '';
+      document.getElementById('f-address').value = '';
+      document.getElementById('f-website').value = '';
+      showError('Could not read card automatically — please fill in the details.');
+      setState('form');
+    }
+  }
+
+  async function submitCard() {
+    var scannedBy = document.getElementById('scanned-by').value;
+    if (!scannedBy) {
+      alert('Please select who is scanning this card.');
+      return;
+    }
+    var btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    var payload = {
+      name:       document.getElementById('f-name').value.trim(),
+      company:    document.getElementById('f-company').value.trim(),
+      title:      document.getElementById('f-title').value.trim(),
+      email:      document.getElementById('f-email').value.trim(),
+      phone:      document.getElementById('f-phone').value.trim(),
+      mobile:     document.getElementById('f-mobile').value.trim(),
+      address:    document.getElementById('f-address').value.trim(),
+      website:    document.getElementById('f-website').value.trim(),
+      scanned_by: scannedBy,
+      timestamp:  new Date().toISOString()
+    };
+
+    try {
+      var res = await fetch(N8N + '/gls-scan-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Submit failed');
+
+      var sub = [payload.name, payload.company].filter(Boolean).join(' · ');
+      document.getElementById('success-sub').textContent = sub || 'Saved to Google Sheet.';
+      setState('success');
+
+    } catch(err) {
+      showError('Failed to save — check connection and try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save Contact';
+    }
+  }
+
+  function rescan() {
+    hideError();
+    setState('idle');
+  }
+
+  function setState(s) {
+    ['idle', 'loading', 'form', 'success'].forEach(function(id) {
+      document.getElementById('state-' + id).classList.toggle('hidden', id !== s);
+    });
+    document.getElementById('staff-strip').classList.toggle('hidden', s === 'success');
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('error-bar');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function hideError() {
+    document.getElementById('error-bar').classList.add('hidden');
+  }
+
+  loadStaff();
+</script>
+</body>
+</html>
