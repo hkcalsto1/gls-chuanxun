@@ -1912,7 +1912,7 @@
         try {
           await fetch(N8N + '/gls-cancel-confirmed', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slot_id: b.slot_Id, email: b.email })
+            body: JSON.stringify({ slot_id: b.slot_Id, email: b.email, booking_id: b.booking_id || '' })
           });
           showToast('Booking cancelled. Slot freed.', 'success');
           loadBookings();
