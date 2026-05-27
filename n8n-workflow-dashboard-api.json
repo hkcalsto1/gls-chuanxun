@@ -1305,14 +1305,14 @@
       ],
       "parameters": {
         "httpMethod": "POST",
-        "path": "gls-sendgrid-events",
+        "path": "gls-resend-events",
         "responseMode": "responseNode",
         "options": {}
       }
     },
     {
       "id": "FAC401E6",
-      "name": "Process SG Events",
+      "name": "Process Resend Events",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -1364,7 +1364,7 @@
     },
     {
       "id": "04F63759",
-      "name": "Respond SG Events",
+      "name": "Respond Resend Events",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
@@ -4212,22 +4212,11 @@
         ]
       ]
     },
-    "Process SG Events": {
-      "main": [
-        [
-          {
-            "node": "Update Contact Status",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Update Contact Status": {
       "main": [
         [
           {
-            "node": "Respond SG Events",
+            "node": "Respond Resend Events",
             "type": "main",
             "index": 0
           }
@@ -4895,6 +4884,17 @@
         [
           {
             "node": "Mark Contact Deleted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Resend Events": {
+      "main": [
+        [
+          {
+            "node": "Update Contact Status",
             "type": "main",
             "index": 0
           }
