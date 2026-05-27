@@ -205,10 +205,10 @@
       cursor: pointer;
     }
     .radio-opt:last-child { border-bottom: none; }
-    .radio-opt input[type=radio] { width: 18px; height: 18px; accent-color: #0C1F3F; cursor: pointer; flex-shrink: 0; }
+    .radio-opt input[type=radio], .radio-opt input[type=checkbox] { width: 18px; height: 18px; accent-color: #0C1F3F; cursor: pointer; flex-shrink: 0; }
     .radio-opt .opt-text { font-size: 13.5px; color: #333; line-height: 1.4; }
     .radio-opt:hover .opt-text { color: #0C1F3F; }
-    .radio-opt input[type=radio]:checked + .opt-text { color: #0C1F3F; font-weight: 700; }
+    .radio-opt input[type=radio]:checked + .opt-text, .radio-opt input[type=checkbox]:checked + .opt-text { color: #0C1F3F; font-weight: 700; }
     .other-input {
       margin-top: 6px; margin-left: 30px;
       border: none; border-bottom: 1px solid #ccc;
@@ -371,15 +371,15 @@
           <div class="q">
             <div class="q-label">9.&ensp;最有興趣了解的主題 Most Interested Topic <span class="req">*</span></div>
             <div class="radio-group" id="topicsGroup">
-              <label class="radio-opt"><input type="checkbox" name="topics" value="EzyCargo"><span class="opt-text">EzyCargo</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="EzyCustoms"><span class="opt-text">EzyCustoms</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="EzyPost"><span class="opt-text">EzyPost</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="EzyFreight"><span class="opt-text">EzyFreight</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="IATA ONE Record"><span class="opt-text">IATA ONE Record</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="推介的航司解決方案 Recommended airline solution"><span class="opt-text">推介的航司解決方案 Recommended airline solution</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="推介的貨代解決方案 Recommended freight forwarder solution"><span class="opt-text">推介的貨代解決方案 Recommended freight forwarder solution</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="推介的空運地勤解決方案 Recommended ground handler solution"><span class="opt-text">推介的空運地勤解決方案 Recommended ground handler solution</span></label>
-              <label class="radio-opt"><input type="checkbox" name="topics" value="其他 Others"><span class="opt-text">其他 Others</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="EzyCargo" required><span class="opt-text">EzyCargo</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="EzyCustoms"><span class="opt-text">EzyCustoms</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="EzyPost"><span class="opt-text">EzyPost</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="EzyFreight"><span class="opt-text">EzyFreight</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="IATA ONE Record"><span class="opt-text">IATA ONE Record</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="推介的航司解決方案 Recommended airline solution"><span class="opt-text">推介的航司解決方案 Recommended airline solution</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="推介的貨代解決方案 Recommended freight forwarder solution"><span class="opt-text">推介的貨代解決方案 Recommended freight forwarder solution</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="推介的空運地勤解決方案 Recommended ground handler solution"><span class="opt-text">推介的空運地勤解決方案 Recommended ground handler solution</span></label>
+              <label class="radio-opt"><input type="radio" name="topics" value="其他 Others"><span class="opt-text">其他 Others</span></label>
             </div>
             <p id="topicsError" style="display:none;color:#e53e3e;font-size:12px;margin-top:6px;">请至少选择一个主题。Please select at least one topic.</p>
           </div>
