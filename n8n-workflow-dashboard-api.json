@@ -2055,7 +2055,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "email": "={{ $json.body.email }}",
+            "email": "={{ $json.email }}",
             "status": "={{ 'deleted' }}"
           },
           "matchingColumns": [
@@ -2077,7 +2077,7 @@
       ],
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\"success\":true,\"debug_email\":\"{{ $json.body.email }}\"}",
+        "responseBody": "={\"success\":true,\"debug_email\":\"{{ $json.email }}\",\"debug_full\":\"{{ $json.debug_full }}\"}",
         "options": {
           "responseHeaders": {
             "entries": [
@@ -3632,6 +3632,19 @@
           "name": "Google Sheets iamcharlesalston"
         }
       }
+    },
+    {
+      "id": "DC1004",
+      "name": "Prep Delete Contact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        125,
+        4600
+      ],
+      "parameters": {
+        "jsCode": "var item = $input.first().json;\nvar email = (item.body && item.body.email) ? item.body.email : (item.email || '');\nreturn [{json:{email: String(email).toLowerCase().trim(), debug_full: JSON.stringify(item).substring(0,300)}}];"
+      }
     }
   ],
   "pinData": {},
@@ -4560,7 +4573,7 @@
       "main": [
         [
           {
-            "node": "Mark Contact Deleted",
+            "node": "Prep Delete Contact",
             "type": "main",
             "index": 0
           }
@@ -4865,6 +4878,17 @@
         [
           {
             "node": "Respond Save Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Delete Contact": {
+      "main": [
+        [
+          {
+            "node": "Mark Contact Deleted",
             "type": "main",
             "index": 0
           }
