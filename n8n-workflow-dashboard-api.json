@@ -2077,7 +2077,7 @@
       ],
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\"success\":true}",
+        "responseBody": "={JSON.stringify({success:true,debug_email:$('Delete Contact Webhook').item.json.body?.email||'EMPTY',debug_body:JSON.stringify($('Delete Contact Webhook').item.json.body)})}",
         "options": {
           "responseHeaders": {
             "entries": [

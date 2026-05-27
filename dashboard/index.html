@@ -2047,6 +2047,7 @@
           });
           var result = {};
           try { result = await res.json(); } catch(e2) {}
+          console.log('DELETE CONTACT response:', JSON.stringify(result), '| sent email:', c.email);
           if (!res.ok) {
             showToast('Delete failed (HTTP ' + res.status + '): ' + JSON.stringify(result), 'error');
             return;
