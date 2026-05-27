@@ -391,9 +391,9 @@
 
     <!-- ADD CONTACTS -->
     <div class="card">
-      <div class="card-header" style="cursor:pointer;" onclick="toggleAddContacts()">
-        <h3>Add Contacts <span id="addContactsChevron" style="font-size:12px;color:#aaa;margin-left:6px;">▼</span></h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;" onclick="event.stopPropagation()">
+      <div class="card-header">
+        <h3>Add Contacts</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="downloadTemplate()">Download Template</button>
           <button class="btn btn-outline btn-sm" onclick="document.getElementById('csvFileInput').click()">Upload CSV</button>
           <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVUpload(event)">
@@ -401,7 +401,7 @@
           <button class="btn btn-primary btn-sm" onclick="sendAllUnsent()">Send All Pending Invites</button>
         </div>
       </div>
-      <div class="card-body" id="addContactsBody" style="display:none;">
+      <div class="card-body">
         <!-- Single add -->
         <div id="singleAddWrap">
           <div class="add-contact-grid">
@@ -437,14 +437,14 @@
 
     <!-- CONTACTS TABLE -->
     <div class="card">
-      <div class="card-header">
-        <h3>All Contacts</h3>
-        <div style="display:flex;gap:8px;align-items:center;">
+      <div class="card-header" style="cursor:pointer;" onclick="toggleAllContacts()">
+        <h3>All Contacts <span id="allContactsChevron" style="font-size:12px;color:#aaa;margin-left:6px;">▲</span></h3>
+        <div style="display:flex;gap:8px;align-items:center;" onclick="event.stopPropagation()">
           <input type="text" placeholder="Search..." id="contactSearch" oninput="filterContacts()"
             style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;width:200px;">
         </div>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap" id="allContactsBody">
         <table>
           <thead>
             <tr>
@@ -966,11 +966,11 @@
     renderContacts(filtered);
   }
 
-  function toggleAddContacts() {
-    var body = document.getElementById('addContactsBody');
-    var chevron = document.getElementById('addContactsChevron');
+  function toggleAllContacts() {
+    var body = document.getElementById('allContactsBody');
+    var chevron = document.getElementById('allContactsChevron');
     var open = body.style.display !== 'none';
-    body.style.display = open ? 'none' : 'block';
+    body.style.display = open ? 'none' : '';
     chevron.textContent = open ? '▼' : '▲';
   }
 
