@@ -1095,7 +1095,7 @@
   }
 
   async function sendAllUnsent() {
-    var unsent = allContacts.filter(c => !c.invite_sent);
+    var unsent = allContacts.filter(c => !c.invite_sent || c.invite_sent === 'no' || c.invite_sent === '');
     if (!unsent.length) { showToast('No pending invites to send.', 'error'); return; }
     openModal(
       'Send ' + unsent.length + ' Invites?',
