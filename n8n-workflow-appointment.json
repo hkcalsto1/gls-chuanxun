@@ -73,7 +73,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
+              "value": "GLSHK <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -385,7 +385,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
+              "value": "GLSHK <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -800,7 +800,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var d = $node['Assign SP (Form)'].json;\nvar subject = '[GLS \u4f20\u8baf] New Booking Request \u2014 ' + (d.client_name||'Guest');\nvar body = '<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'\n  + 'Hi Kitty,<br><br>'\n  + 'A new meeting request has been submitted for Air Cargo China 2026:<br><br>'\n  + '<strong>Guest:</strong> ' + (d.client_name||'') + ' (' + (d.company||'') + ')<br>'\n  + '<strong>Email:</strong> ' + (d.email||'') + '<br>'\n  + '<strong>Requested slot:</strong> ' + (d.date||'') + ' at ' + (d.time||'') + '<br><br>'\n  + 'Please review and assign in the GLS dashboard.<br><br>'\n  + 'GLS \u4f20\u8baf System</div>';\nreturn [{json:{email:'kitty.wong@glshk.com',subject:subject,body:body}}];"
+        "jsCode": "var d = $node['Assign SP (Form)'].json;\nvar subject = '[GLSHK @ Air Cargo Shanghai 2026] New Booking Request \u2014 ' + (d.client_name||'Guest');\nvar body = '<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'\n  + 'Hi Kitty,<br><br>'\n  + 'A new meeting request has been submitted for Air Cargo China 2026:<br><br>'\n  + '<strong>Guest:</strong> ' + (d.client_name||'') + ' (' + (d.company||'') + ')<br>'\n  + '<strong>Email:</strong> ' + (d.email||'') + '<br>'\n  + '<strong>Requested slot:</strong> ' + (d.date||'') + ' at ' + (d.time||'') + '<br>'\n  + '<strong>Location:</strong> W5\u9986 \u5c55\u4f4d399 / Hall W5 Booth 399, \u4e0a\u6d77\u65b0\u56fd\u9645\u535a\u89c8\u4e2d\u5fc3<br><br>'\n  + 'Please review and assign in the GLS dashboard.</div>';\nreturn [{json:{email:'kitty.wong@glshk.com',subject:subject,body:body}}];"
       },
       "id": "sp-notify-prep-0001",
       "name": "Prep SP Form Notify",
@@ -825,7 +825,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLS \u4f20\u8baf <notifications@smartflowhk.com>"
+              "value": "GLSHK <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
