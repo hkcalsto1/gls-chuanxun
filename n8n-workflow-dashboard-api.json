@@ -2056,7 +2056,7 @@
         }
       },
       "parameters": {
-        "operation": "update",
+        "operation": "appendOrUpdate",
         "documentId": {
           "mode": "id",
           "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
