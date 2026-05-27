@@ -1430,7 +1430,7 @@
       ],
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({staff: $input.all().map(i => ({name: i.json.salesperson_name, email: i.json.salesperson_email}))}) }}",
+        "responseBody": "={{ JSON.stringify({staff: $input.all().map(i => ({name: i.json.salesperson_name || i.json.name || '', email: i.json.salesperson_email || i.json.email || ''})).filter(s => s.name)}) }}",
         "options": {
           "responseHeaders": {
             "entries": [
