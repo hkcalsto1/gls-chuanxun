@@ -406,7 +406,7 @@
         <div class="result" id="successResult">
           <div class="icon">✅</div>
           <h2>接纳通知 Receipt Acknowledgement</h2>
-          <p>您的预约要求已收到，并在3个工作天内确认，确认信息将会发送到您的电邮地址。<br>Your appointment request has been received and will be confirmed within 3 working days. Confirmation will be sent to your email address.</p>
+          <p>感谢您！您的预约要求已收到，确认电邮将会在3个工作天内发送给您，敬请留意。<br>Thank you! Your appointment request has been received. The confirmation email will be sent to you within 3 working days.</p>
           <div class="dbox" id="confirmDetail"></div>
           <p style="font-size:12px;color:#999;margin-top:8px">如有任何疑问，请与市场部联系: For enquiries, please contact the marketing team: <a href="mailto:marketing@glshk.com" style="color:#F5A500;">marketing@glshk.com</a></p>
         </div>
@@ -554,10 +554,10 @@
         };
         if (res.ok && result.success) {
           document.getElementById('confirmDetail').innerHTML =
-            '<strong>姓名:</strong> ' + payload.given_names + ' ' + payload.surname + '<br>' +
-            '<strong>日期:</strong> ' + (dateMap[payload.preferred_date] || payload.preferred_date) + '<br>' +
-            '<strong>时间:</strong> ' + payload.preferred_time + '<br>' +
-            '<strong>电邮:</strong> ' + payload.email;
+            '<strong>姓名 Name:</strong> ' + payload.given_names + ' ' + payload.surname + '<br>' +
+            '<strong>日期 Date:</strong> ' + (dateMap[payload.preferred_date] || payload.preferred_date) + '<br>' +
+            '<strong>时间 Time:</strong> ' + payload.preferred_time + '<br>' +
+            '<strong>电邮 Email:</strong> ' + payload.email;
           document.getElementById('successResult').style.display = 'block';
         } else {
           document.getElementById('errorResult').style.display = 'block';

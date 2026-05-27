@@ -17,52 +17,13 @@
     },
     {
       "parameters": {
-        "jsCode": "var body = $input.first().json;\nvar image = body.image || '';\nvar mimeType = body.mimeType || 'image/jpeg';\nreturn [{\n  json: {\n    model: 'claude-haiku-4-5-20251001',\n    max_tokens: 600,\n    messages: [{\n      role: 'user',\n      content: [\n        {\n          type: 'image',\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: image\n          }\n        },\n        {\n          type: 'text',\n          text: 'Extract all contact information from this business card image. Return ONLY a valid JSON object with exactly these fields (use empty string if a field is not present on the card): name, company, title, email, phone, mobile, address, website. No explanation, no markdown, just the raw JSON object.'\n        }\n      ]\n    }]\n  }\n}];"
+        "jsCode": "var https = require('https');\nvar body = $input.first().json;\nvar image = body.image || '';\nvar mimeType = body.mimeType || 'image/jpeg';\nvar apiKey = process.env.ANTHROPIC_API_KEY || '';\n\nvar payload = {\n  model: 'claude-haiku-4-5-20251001',\n  max_tokens: 600,\n  messages: [{\n    role: 'user',\n    content: [\n      { type: 'image', source: { type: 'base64', media_type: mimeType, data: image } },\n      { type: 'text', text: 'Extract all contact information from this business card image. Return ONLY a valid JSON object with exactly these fields (use empty string if not present): name, company, title, email, phone, mobile, address, website. No explanation, no markdown, just the JSON.' }\n    ]\n  }]\n};\n\nvar payloadStr = JSON.stringify(payload);\n\nvar result = await new Promise(function(resolve, reject) {\n  var opts = {\n    hostname: 'api.anthropic.com',\n    path: '/v1/messages',\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n      'x-api-key': apiKey,\n      'anthropic-version': '2023-06-01',\n      'Content-Length': Buffer.byteLength(payloadStr)\n    }\n  };\n  var req = https.request(opts, function(res) {\n    var chunks = [];\n    res.on('data', function(c) { chunks.push(c); });\n    res.on('end', function() {\n      try { resolve(JSON.parse(Buffer.concat(chunks).toString())); }\n      catch(e) { reject(new Error('Parse error: ' + e.message)); }\n    });\n  });\n  req.on('error', reject);\n  req.write(payloadStr);\n  req.end();\n});\n\nvar text = ((result.content || [{}])[0].text || '').trim();\ntext = text.replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/\\s*```$/i, '').trim();\nvar contact = {};\ntry { contact = JSON.parse(text); } catch(e) {}\nreturn [{ json: contact }];"
       },
       "id": "s1000002-s100-s100-s100-s10000000002",
-      "name": "Build Anthropic Body",
+      "name": "Call Anthropic OCR",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [450, 100]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.anthropic.com/v1/messages",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "={{ $env.ANTHROPIC_API_KEY }}"
-            },
-            {
-              "name": "anthropic-version",
-              "value": "2023-06-01"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "id": "s1000003-s100-s100-s100-s10000000003",
-      "name": "Call Anthropic",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [700, 100]
-    },
-    {
-      "parameters": {
-        "jsCode": "var text = (($input.first().json.content || [{}])[0].text || '').trim();\n// Strip markdown code fences if present\ntext = text.replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/\\s*```$/i, '').trim();\nvar parsed = {};\ntry { parsed = JSON.parse(text); } catch(e) { parsed = {}; }\nreturn [{ json: parsed }];"
-      },
-      "id": "s1000004-s100-s100-s100-s10000000004",
-      "name": "Parse OCR Result",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [950, 100]
     },
     {
       "parameters": {
@@ -164,15 +125,9 @@
   ],
   "connections": {
     "Scan OCR Webhook": {
-      "main": [[{"node": "Build Anthropic Body", "type": "main", "index": 0}]]
+      "main": [[{"node": "Call Anthropic OCR", "type": "main", "index": 0}]]
     },
-    "Build Anthropic Body": {
-      "main": [[{"node": "Call Anthropic", "type": "main", "index": 0}]]
-    },
-    "Call Anthropic": {
-      "main": [[{"node": "Parse OCR Result", "type": "main", "index": 0}]]
-    },
-    "Parse OCR Result": {
+    "Call Anthropic OCR": {
       "main": [[{"node": "Respond OCR", "type": "main", "index": 0}]]
     },
     "Scan Submit Webhook": {

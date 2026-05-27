@@ -1267,7 +1267,8 @@
               date: p.date,
               time: p.time,
               salesperson_name: sp,
-              salesperson_email: spEmail
+              salesperson_email: spEmail,
+              topics: p.topics || ''
             })
           });
           var result = await res.json();
