@@ -621,7 +621,7 @@
     },
     {
       "parameters": {
-        "jsCode": "var email = $input.first().json.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
+        "jsCode": "var email = $('Prep Bulk Emails').item.json.email || '';\nreturn [{json:{email:email,invite_sent:'yes',invite_sent_at:new Date().toISOString(),status:'sent'}}];"
       },
       "id": "a5000009-a500-a500-a500-a50000000009",
       "name": "Mark All Sent",
