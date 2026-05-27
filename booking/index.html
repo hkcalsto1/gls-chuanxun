@@ -294,32 +294,40 @@
         <form id="bookForm">
 
           <div class="q">
-            <div class="q-label">1.&ensp;姓氏 Surname <span class="req">*</span></div>
+            <div class="q-label">1.&ensp;称谓 Salutation <span class="req">*</span></div>
+            <select name="salutation" required>
+              <option value="">请选择 / Please select</option>
+              <option>先生 Mr</option><option>女士 Ms</option><option>太太 Mrs</option>
+            </select>
+          </div>
+
+          <div class="q">
+            <div class="q-label">2.&ensp;姓氏 Surname <span class="req">*</span></div>
             <input type="text" name="surname" placeholder="Enter your answer" required>
           </div>
 
           <div class="q">
-            <div class="q-label">2.&ensp;名字 Given names <span class="req">*</span></div>
+            <div class="q-label">3.&ensp;名字 Given names <span class="req">*</span></div>
             <input type="text" name="given_names" placeholder="Enter your answer" required>
           </div>
 
           <div class="q">
-            <div class="q-label">3.&ensp;公司名称 Company name <span class="req">*</span></div>
+            <div class="q-label">4.&ensp;公司名称 Company name <span class="req">*</span></div>
             <input type="text" name="company" placeholder="Enter your answer" required>
           </div>
 
           <div class="q">
-            <div class="q-label">4.&ensp;电邮地址 Email address <span class="req">*</span></div>
+            <div class="q-label">5.&ensp;电邮地址 Email address <span class="req">*</span></div>
             <input type="email" name="email" placeholder="Enter your answer" required>
           </div>
 
           <div class="q">
-            <div class="q-label">5.&ensp;职衔 Work title <span class="req">*</span></div>
+            <div class="q-label">6.&ensp;职衔 Work title <span class="req">*</span></div>
             <input type="text" name="title" placeholder="Enter your answer" required>
           </div>
 
           <div class="q">
-            <div class="q-label">6.&ensp;期望会面日期 Preferred Meeting Date <span class="req">*</span></div>
+            <div class="q-label">7.&ensp;期望会面日期 Preferred Meeting Date <span class="req">*</span></div>
             <div class="radio-group">
               <label class="radio-opt">
                 <input type="radio" name="preferred_date" value="06/24/2026" required>
@@ -337,7 +345,7 @@
           </div>
 
           <div class="q">
-            <div class="q-label">7.&ensp;期望会面时段 Preferred Meeting Time Slot <span class="req">*</span></div>
+            <div class="q-label">8.&ensp;期望会面时段 Preferred Meeting Time Slot <span class="req">*</span></div>
             <p class="q-hint">请先选择日期，系统将显示该日可预约的时段。<br>Please select a date first — available time slots will appear below.</p>
             <div class="radio-group" id="timeGroup">
               <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="9:00" required><span class="opt-text">9:00 AM – 9:30 AM</span></label>
@@ -361,7 +369,7 @@
           </div>
 
           <div class="q">
-            <div class="q-label">8.&ensp;最有興趣了解的主題 Most Interested Topic <span class="req">*</span></div>
+            <div class="q-label">9.&ensp;最有興趣了解的主題 Most Interested Topic <span class="req">*</span></div>
             <div class="radio-group" id="topicsGroup">
               <label class="radio-opt"><input type="checkbox" name="topics" value="EzyCargo"><span class="opt-text">EzyCargo</span></label>
               <label class="radio-opt"><input type="checkbox" name="topics" value="EzyCustoms"><span class="opt-text">EzyCustoms</span></label>
@@ -377,7 +385,7 @@
           </div>
 
           <div class="q">
-            <div class="q-label">9.&ensp;您是通过哪一个途径收到GLS的博览会邀请的？ From where did you receive GLS invitation to the exhibition? <span class="req">*</span></div>
+            <div class="q-label">10.&ensp;您是通过哪一个途径收到GLS的博览会邀请的？ From where did you receive GLS invitation to the exhibition? <span class="req">*</span></div>
             <div class="radio-group">
               <label class="radio-opt"><input type="radio" name="source" value="社交媒体 Social media" required><span class="opt-text">社交媒体 Social media</span></label>
               <label class="radio-opt"><input type="radio" name="source" value="GLS官网 Website"><span class="opt-text">GLS官网 Website</span></label>
@@ -513,6 +521,7 @@
       }
 
       var payload = {
+        salutation: this.salutation.value,
         given_names: this.given_names.value.trim(),
         surname: this.surname.value.trim(),
         email: this.email.value.trim(),

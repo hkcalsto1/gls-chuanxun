@@ -526,7 +526,7 @@
               <th>Time</th>
               <th>Customer</th>
               <th>Company</th>
-              <th>Salesperson</th>
+              <th>Person in Charge</th>
               <th>Status</th>
               <th>Reminders Sent</th>
               <th>Actions</th>
@@ -630,9 +630,9 @@
         </div>
       </div>
       <div class="form-field" style="margin-bottom:14px;">
-        <label>Assign Salesperson *</label>
+        <label>Assign Person in Charge (PIC) *</label>
         <select id="mb-sp" onchange="checkMbReady()" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
-          <option value="">Select salesperson...</option>
+          <option value="">Select PIC...</option>
         </select>
       </div>
       <div class="form-field" style="margin-bottom:14px;">
@@ -700,14 +700,14 @@
 <div class="modal-overlay" id="changeSpModal">
   <div class="modal" style="max-width:440px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 style="margin:0;">Change Salesperson</h3>
+      <h3 style="margin:0;">Change Person in Charge</h3>
       <button onclick="closeChangeSpModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
     </div>
     <div id="cspCurrentInfo" style="background:#f4f7fb;border-left:4px solid #F5A500;padding:12px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;"></div>
     <div class="form-field" style="margin-bottom:20px;">
-      <label>Assign New Salesperson</label>
+      <label>Assign New Person in Charge</label>
       <select id="cspSelect" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
-        <option value="">Select salesperson...</option>
+        <option value="">Select PIC...</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -1247,12 +1247,12 @@
   async function assignBooking(idx) {
     var p = allPending[idx];
     var sp = document.getElementById('sp-' + idx).value;
-    if (!sp) { showToast('Please select a salesperson.', 'error'); return; }
+    if (!sp) { showToast('Please select a PIC.', 'error'); return; }
     var spObj = SALESPEOPLE.find(function(s) { return s.name === sp; }) || { name: sp, email: '' };
     var spEmail = spObj.email;
     openModal(
       'Confirm Assignment',
-      'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + '?\n\nThis will send confirmation emails to the customer and salesperson.',
+      'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + '?\n\nThis will send confirmation emails to the customer and PIC.',
       async function() {
         try {
           var res = await fetch(N8N + '/gls-assign', {
@@ -1453,8 +1453,8 @@
     invite:           { short: 'Staff sends invite',       full: 'Staff clicks "Send Invite" on a contact in the Contacts tab' },
     reminder_manual:  { short: 'Staff sends reminder',     full: 'Staff clicks "Send Reminder" on a contact who has been invited but not booked' },
     reminder_auto:    { short: 'Auto: 7d / 1d / 1h before', full: 'Sent automatically 7 days, 1 day and 1 hour before a confirmed meeting' },
-    sp_confirm:       { short: 'SP assigned to booking',   full: 'Staff assigns a salesperson to a pending booking in the Pending tab' },
-    customer_confirm: { short: 'Booking confirmed',        full: 'Sent to the customer when their booking is confirmed and a salesperson is assigned' },
+    sp_confirm:       { short: 'PIC assigned to booking',  full: 'Staff assigns a Person in Charge to a pending booking in the Pending tab' },
+    customer_confirm: { short: 'Booking confirmed',        full: 'Sent to the customer when their booking is confirmed and a PIC is assigned' },
     booking_received: { short: 'Customer submits form',    full: 'Sent automatically when a customer submits the online booking form' }
   };
 
@@ -1468,7 +1468,7 @@
     { friendly: '[Meeting Date]',       code: '{{date}}' },
     { friendly: '[Meeting Time]',       code: '{{time}}' },
     { friendly: '[Calendar Link]',      code: '{{cal_link}}' },
-    { friendly: '[Sales Person]',       code: '{{salesperson_name}}' },
+    { friendly: '[Person in Charge]',    code: '{{salesperson_name}}' },
     { friendly: '[SP Email]',           code: '{{salesperson_email}}' },
     { friendly: '[Time Until Meeting]', code: '{{_when}}' },
     { friendly: '[Unsubscribe Link]',   code: '{{unsubscribe_link}}' }
@@ -1741,7 +1741,7 @@
     }
 
     var spSel = document.getElementById('mb-sp');
-    spSel.innerHTML = '<option value="">Select salesperson...</option>';
+    spSel.innerHTML = '<option value="">Select PIC...</option>';
     SALESPEOPLE.forEach(function(sp) {
       var o = document.createElement('option');
       o.value = sp.name; o.textContent = sp.name; o.dataset.email = sp.email || '';
@@ -1992,7 +1992,7 @@
   function openChangeSpModal(idx) {
     cspTarget = sortedBookings[idx];
     var sel = document.getElementById('cspSelect');
-    sel.innerHTML = '<option value="">Select salesperson...</option>';
+    sel.innerHTML = '<option value="">Select PIC...</option>';
     SALESPEOPLE.forEach(function(sp) {
       var o = document.createElement('option');
       o.value = sp.name; o.textContent = sp.name; o.dataset.email = sp.email || '';
@@ -2038,7 +2038,7 @@
       showToast('Salesperson changed to ' + spName + '. Notification sent.', 'success');
       loadBookings();
     } catch(e) {
-      showToast('Failed to change salesperson.', 'error');
+      showToast('Failed to change PIC.', 'error');
       btn.disabled = false;
     }
   }
