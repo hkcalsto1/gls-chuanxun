@@ -2041,14 +2041,22 @@
       'Remove ' + c.name + ' (' + c.email + ') from the contact list? This cannot be undone.',
       async function() {
         try {
-          await fetch(N8N + '/gls-delete-contact', {
+          var res = await fetch(N8N + '/gls-delete-contact', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: c.email })
           });
+          var result = {};
+          try { result = await res.json(); } catch(e2) {}
+          if (!res.ok) {
+            showToast('Delete failed (HTTP ' + res.status + '): ' + JSON.stringify(result), 'error');
+            return;
+          }
+          allContacts = allContacts.filter(function(ct) { return ct.email !== c.email; });
+          renderContacts(allContacts);
+          updateContactStats(allContacts);
           showToast(c.name + ' deleted.', 'success');
-          setTimeout(loadContacts, 2500);
         } catch(e) {
-          showToast('Failed to delete contact.', 'error');
+          showToast('Delete error: ' + e.message, 'error');
         }
       }
     );
