@@ -1227,6 +1227,7 @@
       var spOptions = SALESPEOPLE.map(function(sp) {
         return '<option value="' + sp.name + '">' + sp.name + '</option>';
       }).join('');
+      var sp2Options = '<option value="">— (optional)</option>' + spOptions;
 
       return '<tr>' +
         '<td class="name-cell"><strong>' + escHtml(p.client_name || '') + '</strong><span>' + escHtml(p.email || '') + '</span></td>' +
@@ -1234,7 +1235,7 @@
         '<td style="font-weight:600;">' + escHtml(formatDateDisplay(p.date)) + '</td>' +
         '<td>' + escHtml(formatTime(p.time)) + '</td>' +
         '<td>' + slotBadge + '</td>' +
-        '<td><div class="assign-row"><select id="sp-' + i + '">' + spOptions + '</select></div></td>' +
+        '<td><div class="assign-row"><select id="sp-' + i + '">' + spOptions + '</select><select id="sp2-' + i + '" style="margin-top:4px">' + sp2Options + '</select></div></td>' +
         '<td class="actions-cell">' +
           '<button class="btn btn-gold btn-sm" onclick="assignBooking(' + i + ')">Assign &amp; Confirm</button>' +
           '<button class="btn btn-outline btn-sm" onclick="openRescheduleModal(' + i + ')">Reschedule</button>' +
@@ -1248,11 +1249,15 @@
     var p = allPending[idx];
     var sp = document.getElementById('sp-' + idx).value;
     if (!sp) { showToast('Please select a PIC.', 'error'); return; }
+    var sp2 = document.getElementById('sp2-' + idx).value;
     var spObj = SALESPEOPLE.find(function(s) { return s.name === sp; }) || { name: sp, email: '' };
+    var sp2Obj = sp2 ? (SALESPEOPLE.find(function(s) { return s.name === sp2; }) || { name: sp2, email: '' }) : { name: '', email: '' };
     var spEmail = spObj.email;
+    var sp2Email = sp2Obj.email;
+    var picLabel = sp + (sp2 ? ' & ' + sp2 : '');
     openModal(
       'Confirm Assignment',
-      'Assign ' + sp + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + '?\n\nThis will send confirmation emails to the customer and PIC.',
+      'Assign ' + picLabel + ' to the meeting with ' + p.client_name + ' on ' + formatDateDisplay(p.date) + ' at ' + formatTime(p.time) + '?\n\nThis will send confirmation emails to the customer and PIC(s).',
       async function() {
         try {
           var res = await fetch(N8N + '/gls-assign', {
@@ -1268,6 +1273,8 @@
               time: p.time,
               salesperson_name: sp,
               salesperson_email: spEmail,
+              salesperson_name_2: sp2,
+              salesperson_email_2: sp2Email,
               topics: p.topics || ''
             })
           });
@@ -1275,7 +1282,7 @@
           if (result.success === false) {
             showToast('⚠ Slot no longer available. Please check.', 'error');
           } else {
-            showToast('✓ ' + p.client_name + ' confirmed with ' + sp, 'success');
+            showToast('✓ ' + p.client_name + ' confirmed with ' + picLabel, 'success');
             allPending = allPending.filter(function(_, i) { return i !== idx; });
             renderPending(allPending);
             setTimeout(function() { loadPending(); loadBookings(); }, 4000);
