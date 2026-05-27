@@ -2358,6 +2358,56 @@
       "continueOnFail": true
     },
     {
+      "id": "MB1008",
+      "name": "Prep Manual Kitty Notify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2450,
+        5400
+      ],
+      "parameters": {
+        "jsCode": "var d = $node['Prep Manual Booking'].json;\nvar subject = '[GLSHK Dashboard] Manual Booking Created — ' + (d.client_name||'Guest');\nvar body = '<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'\n  + 'Hi Kitty,<br><br>'\n  + 'A manual booking has been created in the GLS dashboard:<br><br>'\n  + '<strong>Guest:</strong> ' + (d.client_name||'') + ' (' + (d.company||'') + ')<br>'\n  + '<strong>Email:</strong> ' + (d.email||'') + '<br>'\n  + '<strong>Slot:</strong> ' + (d.date||'') + ' at ' + (d.time||'') + '<br>'\n  + '<strong>Salesperson:</strong> ' + (d.salesperson_name||'') + '<br><br>'\n  + '<strong>Topics of interest:</strong> ' + (d.topics||'Not specified') + '<br><br>'\n  + 'This booking was created manually from the dashboard.</div>';\nreturn [{json:{email:'marketing@glshk.com',subject:subject,body:body}}];"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "MB1009",
+      "name": "Send Manual Kitty Notify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2650,
+        5400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "from", "value": "GLSHK <notifications@smartflowhk.com>" },
+            { "name": "to", "value": "={{ $json.email }}" },
+            { "name": "reply_to", "value": "marketing@glshk.com" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "html", "value": "={{ $json.body }}" }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "N0PEoBiSaAobtA1x",
+          "name": "Resend API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
       "id": "MB1007",
       "name": "Respond Manual Booking",
       "type": "n8n-nodes-base.respondToWebhook",
@@ -4384,9 +4434,28 @@
             "node": "Update Slot Manual",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Prep Manual Kitty Notify",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
+    },
+    "Prep Manual Kitty Notify": {
+      "main": [
+        [
+          {
+            "node": "Send Manual Kitty Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Manual Kitty Notify": {
+      "main": [[]]
     },
     "Update Slot Manual": {
       "main": [
