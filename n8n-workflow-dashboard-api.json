@@ -2013,6 +2013,47 @@
       }
     },
     {
+      "id": "AUTH001",
+      "name": "Auth Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 4800],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-auth",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "AUTH002",
+      "name": "Check Password",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 4800],
+      "parameters": {
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar pw = String(body.password || '');\nvar stored = process.env.GLS_DASHBOARD_PASSWORD || 'GLS2026!';\nreturn [{ json: { success: pw === stored } }];"
+      }
+    },
+    {
+      "id": "AUTH003",
+      "name": "Respond Auth",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 4800],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      }
+    },
+    {
       "id": "DC1001",
       "name": "Delete Contact Webhook",
       "type": "n8n-nodes-base.webhook",
@@ -4372,6 +4413,13 @@
         ]
       ]
     },
+    "Auth Webhook": {
+      "main": [[{"node": "Check Password", "type": "main", "index": 0}]]
+    },
+    "Check Password": {
+      "main": [[{"node": "Respond Auth", "type": "main", "index": 0}]]
+    },
+    "Respond Auth": {"main": [[]]},
     "Save Settings Webhook": {
       "main": [
         [
