@@ -1320,7 +1320,7 @@
         3220
       ],
       "parameters": {
-        "jsCode": "var events = $input.first().json.body || $input.first().json;\nif (!Array.isArray(events)) events = [events];\nvar statusMap = { open: 'opened', click: 'clicked', bounce: 'bounced', unsubscribe: 'unsubscribed', spamreport: 'spam' };\nvar results = [];\nevents.forEach(function(e) {\n  var status = statusMap[e.event];\n  if (status && e.email) results.push({ email: e.email, status: status });\n});\nreturn results.map(function(r) { return { json: r }; });"
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\n// Resend sends a single event object; SendGrid sends an array\nvar events = Array.isArray(body) ? body : [body];\nvar statusMap = {\n  'email.opened': 'opened',\n  'email.clicked': 'clicked',\n  'email.bounced': 'bounced',\n  'email.complained': 'spam',\n  'email.delivery_delayed': 'sent',\n  // SendGrid fallback\n  'open': 'opened', 'click': 'clicked', 'bounce': 'bounced',\n  'unsubscribe': 'unsubscribed', 'spamreport': 'spam'\n};\nvar results = [];\nevents.forEach(function(e) {\n  var status, email;\n  if (e.type && e.data) {\n    // Resend format\n    status = statusMap[e.type];\n    email = (e.data.to || [])[0] || '';\n  } else if (e.event) {\n    // SendGrid format\n    status = statusMap[e.event];\n    email = e.email || '';\n  }\n  if (status && email) results.push({ json: { email: email.toLowerCase().trim(), status: status } });\n});\nreturn results.length ? results : [{json:{email:'',status:'noop'}}];"
       }
     },
     {
