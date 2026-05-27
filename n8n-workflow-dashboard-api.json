@@ -2077,7 +2077,7 @@
       ],
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\"success\":true,\"debug_email\":\"{{ $json.email }}\",\"debug_status\":\"{{ $json.status }}\",\"debug_keys\":\"{{ Object.keys($json).join(',') }}\"}",
+        "responseBody": "={\"success\":true}",
         "options": {
           "responseHeaders": {
             "entries": [

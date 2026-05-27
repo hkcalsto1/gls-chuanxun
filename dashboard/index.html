@@ -964,9 +964,12 @@
 
   function addContact() {
     var name    = document.getElementById('c-name').value.trim();
-    var email   = document.getElementById('c-email').value.trim();
+    var email   = document.getElementById('c-email').value.trim().toLowerCase();
     var company = document.getElementById('c-company').value.trim();
     if (!name || !email) { showToast('Name and email are required.', 'error'); return; }
+    if (allContacts.some(function(c) { return c.email.toLowerCase() === email; })) {
+      showToast(email + ' is already in the contact list.', 'error'); return;
+    }
     var contact = { name: name, email: email, company: company, status: 'not_sent', invite_sent: false };
     saveContact(contact);
     document.getElementById('c-name').value = '';
@@ -977,17 +980,22 @@
 
   function importPaste() {
     var lines = document.getElementById('pasteInput').value.trim().split('\n').filter(Boolean);
-    var added = 0;
+    var added = 0; var dupes = 0;
+    var existingEmails = allContacts.map(function(c){ return c.email.toLowerCase(); });
     lines.forEach(function(line) {
       var parts = line.split(',').map(s => s.trim());
       if (parts[0] && parts[1]) {
-        saveContact({ name: parts[0], email: parts[1], company: parts[2] || '', status: 'not_sent', invite_sent: false }, true);
+        var emailLc = parts[1].toLowerCase();
+        if (existingEmails.indexOf(emailLc) !== -1) { dupes++; return; }
+        existingEmails.push(emailLc);
+        saveContact({ name: parts[0], email: emailLc, company: parts[2] || '', status: 'not_sent', invite_sent: false }, true);
         added++;
       }
     });
     document.getElementById('pasteInput').value = '';
     togglePaste();
-    showToast(added + ' contacts imported.', 'success');
+    var msg = added + ' contacts imported' + (dupes ? ', ' + dupes + ' duplicate(s) skipped.' : '.');
+    showToast(msg, 'success');
     loadContacts();
   }
 
@@ -1038,7 +1046,15 @@
       }).filter(r => r.email && r.email.includes('@'));
 
       if (!rows.length) { showToast('No valid contacts found in CSV.', 'error'); return; }
-      showToast('Importing ' + rows.length + ' contacts...', 'success');
+      var existingEmails = allContacts.map(function(c){ return c.email.toLowerCase(); });
+      rows = rows.filter(function(r) {
+        var e = r.email.toLowerCase(); r.email = e;
+        if (existingEmails.indexOf(e) !== -1) return false;
+        existingEmails.push(e); return true;
+      });
+      var skipped = lines.slice(startIdx).length - rows.length;
+      if (!rows.length) { showToast('All contacts already exist — nothing to import.', 'error'); return; }
+      showToast('Importing ' + rows.length + ' contacts' + (skipped ? ', ' + skipped + ' duplicate(s) skipped' : '') + '...', 'success');
       var done = 0;
       for (var i = 0; i < rows.length; i++) {
         await saveContact(rows[i], true);
