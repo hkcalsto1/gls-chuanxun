@@ -1250,7 +1250,7 @@
       var sp2Options = '<option value="">— (optional)</option>' + spOptions;
 
       return '<tr>' +
-        '<td class="name-cell"><strong>' + escHtml(p.client_name || '') + '</strong><span>' + escHtml(p.email || '') + '</span></td>' +
+        '<td class="name-cell"><strong>' + escHtml(p.client_name || '') + '</strong><span>' + escHtml(p.email || '') + '</span>' + (p.topics ? '<span style="color:#888;font-style:italic;font-size:11px;">' + escHtml(p.topics) + '</span>' : '') + '</td>' +
         '<td>' + escHtml(p.company || '—') + '</td>' +
         '<td style="font-weight:600;">' + escHtml(formatDateDisplay(p.date)) + '</td>' +
         '<td>' + escHtml(formatTime(p.time)) + '</td>' +
@@ -1397,7 +1397,7 @@
       return '<tr' + rowStyle + '>' +
         '<td style="font-weight:600;">' + escHtml(formatDateDisplay(b.date)) + '</td>' +
         '<td>' + escHtml(formatTime(b.time)) + '</td>' +
-        '<td class="name-cell"><strong>' + escHtml(b.client_name || '') + '</strong><span>' + escHtml(b.email || '') + '</span></td>' +
+        '<td class="name-cell"><strong>' + escHtml(b.client_name || '') + '</strong><span>' + escHtml(b.email || '') + '</span>' + (b.topics ? '<span style="color:#888;font-style:italic;font-size:11px;">' + escHtml(b.topics) + '</span>' : '') + '</td>' +
         '<td>' + escHtml(b.company || '—') + '</td>' +
         '<td><span class="badge confirmed">' + escHtml(b.salesperson_name || '—') + '</span></td>' +
         '<td>' + statusBadge + '</td>' +
