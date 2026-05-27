@@ -630,9 +630,15 @@
         </div>
       </div>
       <div class="form-field" style="margin-bottom:14px;">
-        <label>Assign Person in Charge (PIC) *</label>
+        <label>Person in Charge (PIC 1) *</label>
         <select id="mb-sp" onchange="checkMbReady()" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
-          <option value="">Select PIC...</option>
+          <option value="">Select PIC 1...</option>
+        </select>
+      </div>
+      <div class="form-field" style="margin-bottom:14px;">
+        <label>Person in Charge (PIC 2) <span style="color:#aaa;font-weight:400;">optional</span></label>
+        <select id="mb-sp2" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
+          <option value="">— (optional)</option>
         </select>
       </div>
       <div class="form-field" style="margin-bottom:14px;">
@@ -704,10 +710,16 @@
       <button onclick="closeChangeSpModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
     </div>
     <div id="cspCurrentInfo" style="background:#f4f7fb;border-left:4px solid #F5A500;padding:12px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;"></div>
-    <div class="form-field" style="margin-bottom:20px;">
-      <label>Assign New Person in Charge</label>
+    <div class="form-field" style="margin-bottom:14px;">
+      <label>Person in Charge (PIC 1)</label>
       <select id="cspSelect" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
-        <option value="">Select PIC...</option>
+        <option value="">Select PIC 1...</option>
+      </select>
+    </div>
+    <div class="form-field" style="margin-bottom:20px;">
+      <label>Person in Charge (PIC 2) <span style="color:#aaa;font-weight:400;">optional</span></label>
+      <select id="cspSelect2" style="margin-top:6px;width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:13px;font-family:inherit;color:#222;background:white;">
+        <option value="">— (optional)</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -1749,11 +1761,14 @@
     }
 
     var spSel = document.getElementById('mb-sp');
-    spSel.innerHTML = '<option value="">Select PIC...</option>';
+    spSel.innerHTML = '<option value="">Select PIC 1...</option>';
+    var spSel2 = document.getElementById('mb-sp2');
+    spSel2.innerHTML = '<option value="">— (optional)</option>';
     SALESPEOPLE.forEach(function(sp) {
       var o = document.createElement('option');
       o.value = sp.name; o.textContent = sp.name; o.dataset.email = sp.email || '';
       spSel.appendChild(o);
+      spSel2.appendChild(o.cloneNode(true));
     });
 
     fetch(N8N + '/gls-slots')
@@ -1809,6 +1824,9 @@
     var spSel = document.getElementById('mb-sp');
     var spName = spSel.value;
     var spEmail = (spSel.options[spSel.selectedIndex] || {}).dataset && spSel.options[spSel.selectedIndex].dataset.email || '';
+    var spSel2 = document.getElementById('mb-sp2');
+    var sp2Name = spSel2.value;
+    var sp2Email = sp2Name ? ((spSel2.options[spSel2.selectedIndex] || {}).dataset && spSel2.options[spSel2.selectedIndex].dataset.email || '') : '';
     if (!name || !email || !spName || !mbSelectedSlot) {
       showToast('Please fill in all required fields.', 'error'); return;
     }
@@ -1821,7 +1839,8 @@
           name: name, email: email, company: company, title: title,
           slot_id: mbSelectedSlot.Slot_Id,
           date: mbSelectedSlot.Date, time: mbSelectedSlot.Time,
-          salesperson_name: spName, salesperson_email: spEmail
+          salesperson_name: spName, salesperson_email: spEmail,
+          salesperson_name_2: sp2Name, salesperson_email_2: sp2Email
         })
       });
       closeManualBookingModal();
@@ -2000,17 +2019,24 @@
   function openChangeSpModal(idx) {
     cspTarget = sortedBookings[idx];
     var sel = document.getElementById('cspSelect');
-    sel.innerHTML = '<option value="">Select PIC...</option>';
+    sel.innerHTML = '<option value="">Select PIC 1...</option>';
+    var sel2 = document.getElementById('cspSelect2');
+    sel2.innerHTML = '<option value="">— (optional)</option>';
     SALESPEOPLE.forEach(function(sp) {
       var o = document.createElement('option');
       o.value = sp.name; o.textContent = sp.name; o.dataset.email = sp.email || '';
       if (sp.name === cspTarget.salesperson_name) o.selected = true;
       sel.appendChild(o);
+      var o2 = o.cloneNode(true);
+      if (sp.name === cspTarget.salesperson_name_2) o2.selected = true;
+      sel2.appendChild(o2);
     });
+    var currentPic = cspTarget.salesperson_name || '—';
+    if (cspTarget.salesperson_name_2) currentPic += ' & ' + cspTarget.salesperson_name_2;
     document.getElementById('cspCurrentInfo').innerHTML =
       '<strong>' + escHtml(cspTarget.client_name || '') + '</strong>' +
       (cspTarget.company ? ' — ' + escHtml(cspTarget.company) : '') + '<br>' +
-      'Current SP: <strong>' + escHtml(cspTarget.salesperson_name || '—') + '</strong><br>' +
+      'Current PIC: <strong>' + escHtml(currentPic) + '</strong><br>' +
       'Date: ' + escHtml(formatDateDisplay(cspTarget.date)) + ' at ' + escHtml(formatTime(cspTarget.time));
     document.getElementById('cspConfirmBtn').disabled = false;
     document.getElementById('changeSpModal').classList.add('open');
@@ -2024,8 +2050,11 @@
   async function submitChangeSp() {
     var sel = document.getElementById('cspSelect');
     var spName = sel.value;
-    if (!spName) { showToast('Please select a salesperson.', 'error'); return; }
+    if (!spName) { showToast('Please select a PIC.', 'error'); return; }
     var spEmail = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].dataset.email || '';
+    var sel2 = document.getElementById('cspSelect2');
+    var sp2Name = sel2.value;
+    var sp2Email = sp2Name ? (sel2.options[sel2.selectedIndex] && sel2.options[sel2.selectedIndex].dataset.email || '') : '';
     var btn = document.getElementById('cspConfirmBtn');
     btn.disabled = true;
     try {
@@ -2039,11 +2068,14 @@
           date: cspTarget.date || '',
           time: cspTarget.time || '',
           salesperson_name: spName,
-          salesperson_email: spEmail
+          salesperson_email: spEmail,
+          salesperson_name_2: sp2Name,
+          salesperson_email_2: sp2Email
         })
       });
       closeChangeSpModal();
-      showToast('Salesperson changed to ' + spName + '. Notification sent.', 'success');
+      var picLabel = spName + (sp2Name ? ' & ' + sp2Name : '');
+      showToast('PIC changed to ' + picLabel + '. Notification sent.', 'success');
       loadBookings();
     } catch(e) {
       showToast('Failed to change PIC.', 'error');
