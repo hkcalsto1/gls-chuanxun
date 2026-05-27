@@ -391,9 +391,9 @@
 
     <!-- ADD CONTACTS -->
     <div class="card">
-      <div class="card-header">
-        <h3>Add Contacts</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div class="card-header" style="cursor:pointer;" onclick="toggleAddContacts()">
+        <h3>Add Contacts <span id="addContactsChevron" style="font-size:12px;color:#aaa;margin-left:6px;">▼</span></h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" onclick="event.stopPropagation()">
           <button class="btn btn-outline btn-sm" onclick="downloadTemplate()">Download Template</button>
           <button class="btn btn-outline btn-sm" onclick="document.getElementById('csvFileInput').click()">Upload CSV</button>
           <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVUpload(event)">
@@ -401,7 +401,7 @@
           <button class="btn btn-primary btn-sm" onclick="sendAllUnsent()">Send All Pending Invites</button>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body" id="addContactsBody" style="display:none;">
         <!-- Single add -->
         <div id="singleAddWrap">
           <div class="add-contact-grid">
@@ -964,6 +964,14 @@
       return (c.name + c.email + c.company).toLowerCase().includes(q);
     });
     renderContacts(filtered);
+  }
+
+  function toggleAddContacts() {
+    var body = document.getElementById('addContactsBody');
+    var chevron = document.getElementById('addContactsChevron');
+    var open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    chevron.textContent = open ? '▼' : '▲';
   }
 
   function togglePaste() {
