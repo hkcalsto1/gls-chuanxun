@@ -2028,6 +2028,19 @@
       "webhookId": "dc-webhook-001"
     },
     {
+      "id": "DC1004",
+      "name": "Prep Delete Contact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        125,
+        4600
+      ],
+      "parameters": {
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\nreturn [{json:{email: String(body.email||'').toLowerCase().trim()}}];"
+      }
+    },
+    {
       "id": "DC1002",
       "name": "Mark Contact Deleted",
       "type": "n8n-nodes-base.googleSheets",
@@ -2055,7 +2068,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "email": "={{ $json.body.email }}",
+            "email": "={{ $json.email }}",
             "status": "={{ 'deleted' }}"
           },
           "matchingColumns": [
@@ -4557,6 +4570,17 @@
       ]
     },
     "Delete Contact Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep Delete Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Delete Contact": {
       "main": [
         [
           {
