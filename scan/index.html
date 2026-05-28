@@ -371,8 +371,8 @@
       sel.innerHTML = '<option value="">Select staff member</option>';
       (data.staff || []).forEach(function(s) {
         var o = document.createElement('option');
-        o.value = s.salesperson_name;
-        o.textContent = s.salesperson_name;
+        o.value = s.name;
+        o.textContent = s.name;
         sel.appendChild(o);
       });
     } catch(e) {

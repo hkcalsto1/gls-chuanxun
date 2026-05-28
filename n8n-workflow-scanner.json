@@ -12,18 +12,24 @@
       "name": "Scan OCR Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [200, 100],
+      "position": [
+        200,
+        100
+      ],
       "webhookId": "s2000001-s200-s200-s200-s20000000001"
     },
     {
       "parameters": {
-        "jsCode": "var body = $input.first().json;\nvar image = body.image || '';\nvar mimeType = body.mimeType || 'image/jpeg';\nreturn [{\n  json: {\n    model: 'claude-haiku-4-5-20251001',\n    max_tokens: 600,\n    messages: [{\n      role: 'user',\n      content: [\n        {\n          type: 'image',\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: image\n          }\n        },\n        {\n          type: 'text',\n          text: 'Extract all contact information from this business card image. Return ONLY a valid JSON object with exactly these fields (use empty string if a field is not present on the card): name, company, title, email, phone, mobile, address, website. No explanation, no markdown, just the raw JSON object.'\n        }\n      ]\n    }]\n  }\n}];"
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar image = body.image || '';\nvar mimeType = body.mimeType || 'image/jpeg';\nreturn [{\n  json: {\n    model: 'claude-haiku-4-5-20251001',\n    max_tokens: 600,\n    messages: [{\n      role: 'user',\n      content: [\n        {\n          type: 'image',\n          source: {\n            type: 'base64',\n            media_type: mimeType,\n            data: image\n          }\n        },\n        {\n          type: 'text',\n          text: 'Extract all contact information from this business card image. Return ONLY a valid JSON object with exactly these fields (use empty string if a field is not present on the card): name, company, title, email, phone, mobile, address, website. No explanation, no markdown, just the raw JSON object.'\n        }\n      ]\n    }]\n  }\n}];"
       },
       "id": "s1000002-s100-s100-s100-s10000000002",
       "name": "Build Anthropic Body",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [450, 100]
+      "position": [
+        450,
+        100
+      ]
     },
     {
       "parameters": {
@@ -52,7 +58,10 @@
       "name": "Call Anthropic",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [700, 100]
+      "position": [
+        700,
+        100
+      ]
     },
     {
       "parameters": {
@@ -62,7 +71,10 @@
       "name": "Parse OCR Result",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [950, 100]
+      "position": [
+        950,
+        100
+      ]
     },
     {
       "parameters": {
@@ -83,9 +95,11 @@
       "name": "Respond OCR",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1200, 100]
+      "position": [
+        1200,
+        100
+      ]
     },
-
     {
       "parameters": {
         "httpMethod": "POST",
@@ -97,7 +111,10 @@
       "name": "Scan Submit Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [200, 400],
+      "position": [
+        200,
+        400
+      ],
       "webhookId": "s3000001-s300-s300-s300-s30000000001"
     },
     {
@@ -114,16 +131,16 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "timestamp":  "={{ $json.timestamp }}",
+            "timestamp": "={{ $json.timestamp }}",
             "scanned_by": "={{ $json.scanned_by }}",
-            "name":       "={{ $json.name }}",
-            "company":    "={{ $json.company }}",
-            "title":      "={{ $json.title }}",
-            "email":      "={{ $json.email }}",
-            "phone":      "={{ $json.phone }}",
-            "mobile":     "={{ $json.mobile }}",
-            "address":    "={{ $json.address }}",
-            "website":    "={{ $json.website }}"
+            "name": "={{ $json.name }}",
+            "company": "={{ $json.company }}",
+            "title": "={{ $json.title }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "mobile": "={{ $json.mobile }}",
+            "address": "={{ $json.address }}",
+            "website": "={{ $json.website }}"
           }
         },
         "options": {}
@@ -132,7 +149,10 @@
       "name": "Append Card to Sheet",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
-      "position": [450, 400],
+      "position": [
+        450,
+        400
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "AeQwGHbDftGYpvZc",
@@ -159,27 +179,78 @@
       "name": "Respond Submit",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [700, 400]
+      "position": [
+        700,
+        400
+      ]
     }
   ],
   "connections": {
     "Scan OCR Webhook": {
-      "main": [[{"node": "Build Anthropic Body", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Build Anthropic Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Build Anthropic Body": {
-      "main": [[{"node": "Call Anthropic", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Call Anthropic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Call Anthropic": {
-      "main": [[{"node": "Parse OCR Result", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Parse OCR Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Parse OCR Result": {
-      "main": [[{"node": "Respond OCR", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Respond OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Scan Submit Webhook": {
-      "main": [[{"node": "Append Card to Sheet", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Append Card to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Append Card to Sheet": {
-      "main": [[{"node": "Respond Submit", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Respond Submit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
