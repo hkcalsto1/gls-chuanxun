@@ -1014,24 +1014,24 @@
     document.getElementById('c-name').focus();
   }
 
-  function importPaste() {
+  async function importPaste() {
     var lines = document.getElementById('pasteInput').value.trim().split('\n').filter(Boolean);
-    var added = 0; var dupes = 0;
+    var toAdd = []; var dupes = 0;
     var existingEmails = allContacts.map(function(c){ return c.email.toLowerCase(); });
     lines.forEach(function(line) {
-      var parts = line.split(',').map(s => s.trim());
-      if (parts[0] && parts[1]) {
+      var parts = parseCSVLine(line);
+      if (parts[0] && parts[1] && parts[1].includes('@')) {
         var emailLc = parts[1].toLowerCase();
         if (existingEmails.indexOf(emailLc) !== -1) { dupes++; return; }
         existingEmails.push(emailLc);
-        saveContact({ name: parts[0], email: emailLc, company: parts[2] || '', status: 'not_sent', invite_sent: false }, true);
-        added++;
+        toAdd.push({ name: parts[0], email: emailLc, company: parts[2] || '' });
       }
     });
     document.getElementById('pasteInput').value = '';
     togglePaste();
-    var msg = added + ' contacts imported' + (dupes ? ', ' + dupes + ' duplicate(s) skipped.' : '.');
-    showToast(msg, 'success');
+    if (!toAdd.length) { showToast('No new contacts to import' + (dupes ? ' — ' + dupes + ' duplicate(s) skipped.' : '.'), 'error'); return; }
+    showToast('Importing ' + toAdd.length + ' contacts' + (dupes ? ', ' + dupes + ' duplicate(s) skipped' : '') + '...', 'success');
+    await saveContactsBulk(toAdd);
     loadContacts();
   }
 
@@ -1047,11 +1047,42 @@
     }
   }
 
+  async function saveContactsBulk(contacts) {
+    try {
+      var res = await fetch(N8N + '/gls-add-contacts-bulk', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contacts: contacts })
+      });
+      var data = await res.json();
+      showToast('✓ ' + (data.count || contacts.length) + ' contacts saved.', 'success');
+    } catch(e) {
+      showToast('Import failed. Check n8n connection.', 'error');
+    }
+  }
+
   function downloadTemplate() {
-    var csv = 'name,email,company,title,notes\nJohn Smith,john@example.com,Acme Cargo,CEO,\nJane Lee,jane@cargo.com,TLC Air,Director,';
-    var blob = new Blob([csv], { type: 'text/csv' });
+    var bom = '﻿';
+    var csv = bom + 'name,email,company,title,notes\n王大明,wang@example.com,上海物流有限公司,董事,\nJane Lee,jane@cargo.com,TLC Air,Director,';
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     a.download = 'gls-contacts-template.csv'; a.click();
+  }
+
+  function parseCSVLine(line) {
+    var result = [], cur = '', inQ = false;
+    for (var i = 0; i < line.length; i++) {
+      var ch = line[i];
+      if (inQ) {
+        if (ch === '"') { if (line[i+1] === '"') { cur += '"'; i++; } else inQ = false; }
+        else cur += ch;
+      } else {
+        if (ch === '"') inQ = true;
+        else if (ch === ',' || ch === '\t') { result.push(cur.trim()); cur = ''; }
+        else cur += ch;
+      }
+    }
+    result.push(cur.trim());
+    return result;
   }
 
   function handleCSVUpload(event) {
@@ -1060,26 +1091,42 @@
     if (!file) return;
     var reader = new FileReader();
     reader.onload = async function(e) {
-      var lines = e.target.result.split('\n').map(l => l.trim()).filter(l => l);
+      var bytes = new Uint8Array(e.target.result);
+      var text;
+      try {
+        text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      } catch(err) {
+        text = new TextDecoder('gbk').decode(bytes);
+      }
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+      var lines = text.split('\n').map(function(l) { return l.replace(/\r$/, '').trim(); }).filter(Boolean);
       var startIdx = 0;
-      var headers = lines[0].toLowerCase().split(',').map(h => h.trim());
-      var hasHeader = headers.includes('email');
+      var headers = parseCSVLine(lines[0].toLowerCase());
+      var hasHeader = headers.includes('email') || headers.includes('邮箱');
       if (hasHeader) startIdx = 1;
       var colMap = { name: 0, email: 1, company: 2, title: 3, notes: 4 };
       if (hasHeader) {
         colMap = {};
-        headers.forEach(function(h, i) { colMap[h] = i; });
+        headers.forEach(function(h, i) {
+          var norm = h.replace(/[\s﻿]/g,'');
+          if (norm === 'name' || norm === '姓名' || norm === '名称') colMap.name = i;
+          else if (norm === 'email' || norm === '邮箱' || norm === '电子邮件') colMap.email = i;
+          else if (norm === 'company' || norm === '公司' || norm === '单位') colMap.company = i;
+          else if (norm === 'title' || norm === '职位' || norm === '职称') colMap.title = i;
+          else if (norm === 'notes' || norm === '备注') colMap.notes = i;
+        });
       }
       var rows = lines.slice(startIdx).map(function(line) {
-        var parts = line.split(',').map(s => s.trim().replace(/^"|"$/g,''));
+        var parts = parseCSVLine(line);
         return {
-          name: parts[colMap.name !== undefined ? colMap.name : 0] || '',
-          email: parts[colMap.email !== undefined ? colMap.email : 1] || '',
+          name:    parts[colMap.name    !== undefined ? colMap.name    : 0] || '',
+          email:   parts[colMap.email   !== undefined ? colMap.email   : 1] || '',
           company: parts[colMap.company !== undefined ? colMap.company : 2] || '',
-          title: parts[colMap.title !== undefined ? colMap.title : 3] || '',
-          notes: parts[colMap.notes !== undefined ? colMap.notes : 4] || ''
+          title:   parts[colMap.title   !== undefined ? colMap.title   : 3] || '',
+          notes:   parts[colMap.notes   !== undefined ? colMap.notes   : 4] || ''
         };
-      }).filter(r => r.email && r.email.includes('@'));
+      }).filter(function(r) { return r.email && r.email.includes('@'); });
 
       if (!rows.length) { showToast('No valid contacts found in CSV.', 'error'); return; }
       var existingEmails = allContacts.map(function(c){ return c.email.toLowerCase(); });
@@ -1091,15 +1138,10 @@
       var skipped = lines.slice(startIdx).length - rows.length;
       if (!rows.length) { showToast('All contacts already exist — nothing to import.', 'error'); return; }
       showToast('Importing ' + rows.length + ' contacts' + (skipped ? ', ' + skipped + ' duplicate(s) skipped' : '') + '...', 'success');
-      var done = 0;
-      for (var i = 0; i < rows.length; i++) {
-        await saveContact(rows[i], true);
-        done++;
-      }
-      showToast(done + ' contacts imported successfully.', 'success');
+      await saveContactsBulk(rows);
       loadContacts();
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   }
 
   async function sendInvite(idx) {

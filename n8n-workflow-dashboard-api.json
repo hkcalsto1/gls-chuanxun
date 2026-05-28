@@ -2017,7 +2017,10 @@
       "name": "Auth Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [0, 4800],
+      "position": [
+        0,
+        4800
+      ],
       "parameters": {
         "httpMethod": "POST",
         "path": "gls-auth",
@@ -2030,7 +2033,10 @@
       "name": "Check Password",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [250, 4800],
+      "position": [
+        250,
+        4800
+      ],
       "parameters": {
         "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar pw = String(body.password || '');\nvar stored = process.env.GLS_DASHBOARD_PASSWORD || 'GLS2026!';\nreturn [{ json: { success: pw === stored } }];"
       }
@@ -2040,14 +2046,20 @@
       "name": "Respond Auth",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [500, 4800],
+      "position": [
+        500,
+        4800
+      ],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify($json) }}",
         "options": {
           "responseHeaders": {
             "entries": [
-              { "name": "Access-Control-Allow-Origin", "value": "*" }
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
             ]
           }
         }
@@ -2431,11 +2443,26 @@
         "specifyBody": "keypair",
         "bodyParameters": {
           "parameters": [
-            { "name": "from", "value": "GLSHK <notifications@smartflowhk.com>" },
-            { "name": "to", "value": "={{ $json.email }}" },
-            { "name": "reply_to", "value": "marketing@glshk.com" },
-            { "name": "subject", "value": "={{ $json.subject }}" },
-            { "name": "html", "value": "={{ $json.body }}" }
+            {
+              "name": "from",
+              "value": "GLSHK <notifications@smartflowhk.com>"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "reply_to",
+              "value": "marketing@glshk.com"
+            },
+            {
+              "name": "subject",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.body }}"
+            }
           ]
         },
         "options": {}
@@ -3742,6 +3769,116 @@
       "parameters": {
         "jsCode": "var item = $input.first().json;\nvar email = (item.body && item.body.email) ? item.body.email : (item.email || '');\nreturn [{json:{email: String(email).toLowerCase().trim(), debug_full: JSON.stringify(item).substring(0,300)}}];"
       }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gls-add-contacts-bulk",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bulk0001-0000-0000-0000-000000000001",
+      "name": "Add Contacts Bulk Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        200,
+        6600
+      ],
+      "webhookId": "bulk0001-0000-0000-0000-000000000002"
+    },
+    {
+      "parameters": {
+        "jsCode": "var body = $input.first().json.body || $input.first().json;\nvar contacts = body.contacts || [];\nvar now = new Date().toISOString();\nreturn contacts.map(function(c){\n  return {json:{\n    email: String(c.email||'').toLowerCase().trim(),\n    name: c.name||'',\n    company: c.company||'',\n    title: c.title||'',\n    invite_sent: 'no',\n    invite_sent_at: '',\n    opened: 'no',\n    booked: 'no',\n    notes: c.notes||'',\n    created_at: now\n  }};\n});"
+      },
+      "id": "bulk0001-0000-0000-0000-000000000003",
+      "name": "Prep Contacts Bulk",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        450,
+        6600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "1wSNDUF8PFL8zYgJX53IoBNLFBM-rBlQL2IKErBejauc"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Contacts"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "name": "={{ $json.name }}",
+            "company": "={{ $json.company }}",
+            "title": "={{ $json.title }}",
+            "invite_sent": "={{ $json.invite_sent }}",
+            "invite_sent_at": "={{ $json.invite_sent_at }}",
+            "opened": "={{ $json.opened }}",
+            "booked": "={{ $json.booked }}",
+            "notes": "={{ $json.notes }}",
+            "created_at": "={{ $json.created_at }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "bulk0001-0000-0000-0000-000000000004",
+      "name": "Append Contacts Bulk",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        700,
+        6600
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "AeQwGHbDftGYpvZc",
+          "name": "Google Sheets iamcharlesalston"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var items = $input.all();\nreturn [{json:{success:true,count:items.length}}];"
+      },
+      "id": "bulk0001-0000-0000-0000-000000000005",
+      "name": "Aggregate Bulk",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        950,
+        6600
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "bulk0001-0000-0000-0000-000000000006",
+      "name": "Respond Add Contacts Bulk",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        6600
+      ]
     }
   ],
   "pinData": {},
@@ -4414,12 +4551,32 @@
       ]
     },
     "Auth Webhook": {
-      "main": [[{"node": "Check Password", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Check Password",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Check Password": {
-      "main": [[{"node": "Respond Auth", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Respond Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
-    "Respond Auth": {"main": [[]]},
+    "Respond Auth": {
+      "main": [
+        []
+      ]
+    },
     "Save Settings Webhook": {
       "main": [
         [
@@ -4503,7 +4660,9 @@
       ]
     },
     "Send Manual Kitty Notify": {
-      "main": [[]]
+      "main": [
+        []
+      ]
     },
     "Update Slot Manual": {
       "main": [
@@ -5012,6 +5171,50 @@
         [
           {
             "node": "Update Contact Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Contacts Bulk Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prep Contacts Bulk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Contacts Bulk": {
+      "main": [
+        [
+          {
+            "node": "Append Contacts Bulk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Contacts Bulk": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Bulk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Bulk": {
+      "main": [
+        [
+          {
+            "node": "Respond Add Contacts Bulk",
             "type": "main",
             "index": 0
           }
