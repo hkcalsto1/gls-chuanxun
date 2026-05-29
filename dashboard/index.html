@@ -1094,20 +1094,11 @@
     var reader = new FileReader();
     reader.onload = async function(e) {
       var bytes = new Uint8Array(e.target.result);
-      var text;
-      try {
-        text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-        var hasCJK = /[一-鿿㐀-䶿豈-﫿]/.test(text);
-        var hasNonASCII = /[^\x00-\x7f]/.test(text);
-        if (hasNonASCII && !hasCJK) {
-          text = new TextDecoder('gbk').decode(bytes);
-          if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-        }
-      } catch(err) {
-        text = new TextDecoder('gbk').decode(bytes);
-        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-      }
+      var stripBOM = function(t) { return t.charCodeAt(0) === 0xFEFF ? t.slice(1) : t; };
+      var countCJK = function(t) { return (t.match(/[一-鿿㐀-䶿豈-﫿]/g) || []).length; };
+      var utf8 = stripBOM(new TextDecoder('utf-8').decode(bytes));
+      var gbk  = stripBOM(new TextDecoder('gbk').decode(bytes));
+      var text = countCJK(gbk) > countCJK(utf8) ? gbk : utf8;
 
       var lines = text.split('\n').map(function(l) { return l.replace(/\r$/, '').trim(); }).filter(Boolean);
       var startIdx = 0;
