@@ -73,7 +73,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -386,7 +386,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -826,7 +826,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",

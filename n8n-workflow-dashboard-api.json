@@ -303,7 +303,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -582,7 +582,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -717,7 +717,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -948,7 +948,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -999,7 +999,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -1755,7 +1755,7 @@
         2400
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nif(d.topics){var topicsHtml='<p style=\"margin-top:12px\"><strong>Topics of interest:</strong> '+d.topics+'</p>';body=body.replace('</div>',topicsHtml+'</div>');if(!body.includes(topicsHtml)){body+=topicsHtml;}}\n// PIC 2 — send inline if they have an email\nif(d.salesperson_name_2 && d.salesperson_email_2){\n  var vars2={'{{salesperson_name}}':d.salesperson_name_2||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subj2=(tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body2=(tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars2).forEach(k=>{subj2=subj2.split(k).join(vars2[k]);body2=body2.split(k).join(vars2[k]);});\n  if(!/<[a-z]/i.test(body2)){body2='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body2.split('\\n').join('<br>')+'</div>';}\n  if(d.topics){var th2='<p style=\"margin-top:12px\"><strong>Topics of interest:</strong> '+d.topics+'</p>';body2=body2.replace('</div>',th2+'</div>');if(!body2.includes(th2)){body2+=th2;}}\n  try{\n    var apiKey=process.env.RESEND_API_KEY||'';\n    await fetch('https://api.resend.com/emails',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({from:'GLSHK <notifications@smartflowhk.com>',to:d.salesperson_email_2,reply_to:'marketing@glshk.com',subject:subj2,html:body2})});\n  }catch(e2){}\n}\nreturn [{json:{...d,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] New appointment assigned at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📧 {{client_email}}\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Assign'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\nif(d.topics){var topicsHtml='<p style=\"margin-top:12px\"><strong>Topics of interest:</strong> '+d.topics+'</p>';body=body.replace('</div>',topicsHtml+'</div>');if(!body.includes(topicsHtml)){body+=topicsHtml;}}\n// PIC 2 — send inline if they have an email\nif(d.salesperson_name_2 && d.salesperson_email_2){\n  var vars2={'{{salesperson_name}}':d.salesperson_name_2||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.client_email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subj2=(tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body2=(tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars2).forEach(k=>{subj2=subj2.split(k).join(vars2[k]);body2=body2.split(k).join(vars2[k]);});\n  if(!/<[a-z]/i.test(body2)){body2='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body2.split('\\n').join('<br>')+'</div>';}\n  if(d.topics){var th2='<p style=\"margin-top:12px\"><strong>Topics of interest:</strong> '+d.topics+'</p>';body2=body2.replace('</div>',th2+'</div>');if(!body2.includes(th2)){body2+=th2;}}\n  try{\n    var apiKey=process.env.RESEND_API_KEY||'';\n    await fetch('https://api.resend.com/emails',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({from:'GLS传讯 <notifications@smartflowhk.com>',to:d.salesperson_email_2,reply_to:'marketing@glshk.com',subject:subj2,html:body2})});\n  }catch(e2){}\n}\nreturn [{json:{...d,subject:subject,body:body}}];"
       }
     },
     {
@@ -2445,7 +2445,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -2572,7 +2572,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -3007,7 +3007,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
@@ -3168,7 +3168,7 @@
         6200
       ],
       "parameters": {
-        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] Meeting assignment updated at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Change SP'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n// PIC 2 — send inline if they have an email\nif(d.salesperson_name_2 && d.salesperson_email_2){\n  var vars2={'{{salesperson_name}}':d.salesperson_name_2||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subj2=(tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body2=(tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars2).forEach(k=>{subj2=subj2.split(k).join(vars2[k]);body2=body2.split(k).join(vars2[k]);});\n  if(!/<[a-z]/i.test(body2)){body2='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body2.split('\\n').join('<br>')+'</div>';}\n  try{\n    var apiKey=process.env.RESEND_API_KEY||'';\n    await fetch('https://api.resend.com/emails',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({from:'GLSHK <notifications@smartflowhk.com>',to:d.salesperson_email_2,reply_to:'marketing@glshk.com',subject:subj2,html:body2})});\n  }catch(e2){}\n}\nreturn [{json:{to:d.salesperson_email,subject:subject,body:body}}];"
+        "jsCode": "var templates = $input.all().map(i => i.json);\nvar tpl = templates.find(t => t.template_name === 'sp_confirm') || {subject:'[GLS 传讯] Meeting assignment updated at {{event_name}}',body:'Dear {{salesperson_name}},\\n\\nYou have been assigned a meeting at {{event_name}}:\\n👤 {{client_name}} ({{company}})\\n📅 {{date}} {{time}}\\n📍 {{event_venue}}\\n\\nGLS 传讯 Team'};\nvar d = $node['Prep Change SP'].json;\nvar settingsData = {};\ntry { var sr = await fetch('https://n8n.okahh.com/webhook/gls-settings'); settingsData = await sr.json(); } catch(e) {}\nvar evtName = settingsData.event_name || 'Air Cargo China 2026';\nvar evtDates = settingsData.event_dates || 'June 24–26, 2026';\nvar evtVenue = settingsData.event_venue || 'Shanghai New International Expo Centre';\nvar vars = {'{{salesperson_name}}':d.salesperson_name||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\nvar subject = (tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\nvar body = (tpl.body||'').replace(/\\\\n/g,'\\n');\nObject.keys(vars).forEach(k=>{subject=subject.split(k).join(vars[k]);body=body.split(k).join(vars[k]);});\nif(!/<[a-z]/i.test(body)){body='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body.split('\\n').join('<br>')+'</div>';}\n// PIC 2 — send inline if they have an email\nif(d.salesperson_name_2 && d.salesperson_email_2){\n  var vars2={'{{salesperson_name}}':d.salesperson_name_2||'','{{client_name}}':d.client_name||'','{{company}}':d.company||'','{{client_email}}':d.email||'','{{date}}':d.date||'','{{time}}':d.time||'','{{event_name}}':evtName,'{{event_dates}}':evtDates,'{{event_venue}}':evtVenue};\n  var subj2=(tpl.subject||'').replace(/[\\r\\n]+/g,'').trim();\n  var body2=(tpl.body||'').replace(/\\\\n/g,'\\n');\n  Object.keys(vars2).forEach(k=>{subj2=subj2.split(k).join(vars2[k]);body2=body2.split(k).join(vars2[k]);});\n  if(!/<[a-z]/i.test(body2)){body2='<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.8\">'+body2.split('\\n').join('<br>')+'</div>';}\n  try{\n    var apiKey=process.env.RESEND_API_KEY||'';\n    await fetch('https://api.resend.com/emails',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({from:'GLS传讯 <notifications@smartflowhk.com>',to:d.salesperson_email_2,reply_to:'marketing@glshk.com',subject:subj2,html:body2})});\n  }catch(e2){}\n}\nreturn [{json:{to:d.salesperson_email,subject:subject,body:body}}];"
       }
     },
     {
@@ -3199,7 +3199,7 @@
           "parameters": [
             {
               "name": "from",
-              "value": "GLSHK <notifications@smartflowhk.com>"
+              "value": "GLS传讯 <notifications@smartflowhk.com>"
             },
             {
               "name": "to",
