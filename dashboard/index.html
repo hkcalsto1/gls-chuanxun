@@ -400,6 +400,7 @@
           <input type="file" id="quillImageInput" accept="image/*" style="display:none;" onchange="uploadImageToQuill(event)">
           <button class="btn btn-outline btn-sm" onclick="togglePaste()">Paste List</button>
           <button class="btn btn-primary btn-sm" onclick="sendAllUnsent()">Send All Pending Invites</button>
+          <button class="btn btn-outline btn-sm" style="color:#c0392b;border-color:#c0392b;" onclick="deleteAllContacts()">Delete All Contacts</button>
         </div>
       </div>
       <div class="card-body">
@@ -2179,6 +2180,30 @@
         } catch(e) {
           showToast('Delete error: ' + e.message, 'error');
         }
+      }
+    );
+  }
+
+  async function deleteAllContacts() {
+    var total = allContacts.length;
+    if (!total) { showToast('No contacts to delete.', 'error'); return; }
+    openModal(
+      'Delete ALL ' + total + ' contacts?',
+      'This will permanently remove all ' + total + ' contacts. This cannot be undone.',
+      async function() {
+        showToast('Deleting ' + total + ' contacts…', 'info');
+        var deleted = 0;
+        for (var i = 0; i < allContacts.length; i++) {
+          try {
+            await fetch(N8N + '/gls-delete-contact', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: allContacts[i].email })
+            });
+            deleted++;
+          } catch(e) {}
+        }
+        showToast('✓ ' + deleted + ' contacts deleted.', 'success');
+        loadContacts();
       }
     );
   }
