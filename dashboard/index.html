@@ -397,6 +397,7 @@
           <button class="btn btn-outline btn-sm" onclick="downloadTemplate()">Download Template</button>
           <button class="btn btn-outline btn-sm" onclick="document.getElementById('csvFileInput').click()">Upload CSV</button>
           <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVUpload(event)">
+          <input type="file" id="quillImageInput" accept="image/*" style="display:none;" onchange="uploadImageToQuill(event)">
           <button class="btn btn-outline btn-sm" onclick="togglePaste()">Paste List</button>
           <button class="btn btn-primary btn-sm" onclick="sendAllUnsent()">Send All Pending Invites</button>
         </div>
@@ -1707,11 +1708,8 @@
           ],
           handlers: {
             image: function() {
-              var url = prompt('Paste the image URL (must start with https://):');
-              if (url && url.trim()) {
-                var range = quillEditor.getSelection(true);
-                quillEditor.insertEmbed(range ? range.index : quillEditor.getLength(), 'image', url.trim(), 'user');
-              }
+              var input = document.getElementById('quillImageInput');
+              input.click();
             }
           }
         }
@@ -1763,12 +1761,11 @@
     selectTemplate(allTemplates.length - 1);
   }
 
-  async function uploadImage(event) {
+  async function uploadImageToQuill(event) {
     var file = event.target.files[0];
     event.target.value = '';
-    if (!file) return;
-    var statusEl = document.getElementById('imgUploadStatus');
-    statusEl.textContent = 'Uploading…';
+    if (!file || !quillEditor) return;
+    showToast('Uploading image…', 'info');
     var reader = new FileReader();
     reader.onload = async function(e) {
       var base64 = e.target.result.split(',')[1];
@@ -1781,20 +1778,14 @@
         });
         var data = await res.json();
         if (data.url) {
-          var textarea = document.getElementById('tplBody');
-          var url = data.url;
-          var insert = '[image](' + url + ')';
-          var pos = textarea.selectionStart;
-          textarea.value = textarea.value.slice(0, pos) + insert + textarea.value.slice(pos);
-          textarea.selectionStart = textarea.selectionEnd = pos + insert.length;
-          statusEl.textContent = '✓ Uploaded';
-          renderPreview(document.getElementById('tplSubject').value, textarea.value);
-          setTimeout(function() { statusEl.textContent = ''; }, 3000);
+          var range = quillEditor.getSelection(true);
+          quillEditor.insertEmbed(range ? range.index : quillEditor.getLength(), 'image', data.url, 'user');
+          showToast('✓ Image uploaded', 'success');
         } else {
-          statusEl.textContent = 'Upload failed';
+          showToast('Image upload failed', 'error');
         }
       } catch(e) {
-        statusEl.textContent = 'Upload failed';
+        showToast('Image upload failed', 'error');
       }
     };
     reader.readAsDataURL(file);
