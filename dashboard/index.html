@@ -1064,11 +1064,14 @@
   }
 
   function downloadTemplate() {
-    var bom = '﻿';
-    var csv = bom + 'name,email,company,title,notes\n王大明,wang@example.com,上海物流有限公司,董事,\nJane Lee,jane@cargo.com,TLC Air,Director,';
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = 'gls-contacts-template.csv'; a.click();
+    var ws = XLSX.utils.aoa_to_sheet([
+      ['name','email','company','title','notes'],
+      ['王大明','wang@example.com','上海物流有限公司','董事',''],
+      ['Jane Lee','jane@cargo.com','TLC Air','Director','']
+    ]);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Contacts');
+    XLSX.writeFile(wb, 'gls-contacts-template.xlsx');
   }
 
   function parseCSVLine(line) {
