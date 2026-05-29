@@ -1096,10 +1096,17 @@
       var text;
       try {
         text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        var hasCJK = /[一-鿿㐀-䶿豈-﫿]/.test(text);
+        var hasNonASCII = /[^\x00-\x7f]/.test(text);
+        if (hasNonASCII && !hasCJK) {
+          text = new TextDecoder('gbk').decode(bytes);
+          if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        }
       } catch(err) {
         text = new TextDecoder('gbk').decode(bytes);
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       }
-      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
 
       var lines = text.split('\n').map(function(l) { return l.replace(/\r$/, '').trim(); }).filter(Boolean);
       var startIdx = 0;
