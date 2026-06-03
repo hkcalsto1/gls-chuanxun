@@ -1114,7 +1114,10 @@
       }
       var startIdx = 0;
       var headers = parseCSVLine(lines[0].toLowerCase());
-      var hasHeader = headers.includes('email') || headers.includes('邮箱');
+      var hasHeader = headers.some(function(h) {
+        var norm = h.replace(/[\s﻿]/g,'');
+        return norm.includes('email') || norm === '邮箱' || norm === '电子邮件';
+      });
       if (hasHeader) startIdx = 1;
       var colMap = { name: 0, email: 1, company: 2, title: 3, notes: 4 };
       if (hasHeader) {
@@ -1122,7 +1125,7 @@
         headers.forEach(function(h, i) {
           var norm = h.replace(/[\s﻿]/g,'');
           if (norm === 'name' || norm === '姓名' || norm === '名称') colMap.name = i;
-          else if (norm === 'email' || norm === '邮箱' || norm === '电子邮件') colMap.email = i;
+          else if (norm.includes('email') || norm === '邮箱' || norm === '电子邮件') colMap.email = i;
           else if (norm === 'company' || norm === '公司' || norm === '单位') colMap.company = i;
           else if (norm === 'title' || norm === '职位' || norm === '职称') colMap.title = i;
           else if (norm === 'notes' || norm === '备注') colMap.notes = i;
