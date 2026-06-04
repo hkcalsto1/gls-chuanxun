@@ -365,6 +365,7 @@
               <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="16:00"><span class="opt-text">4:00 PM – 4:30 PM</span></label>
               <label class="radio-opt time-radio-opt"><input type="radio" name="preferred_time" value="16:30"><span class="opt-text">4:30 PM – 5:00 PM</span></label>
             </div>
+            <p class="no-slots-msg" id="slotsLoadingMsg" style="display:none;">⏳ 正在载入可用时段… Loading available slots…</p>
             <p class="no-slots-msg" id="noSlotsMsg">很抱歉，该日期已没有可用时段。请选择其他日期。<br>Sorry, no available slots for this date. Please select another date.</p>
           </div>
 
@@ -432,6 +433,8 @@
 
   <script>
     var availableSlots = [];
+    var slotsLoaded = false;
+    var pendingDateUpdate = false;
 
     function normDate(d) { var p=String(d||'').trim().split('/'); return p.length===3?parseInt(p[0])+'/'+parseInt(p[1])+'/'+p[2]:String(d||'').trim(); }
 
@@ -443,13 +446,31 @@
     // Fetch available slots from n8n
     fetch('https://n8n.okahh.com/webhook/gls-slots')
       .then(function(r) { return r.json(); })
-      .then(function(data) { availableSlots = data.slots || []; })
-      .catch(function() { availableSlots = []; });
+      .then(function(data) {
+        availableSlots = data.slots || [];
+        slotsLoaded = true;
+        if (pendingDateUpdate) { pendingDateUpdate = false; updateTimeSlots(); }
+      })
+      .catch(function() {
+        slotsLoaded = true;
+        if (pendingDateUpdate) { pendingDateUpdate = false; updateTimeSlots(); }
+      });
 
     function updateTimeSlots() {
       var selected = document.querySelector('input[name="preferred_date"]:checked');
       var date = selected ? selected.value : null;
       if (!date) return;
+
+      // Slots not yet back from server — show loading and wait
+      if (!slotsLoaded) {
+        document.getElementById('slotsLoadingMsg').style.display = 'block';
+        document.getElementById('noSlotsMsg').style.display = 'none';
+        document.querySelectorAll('.time-radio-opt').forEach(function(opt) { opt.style.display = 'none'; });
+        pendingDateUpdate = true;
+        return;
+      }
+
+      document.getElementById('slotsLoadingMsg').style.display = 'none';
 
       // Clear any previously selected time and slot_id
       var checkedTime = document.querySelector('input[name="preferred_time"]:checked');
@@ -467,7 +488,14 @@
         if (isAvailable) visibleCount++;
       });
 
-      document.getElementById('noSlotsMsg').style.display = visibleCount === 0 ? 'block' : 'none';
+      if (visibleCount === 0) {
+        document.getElementById('noSlotsMsg').style.display = 'block';
+        document.getElementById('noSlotsMsg').innerHTML = availableSlots.length === 0
+          ? '无法载入时段，请发送电邮至 <a href="mailto:marketing@glshk.com">marketing@glshk.com</a> 预约。<br>Unable to load slots — please email <a href="mailto:marketing@glshk.com">marketing@glshk.com</a> to book.'
+          : '很抱歉，该日期已没有可用时段。请选择其他日期。<br>Sorry, no available slots for this date. Please select another date.';
+      } else {
+        document.getElementById('noSlotsMsg').style.display = 'none';
+      }
     }
 
     document.querySelectorAll('input[name="preferred_date"]').forEach(function(r) {
