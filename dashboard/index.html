@@ -2624,13 +2624,26 @@
     if (!t) return;
     var subject = t.subject || '';
     var body = (t.body || '').replace(/\\n/g, '\n');
-    var bodyHtml = /<[a-z]/i.test(body) ? body : body.replace(/\n/g, '<br>');
-    Object.keys(SAMPLE_VARS).forEach(function(k) {
-      bodyHtml = bodyHtml.split(k).join('<span style="color:#F5A500;font-style:italic;">' + SAMPLE_VARS[k] + '</span>');
-    });
-    document.getElementById('tplPickerPreview').innerHTML =
+
+    var previewBox = document.getElementById('tplPickerPreview');
+    previewBox.innerHTML =
       '<div class="pp-header"><strong>Subject:</strong> ' + escHtml(subject) + '</div>' +
-      '<div class="pp-body">' + bodyHtml + '</div>';
+      '<div style="overflow:hidden;height:280px;background:#f8f9fc;">' +
+        '<iframe id="tplPreviewIframe" sandbox="allow-same-origin" scrolling="no" ' +
+          'style="width:600px;height:540px;border:none;transform:scale(0.52);transform-origin:top left;pointer-events:none;">' +
+        '</iframe>' +
+      '</div>';
+
+    setTimeout(function() {
+      var iframe = document.getElementById('tplPreviewIframe');
+      if (!iframe) return;
+      var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+      if (!doc) return;
+      doc.open();
+      doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;padding:0;}</style></head><body>' + body + '</body></html>');
+      doc.close();
+    }, 30);
+
     document.getElementById('tplPickerSendBtn').disabled = false;
   }
 
