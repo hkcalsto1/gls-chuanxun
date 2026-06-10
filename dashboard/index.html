@@ -656,8 +656,11 @@
         <div class="cc-desc">Contacts who clicked the booking link but have not made a booking yet. Highest intent — best conversion opportunity.</div>
         <div class="cc-count" id="seg-clicked-count">—</div>
         <div class="cc-count-lbl">contacts in this segment</div>
-        <div class="cc-method"><strong>Email type:</strong> Custom message you write now</div>
-        <button class="btn btn-gold" onclick="openComposeModal('clicked_not_booked')">Compose &amp; Send</button>
+        <div class="cc-method"><strong>Email type:</strong> Choose a template or write a custom message</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-gold" style="flex:1;" onclick="openTemplatePickerModal('clicked_not_booked')">Choose Template</button>
+          <button class="btn btn-outline" style="flex:1;border-color:#F5A500;color:#b07800;" onclick="openComposeModal('clicked_not_booked')">Custom Write</button>
+        </div>
       </div>
       <div class="campaign-card blue">
         <div class="cc-icon">👁</div>
@@ -855,22 +858,24 @@
 
 <!-- COMPOSE MODAL (clicked_not_booked) -->
 <div class="modal-overlay" id="composeModal">
-  <div class="modal compose-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <div class="modal compose-modal" style="display:flex;flex-direction:column;max-height:88vh;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0;">
       <h3 style="margin:0;">Compose Campaign Email</h3>
       <button onclick="closeComposeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0;">&times;</button>
     </div>
-    <p id="composeRecipientCount" style="font-size:13px;color:#555;margin-bottom:14px;padding:8px 12px;background:#f0f4ff;border-radius:6px;border-left:3px solid #1565c0;"></p>
-    <div class="form-field" style="margin-bottom:14px;">
-      <label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Subject</label>
-      <input id="composeSubject" type="text" class="form-input" style="width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:8px;font-size:13px;box-sizing:border-box;" placeholder="e.g. Meet us at Air Cargo China — Book Your Slot">
+    <div style="overflow-y:auto;flex:1;padding-right:4px;">
+      <p id="composeRecipientCount" style="font-size:13px;color:#555;margin-bottom:14px;padding:8px 12px;background:#f0f4ff;border-radius:6px;border-left:3px solid #1565c0;"></p>
+      <div class="form-field" style="margin-bottom:14px;">
+        <label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Subject</label>
+        <input id="composeSubject" type="text" class="form-input" style="width:100%;padding:9px 12px;border:1.5px solid #e0e4ed;border-radius:8px;font-size:13px;box-sizing:border-box;" placeholder="e.g. Meet us at Air Cargo China — Book Your Slot">
+      </div>
+      <div class="form-field" style="margin-bottom:16px;">
+        <label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Message Body</label>
+        <div id="composeBody-editor" style="border-radius:0 0 8px 8px;"></div>
+      </div>
+      <p style="font-size:11.5px;color:#aaa;margin-bottom:8px;">Variables you can use: <code>{{name}}</code> <code>{{company}}</code> <code>{{booking_link}}</code></p>
     </div>
-    <div class="form-field" style="margin-bottom:16px;">
-      <label style="font-weight:600;font-size:13px;display:block;margin-bottom:6px;">Message Body</label>
-      <div id="composeBody-editor" style="border-radius:0 0 8px 8px;"></div>
-    </div>
-    <p style="font-size:11.5px;color:#aaa;margin-bottom:14px;">Variables you can use: <code>{{name}}</code> <code>{{company}}</code> <code>{{booking_link}}</code></p>
-    <div class="modal-actions">
+    <div class="modal-actions" style="flex-shrink:0;margin-top:16px;padding-top:14px;border-top:1px solid #f0f2f7;">
       <button class="btn btn-outline" onclick="closeComposeModal()">Cancel</button>
       <button class="btn btn-gold" id="composeSendBtn" onclick="submitComposeBlast()">Send Campaign</button>
     </div>
@@ -2575,7 +2580,9 @@
     tplPickerSelectedIdx = null;
     var BAD = ['deleted','bounced','unsubscribed'];
     var count = 0;
-    if (segment === 'opened_not_clicked') {
+    if (segment === 'clicked_not_booked') {
+      count = allContacts.filter(function(c) { return String(c.status||'').toLowerCase()==='clicked'; }).length;
+    } else if (segment === 'opened_not_clicked') {
       count = allContacts.filter(function(c) { return String(c.status||'').toLowerCase()==='opened'; }).length;
     } else {
       count = allContacts.filter(function(c) {
@@ -2583,7 +2590,8 @@
         return String(c.invite_sent||'').toLowerCase()==='yes' && !['opened','clicked','booked'].concat(BAD).includes(st);
       }).length;
     }
-    var segLabel = segment === 'opened_not_clicked' ? 'Opened but didn\'t click' : 'Sent but not yet opened';
+    var segLabel = segment === 'clicked_not_booked' ? 'Clicked but not booked'
+      : segment === 'opened_not_clicked' ? 'Opened but didn\'t click' : 'Sent but not yet opened';
     document.getElementById('tplPickerTitle').textContent = 'Choose Template — ' + segLabel;
     document.getElementById('tplPickerRecipientCount').textContent =
       count + ' contacts will receive this email';
@@ -2638,7 +2646,9 @@
     if (!t) return;
     var BAD = ['deleted','bounced','unsubscribed'];
     var count = 0;
-    if (tplPickerSegment === 'opened_not_clicked') {
+    if (tplPickerSegment === 'clicked_not_booked') {
+      count = allContacts.filter(function(c) { return String(c.status||'').toLowerCase()==='clicked'; }).length;
+    } else if (tplPickerSegment === 'opened_not_clicked') {
       count = allContacts.filter(function(c) { return String(c.status||'').toLowerCase()==='opened'; }).length;
     } else {
       count = allContacts.filter(function(c) {
@@ -2646,7 +2656,8 @@
         return String(c.invite_sent||'').toLowerCase()==='yes' && !['opened','clicked','booked'].concat(BAD).includes(st);
       }).length;
     }
-    var segLabel = tplPickerSegment === 'opened_not_clicked' ? 'opened but haven\'t clicked' : 'not yet opened the invite';
+    var segLabel = tplPickerSegment === 'clicked_not_booked' ? 'clicked but haven\'t booked'
+      : tplPickerSegment === 'opened_not_clicked' ? 'opened but haven\'t clicked' : 'not yet opened the invite';
     var ok = confirm('Send "' + t.subject + '" to ' + count + ' contacts who ' + segLabel + '?');
     if (!ok) return;
     var btn = document.getElementById('tplPickerSendBtn');
