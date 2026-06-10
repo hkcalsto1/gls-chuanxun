@@ -340,7 +340,7 @@
     .compose-modal { max-width: 680px !important; }
     #composeBody-editor .ql-editor { min-height: 160px; }
     /* ── TEMPLATE PICKER MODAL ── */
-    .tpl-picker-modal { max-width: 720px !important; }
+    .tpl-picker-modal { max-width: 1020px !important; }
     .tpl-picker-grid { display: grid; grid-template-columns: 200px 1fr; gap: 14px; min-height: 220px; }
     .tpl-picker-list { border: 1.5px solid #e0e4ed; border-radius: 8px; overflow: hidden; }
     .tpl-picker-item { padding: 9px 14px; cursor: pointer; font-size: 12.5px; border-left: 3px solid transparent; border-bottom: 1px solid #f0f2f7; color: #444; }
@@ -2626,19 +2626,12 @@
     var body = (t.body || '').replace(/\\n/g, '\n');
 
     var previewBox = document.getElementById('tplPickerPreview');
-    var SCALE = 0.55;
-    var iframeW = 600;
-    var iframeH = 900;
-    var visW = Math.ceil(iframeW * SCALE);
-    var visH = Math.ceil(iframeH * SCALE);
     previewBox.innerHTML =
       '<div class="pp-header"><strong>Subject:</strong> ' + escHtml(subject) + '</div>' +
-      '<div style="overflow-y:auto;overflow-x:hidden;height:360px;width:' + visW + 'px;background:#fff;">' +
-        '<div style="width:' + visW + 'px;height:' + visH + 'px;position:relative;">' +
-          '<iframe id="tplPreviewIframe" scrolling="no" ' +
-            'style="width:' + iframeW + 'px;height:' + iframeH + 'px;border:none;transform:scale(' + SCALE + ');transform-origin:top left;pointer-events:none;position:absolute;top:0;left:0;">' +
-          '</iframe>' +
-        '</div>' +
+      '<div style="overflow-y:auto;height:480px;background:#fff;">' +
+        '<iframe id="tplPreviewIframe" scrolling="yes" ' +
+          'style="width:100%;min-width:600px;height:2000px;border:none;display:block;">' +
+        '</iframe>' +
       '</div>';
 
     setTimeout(function() {
