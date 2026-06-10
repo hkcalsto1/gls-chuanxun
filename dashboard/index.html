@@ -1460,11 +1460,11 @@
         : '<span class="badge confirmed">Confirmed</span>';
       var rowStyle = isCancelled ? ' style="opacity:0.5;"' : '';
       var actions = isCancelled
-        ? '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\',\'' + escHtml(b.booking_id || '') + '\')">Delete</button>'
+        ? '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\',\'' + escHtml(b.booking_id || '') + '\',\'' + escHtml(b.slot_Id || '') + '\')">Delete</button>'
         : '<button class="btn btn-outline btn-sm" onclick="openRescheduleConfirmedModal(' + i + ')">Reschedule</button>' +
           '<button class="btn btn-outline btn-sm" onclick="openChangeSpModal(' + i + ')">Change SP</button>' +
           '<button class="btn btn-danger btn-sm" onclick="cancelConfirmedBooking(' + i + ')">Cancel</button>' +
-          '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\',\'' + escHtml(b.booking_id || '') + '\')">Delete</button>';
+          '<button class="btn btn-danger btn-sm" onclick="deleteBooking(\'' + escHtml(b.email || '') + '\',\'' + escHtml(b.booking_id || '') + '\',\'' + escHtml(b.slot_Id || '') + '\')">Delete</button>';
 
       return '<tr' + rowStyle + '>' +
         '<td style="font-weight:600;">' + escHtml(formatDateDisplay(b.date)) + '</td>' +
@@ -2213,16 +2213,16 @@
     );
   }
 
-  async function deleteBooking(email, bookingId) {
+  async function deleteBooking(email, bookingId, slotId) {
     if (!email) { showToast('Cannot identify this booking.', 'error'); return; }
     openModal(
       'Delete Booking?',
-      'Remove this booking from the dashboard? The slot will NOT be automatically freed and the customer will NOT be notified.',
+      'Remove this booking? The slot will be freed and the customer will NOT be notified.',
       async function() {
         try {
-          await fetch(N8N + '/gls-delete-booking', {
+          var res = await fetch(N8N + '/gls-delete-booking', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, booking_id: bookingId || '' })
+            body: JSON.stringify({ email: email, booking_id: bookingId || '', slot_id: slotId || '' })
           });
           showToast('Booking deleted.', 'success');
           setTimeout(loadBookings, 1000);
