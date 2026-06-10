@@ -2626,12 +2626,19 @@
     var body = (t.body || '').replace(/\\n/g, '\n');
 
     var previewBox = document.getElementById('tplPickerPreview');
+    var SCALE = 0.55;
+    var iframeW = 600;
+    var iframeH = 900;
+    var visW = Math.ceil(iframeW * SCALE);
+    var visH = Math.ceil(iframeH * SCALE);
     previewBox.innerHTML =
       '<div class="pp-header"><strong>Subject:</strong> ' + escHtml(subject) + '</div>' +
-      '<div style="overflow:hidden;height:280px;background:#fff;">' +
-        '<iframe id="tplPreviewIframe" scrolling="no" ' +
-          'style="width:360px;height:1200px;border:none;pointer-events:none;">' +
-        '</iframe>' +
+      '<div style="overflow-y:auto;overflow-x:hidden;height:360px;width:' + visW + 'px;background:#fff;">' +
+        '<div style="width:' + visW + 'px;height:' + visH + 'px;position:relative;">' +
+          '<iframe id="tplPreviewIframe" scrolling="no" ' +
+            'style="width:' + iframeW + 'px;height:' + iframeH + 'px;border:none;transform:scale(' + SCALE + ');transform-origin:top left;pointer-events:none;position:absolute;top:0;left:0;">' +
+          '</iframe>' +
+        '</div>' +
       '</div>';
 
     setTimeout(function() {
@@ -2640,7 +2647,7 @@
       var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
       if (!doc) return;
       doc.open();
-      doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>html{margin:0;padding:0;}body{margin:0;padding:0;zoom:0.6;width:600px;}</style></head><body>' + body + '</body></html>');
+      doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;}</style></head><body>' + body + '</body></html>');
       doc.close();
     }, 30);
 
