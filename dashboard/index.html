@@ -681,7 +681,27 @@
         <button class="btn btn-outline" style="color:#00897b;border-color:#00897b;" onclick="openTemplatePickerModal('not_opened')">Choose Template &amp; Send</button>
       </div>
     </div>
-    <div class="card" style="background:#fff8e1;border:1.5px solid #ffe082;padding:0;">
+    <div style="margin-top:28px;">
+      <h3 style="margin:0 0 14px 0;font-size:15px;">Recent Blast History</h3>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table style="width:100%;font-size:13px;">
+          <thead style="background:#f8f9fc;border-bottom:1px solid #e0e4ed;">
+            <tr>
+              <th style="text-align:left;padding:10px 14px;">Date &amp; Time</th>
+              <th style="text-align:left;padding:10px 14px;">Segment</th>
+              <th style="text-align:right;padding:10px 14px;">Sent</th>
+              <th style="text-align:right;padding:10px 14px;">Failed</th>
+              <th style="text-align:right;padding:10px 14px;">Total</th>
+            </tr>
+          </thead>
+          <tbody id="blastHistoryBody">
+            <tr class="empty-row"><td colspan="5" style="padding:20px;text-align:center;color:#aaa;">No blasts sent yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="background:#fff8e1;border:1.5px solid #ffe082;padding:0;margin-top:20px;">
       <div style="padding:14px 20px;font-size:12px;color:#7c6200;line-height:1.7;">
         <strong>How segments work:</strong> Contacts marked as <code>deleted</code> or <code>bounced</code> are always excluded. A contact with status <code>booked</code> is excluded from all segments. Counts update each time you open this tab.
       </div>
@@ -1057,7 +1077,7 @@
     if (name === 'bookings')     loadBookings();
     if (name === 'templates')    loadTemplates();
     if (name === 'settings')     renderSettingsForm();
-    if (name === 'campaigns')    loadCampaignCounts();
+    if (name === 'campaigns')    { loadCampaignCounts(); loadBlastHistory(); }
     if (name === 'appointments') loadAppointments();
   }
 
@@ -2611,14 +2631,41 @@
     document.getElementById('blastResultsModal').style.display = 'none';
   }
 
-  async function logBlastToSheet(sent, failed, total, segment) {
-    try {
-      await fetch(N8N + '/gls-log-blast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sent, failed, total, segment, timestamp: new Date().toISOString() })
-      });
-    } catch(e) { }
+  function loadBlastHistory() {
+    var logs = JSON.parse(localStorage.getItem('blastLogs') || '[]');
+    var tbody = document.getElementById('blastHistoryBody');
+    if (!logs.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="padding:20px;text-align:center;color:#aaa;">No blasts sent yet.</td></tr>';
+      return;
+    }
+    var rows = logs.slice(0, 20).map(function(log) {
+      var ts = new Date(log.timestamp);
+      var dateStr = ts.toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+      var segLabel = log.segment === 'clicked_not_booked' ? 'Clicked - Not Booked'
+        : log.segment === 'opened_not_clicked' ? 'Opened - Not Clicked' : 'Not Opened';
+      var failedColor = log.failed > 0 ? 'color:#e74c3c;' : '';
+      return '<tr style="border-bottom:1px solid #f0f2f7;">' +
+        '<td style="padding:10px 14px;">' + dateStr + '</td>' +
+        '<td style="padding:10px 14px;">' + segLabel + '</td>' +
+        '<td style="padding:10px 14px;text-align:right;color:#2ecc71;">' + log.sent + '</td>' +
+        '<td style="padding:10px 14px;text-align:right;' + failedColor + '">' + log.failed + '</td>' +
+        '<td style="padding:10px 14px;text-align:right;color:#555;">' + log.total + '</td>' +
+        '</tr>';
+    }).join('');
+    tbody.innerHTML = rows;
+  }
+
+  function logBlastToSheet(sent, failed, total, segment) {
+    var logs = JSON.parse(localStorage.getItem('blastLogs') || '[]');
+    logs.unshift({
+      timestamp: new Date().toISOString(),
+      segment: segment,
+      sent: sent,
+      failed: failed,
+      total: total
+    });
+    logs = logs.slice(0, 50);
+    localStorage.setItem('blastLogs', JSON.stringify(logs));
   }
 
   async function submitComposeBlast() {
