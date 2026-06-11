@@ -2625,17 +2625,18 @@
     var subject = t.subject || '';
     var body = (t.body || '').replace(/\\n/g, '\n');
 
+    var iframeId = 'tplPreview_' + Date.now();
     var previewBox = document.getElementById('tplPickerPreview');
     previewBox.innerHTML =
       '<div class="pp-header"><strong>Subject:</strong> ' + escHtml(subject) + '</div>' +
       '<div style="overflow-y:auto;height:480px;background:#fff;">' +
-        '<iframe id="tplPreviewIframe" scrolling="yes" ' +
+        '<iframe id="' + iframeId + '" scrolling="yes" ' +
           'style="width:100%;min-width:600px;height:2000px;border:none;display:block;">' +
         '</iframe>' +
       '</div>';
 
     setTimeout(function() {
-      var iframe = document.getElementById('tplPreviewIframe');
+      var iframe = document.getElementById(iframeId);
       if (!iframe) return;
       var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
       if (!doc) return;
