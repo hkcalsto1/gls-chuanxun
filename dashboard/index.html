@@ -912,6 +912,47 @@
 <!-- TOAST -->
 <div id="toast"></div>
 
+<!-- BLAST PROGRESS MODAL -->
+<div class="modal-overlay" id="blastProgressModal" style="display:none;">
+  <div class="modal" style="max-width:400px;">
+    <h3 style="margin:0 0 20px 0;">Sending Campaign Email</h3>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:14px;color:#666;margin-bottom:10px;">Progress</div>
+      <div style="font-size:28px;font-weight:700;color:#F5A500;" id="blastProgressText">0/0</div>
+      <div style="width:100%;height:8px;background:#f0f2f7;border-radius:4px;margin-top:12px;overflow:hidden;">
+        <div id="blastProgressBar" style="width:0%;height:100%;background:#F5A500;transition:width 0.3s;"></div>
+      </div>
+      <div style="font-size:12px;color:#aaa;margin-top:8px;">Do not close this window</div>
+    </div>
+  </div>
+</div>
+
+<!-- BLAST RESULTS MODAL -->
+<div class="modal-overlay" id="blastResultsModal" style="display:none;">
+  <div class="modal" style="max-width:450px;">
+    <h3 style="margin:0 0 20px 0;">Campaign Sent</h3>
+    <div style="background:#f0f2f7;padding:16px;border-radius:8px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="text-align:center;">
+          <div style="font-size:32px;font-weight:700;color:#2ecc71;" id="blastResultsSent">0</div>
+          <div style="font-size:12px;color:#666;margin-top:4px;">Emails Sent</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:32px;font-weight:700;color:#e74c3c;" id="blastResultsFailed">0</div>
+          <div style="font-size:12px;color:#666;margin-top:4px;">Failed</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fffbf0;padding:12px;border-radius:6px;border-left:3px solid #F5A500;font-size:12px;color:#666;margin-bottom:16px;">
+      <strong>Segment:</strong> <span id="blastResultsSegment">—</span><br>
+      <strong>Sent at:</strong> <span id="blastResultsTime">—</span>
+    </div>
+    <div style="text-align:right;">
+      <button class="btn btn-gold" onclick="closeBlastResultsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM MODAL -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
@@ -2548,26 +2589,58 @@
     composeSegment = '';
   }
 
+  function showBlastProgress(sent, total) {
+    document.getElementById('blastProgressText').textContent = sent + '/' + total;
+    var pct = total > 0 ? Math.round(100 * sent / total) : 0;
+    document.getElementById('blastProgressBar').style.width = pct + '%';
+  }
+
+  function showBlastResults(sent, failed, total, segment) {
+    document.getElementById('blastProgressModal').style.display = 'none';
+    document.getElementById('blastResultsSent').textContent = sent;
+    document.getElementById('blastResultsFailed').textContent = failed;
+    var segLabel = segment === 'clicked_not_booked' ? 'Clicked but not booked'
+      : segment === 'opened_not_clicked' ? 'Opened but didn\'t click' : 'Sent but not yet opened';
+    document.getElementById('blastResultsSegment').textContent = segLabel;
+    document.getElementById('blastResultsTime').textContent = new Date().toLocaleString();
+    document.getElementById('blastResultsModal').style.display = 'block';
+    logBlastToSheet(sent, failed, total, segment);
+  }
+
+  function closeBlastResultsModal() {
+    document.getElementById('blastResultsModal').style.display = 'none';
+  }
+
+  async function logBlastToSheet(sent, failed, total, segment) {
+    try {
+      await fetch(N8N + '/gls-log-blast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sent, failed, total, segment, timestamp: new Date().toISOString() })
+      });
+    } catch(e) { }
+  }
+
   async function submitComposeBlast() {
     var subject = document.getElementById('composeSubject').value.trim();
     var html = composeQuill ? composeQuill.root.innerHTML : '';
     if (!subject) { showToast('Subject is required.', 'error'); return; }
     if (!html || html === '<p><br></p>') { showToast('Email body is required.', 'error'); return; }
-    var btn = document.getElementById('composeSendBtn');
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
+
+    document.getElementById('blastProgressModal').style.display = 'block';
+    showBlastProgress(0, 1);
+    closeComposeModal();
+
     try {
       var res = await fetch(N8N + '/gls-campaign-blast', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ segment: composeSegment, custom_subject: subject, custom_html: html })
       });
       var data = await res.json();
-      closeComposeModal();
-      showToast('Sent to ' + (data.sent||0) + ' contacts' + (data.failed ? ', ' + data.failed + ' failed' : '') + '.', 'success');
+      showBlastResults(data.sent||0, data.failed||0, data.total||0, composeSegment);
     } catch(e) {
+      document.getElementById('blastProgressModal').style.display = 'none';
       showToast('Failed to send campaign.', 'error');
-      btn.disabled = false;
-      btn.textContent = 'Send Campaign';
     }
   }
 
@@ -2674,21 +2747,21 @@
       : tplPickerSegment === 'opened_not_clicked' ? 'opened but haven\'t clicked' : 'not yet opened the invite';
     var ok = confirm('Send "' + t.subject + '" to ' + count + ' contacts who ' + segLabel + '?');
     if (!ok) return;
-    var btn = document.getElementById('tplPickerSendBtn');
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
+
+    document.getElementById('blastProgressModal').style.display = 'block';
+    showBlastProgress(0, count);
+    closeTemplatePickerModal();
+
     try {
       var res = await fetch(N8N + '/gls-campaign-blast', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ segment: tplPickerSegment, template_name: t.template_name })
       });
       var data = await res.json();
-      closeTemplatePickerModal();
-      showToast('Sent to ' + (data.sent||0) + ' contacts' + (data.failed ? ', ' + data.failed + ' failed' : '') + '.', 'success');
+      showBlastResults(data.sent||0, data.failed||0, data.total||0, tplPickerSegment);
     } catch(e) {
+      document.getElementById('blastProgressModal').style.display = 'none';
       showToast('Failed to send campaign.', 'error');
-      btn.disabled = false;
-      btn.textContent = 'Send to Segment';
     }
   }
 
