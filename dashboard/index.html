@@ -2086,6 +2086,7 @@
     mbSelectedSlot = null;
     document.getElementById('mbConfirmBtn').disabled = true;
     var forDate = mbAvailableSlots.filter(function(s) { return s.Date === date; });
+    forDate.sort(function(a, b) { return String(a.Time||'').localeCompare(String(b.Time||'')); });
     var group = document.getElementById('mbTimeGroup');
     if (!forDate.length) {
       group.innerHTML = '<span style="color:#aaa;font-style:italic;">No available slots for this date.</span>';
@@ -2213,6 +2214,7 @@
     rsNewSlot = null;
     document.getElementById('rsConfirmBtn').disabled = true;
     var forDate = rsAvailableSlots.filter(function(s) { return s.Date === date; });
+    forDate.sort(function(a, b) { return String(a.Time||'').localeCompare(String(b.Time||'')); });
     var group = document.getElementById('rsTimeGroup');
     if (!forDate.length) {
       group.innerHTML = '<span style="color:#aaa;font-style:italic;">No available slots for this date.</span>';
