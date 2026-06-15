@@ -482,6 +482,14 @@
       <div class="card-header" style="cursor:pointer;" onclick="toggleAllContacts()">
         <h3>All Contacts <span id="allContactsChevron" style="font-size:12px;color:#aaa;margin-left:6px;">▲</span></h3>
         <div style="display:flex;gap:8px;align-items:center;" onclick="event.stopPropagation()">
+          <select id="contactStatusFilter" onchange="filterContacts()"
+            style="padding:7px 10px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;background:#fff;cursor:pointer;">
+            <option value="">All statuses</option>
+            <option value="clicked">Clicked</option>
+            <option value="opened">Opened</option>
+            <option value="booked">Booked</option>
+            <option value="not_opened">Not Opened</option>
+          </select>
           <input type="text" placeholder="Search..." id="contactSearch" oninput="filterContacts()"
             style="padding:7px 12px;border:1.5px solid #e0e4ed;border-radius:7px;font-size:12px;width:200px;">
         </div>
@@ -1204,8 +1212,15 @@
 
   function filterContacts() {
     var q = document.getElementById('contactSearch').value.toLowerCase();
+    var statusF = document.getElementById('contactStatusFilter').value;
     var filtered = allContacts.filter(function(c) {
-      return (c.name + c.email + c.company).toLowerCase().includes(q);
+      var matchQ = !q || (c.name + c.email + c.company).toLowerCase().includes(q);
+      var matchS = true;
+      if (statusF === 'clicked')     matchS = c.status === 'clicked';
+      else if (statusF === 'opened') matchS = c.status === 'opened';
+      else if (statusF === 'booked') matchS = c.status === 'booked';
+      else if (statusF === 'not_opened') matchS = !['opened','clicked','booked'].includes(c.status);
+      return matchQ && matchS;
     });
     renderContacts(filtered);
   }
