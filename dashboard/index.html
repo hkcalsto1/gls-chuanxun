@@ -2676,6 +2676,7 @@
     if (!subject) { showToast('Subject is required.', 'error'); return; }
     if (!html || html === '<p><br></p>') { showToast('Email body is required.', 'error'); return; }
 
+    var segmentToSend = composeSegment;
     document.getElementById('blastProgressModal').style.display = 'block';
     showBlastProgress(0, 1);
     closeComposeModal();
@@ -2683,10 +2684,10 @@
     try {
       var res = await fetch(N8N + '/gls-campaign-blast', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ segment: composeSegment, custom_subject: subject, custom_html: html })
+        body: JSON.stringify({ segment: segmentToSend, custom_subject: subject, custom_html: html })
       });
       var data = await res.json();
-      showBlastResults(data.sent||0, data.failed||0, data.total||0, composeSegment);
+      showBlastResults(data.sent||0, data.failed||0, data.total||0, segmentToSend);
     } catch(e) {
       document.getElementById('blastProgressModal').style.display = 'none';
       showToast('Failed to send campaign.', 'error');
@@ -2797,6 +2798,7 @@
     var ok = confirm('Send "' + t.subject + '" to ' + count + ' contacts who ' + segLabel + '?');
     if (!ok) return;
 
+    var segmentToSend = tplPickerSegment;
     document.getElementById('blastProgressModal').style.display = 'block';
     showBlastProgress(0, count);
     closeTemplatePickerModal();
@@ -2804,10 +2806,10 @@
     try {
       var res = await fetch(N8N + '/gls-campaign-blast', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ segment: tplPickerSegment, template_name: t.template_name })
+        body: JSON.stringify({ segment: segmentToSend, template_name: t.template_name })
       });
       var data = await res.json();
-      showBlastResults(data.sent||0, data.failed||0, data.total||0, tplPickerSegment);
+      showBlastResults(data.sent||0, data.failed||0, data.total||0, segmentToSend);
     } catch(e) {
       document.getElementById('blastProgressModal').style.display = 'none';
       showToast('Failed to send campaign.', 'error');
